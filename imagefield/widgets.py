@@ -2,7 +2,7 @@ from django import forms
 from django.utils.html import format_html
 
 
-class PPOIWidget(forms.TextInput):
+class PPOIWidget(forms.HiddenInput):
     class Media:
         css = {'screen': ('imagefield/ppoi.css',)}
         js = ('imagefield/ppoi.js',)
