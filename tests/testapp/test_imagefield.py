@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.utils.translation import deactivate_all
 
-from .models import Model, ModelWithOptional
+from .models import Model  # , ModelWithOptional
 
 
 class Test(TestCase):

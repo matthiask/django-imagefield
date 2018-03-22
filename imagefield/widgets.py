@@ -16,7 +16,9 @@ class PreviewMixin(object):
 
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi_id}">'
-            '<div class="imagefield-preview"><img class="imagefield-preview-image" src="{url}" alt=""/></div>'
+            '<div class="imagefield-preview">'
+            '<img class="imagefield-preview-image" src="{url}" alt=""/>'
+            '</div>'
             '<div class="imagefield-widget">{widget}</div>'
             '</div>',
             widget=widget,

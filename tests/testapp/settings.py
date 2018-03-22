@@ -1,5 +1,6 @@
 import os
 
+
 DEBUG = True
 
 DATABASES = {
