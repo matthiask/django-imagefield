@@ -24,7 +24,10 @@ class ImageField(models.ImageField):
         IMAGE_FIELDS.append(self)
 
     def formfield(self, **kwargs):
-        kwargs['widget'] = with_preview(kwargs['widget'])
+        kwargs['widget'] = widget = with_preview(
+            kwargs['widget'],
+            field_instance=self,
+        )
         return super().formfield(**kwargs)
 
 
