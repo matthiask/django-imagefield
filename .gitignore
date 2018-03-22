@@ -1,0 +1,10 @@
+*.py?
+*.sw?
+*~
+.coverage
+.tox
+/*.egg-info
+/MANIFEST
+build
+dist
+htmlcov

@@ -1,0 +1,18 @@
+language: python
+cache: pip
+sudo: false
+python:
+- '3.6'
+- '3.5'
+env:
+- REQ="Django>=1.11,<2.0"
+- REQ="Django>=2.0,<2.1"
+- REQ="https://github.com/django/django/archive/master.zip#egg=Django"
+matrix:
+  allow_failures:
+    - env: REQ="https://github.com/django/django/archive/master.zip#egg=Django"
+install:
+- pip install -U pip wheel
+- pip install $REQ Pillow pytz
+- python setup.py install
+script: cd tests && ./manage.py test testapp && cd ..

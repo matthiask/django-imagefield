@@ -1,0 +1,6 @@
+include LICENSE
+include MANIFEST.in
+include README.rst
+recursive-include imagefield/static *
+recursive-include imagefield/locale *
+recursive-include imagefield/templates *
