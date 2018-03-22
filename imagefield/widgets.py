@@ -15,7 +15,7 @@ class PreviewMixin(object):
         print(self, self.field_instance, self.field_instance.ppoi_field)
 
         return format_html(
-            '<div class="imagefield" data-ppoi-id="{ppoi_id}">'
+            '<div class="imagefield" data-ppoi-id="{ppoi}">'
             '<div class="imagefield-preview">'
             '<img class="imagefield-preview-image" src="{url}" alt=""/>'
             '</div>'
@@ -23,7 +23,7 @@ class PreviewMixin(object):
             '</div>',
             widget=widget,
             url=value.url,
-            ppoi_id=self.field_instance.ppoi_field or '',
+            ppoi=self.field_instance.ppoi_field or '',  # TODO @id, not @name
         )
 
 

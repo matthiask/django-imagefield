@@ -11,6 +11,9 @@ class Model(models.Model):
         width_field='width',
         height_field='height',
         ppoi_field='ppoi',
+        formats={
+            'thumbnail': ['thumbnail', '300x300'],
+        },
     )
     width = models.PositiveIntegerField(
         _('image width'),
