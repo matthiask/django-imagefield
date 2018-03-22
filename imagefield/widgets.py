@@ -2,8 +2,9 @@ from django import forms
 from django.utils.html import format_html
 
 
-class PPOIWidget(forms.HiddenInput):
+class PPOIWidget(forms.TextInput):
     class Media:
+        css = {'screen': ('imagefield/ppoi.css',)}
         js = ('imagefield/ppoi.js',)
 
 
@@ -15,10 +16,11 @@ class PreviewMixin(object):
 
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi_id}">'
-            '<div class="imagefield-preview">Preview</div>'
+            '<div class="imagefield-preview"><img class="imagefield-preview-image" src="{url}" alt=""/></div>'
             '<div class="imagefield-widget">{widget}</div>'
             '</div>',
             widget=widget,
+            url=value.url,
             ppoi_id=self.field_instance.ppoi_field or '',
         )
 

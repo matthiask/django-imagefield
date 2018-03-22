@@ -1,10 +1,11 @@
 import os
 
+DEBUG = True
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'NAME': 'imagefield',
     }
 }
 
@@ -21,11 +22,12 @@ INSTALLED_APPS = [
     'imagefield',
 ]
 
-MEDIA_ROOT = '/media/'
 STATIC_URL = '/static/'
 BASEDIR = os.path.dirname(__file__)
 MEDIA_ROOT = os.path.join(BASEDIR, 'media/')
 STATIC_ROOT = os.path.join(BASEDIR, 'static/')
+MEDIA_URL = '/media/'
+STATIC_URL = '/static/'
 SECRET_KEY = 'supersikret'
 LOGIN_REDIRECT_URL = '/?login=1'
 
