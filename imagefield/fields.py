@@ -39,6 +39,8 @@ class ImageField(models.ImageField):
         )
         return super().formfield(**kwargs)
 
+    # TODO reset PPOI when file is empty on save
+
 
 class PPOIField(models.CharField):
     def __init__(self, *args, **kwargs):

@@ -14,15 +14,20 @@ class PreviewMixin(object):
 
         print(self, self.field_instance, self.field_instance.ppoi_field)
 
-        return format_html(
+        template = (
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
             '<div class="imagefield-preview">'
             '<img class="imagefield-preview-image" src="{url}" alt=""/>'
             '</div>'
             '<div class="imagefield-widget">{widget}</div>'
-            '</div>',
+            '</div>'
+        ) if value else (
+            '{widget}'
+        )
+        return format_html(
+            template,
             widget=widget,
-            url=value.url,
+            url=value and value.url,
             ppoi=self.field_instance.ppoi_field or '',  # TODO @id, not @name
         )
 
