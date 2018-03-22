@@ -40,7 +40,7 @@
           img = e.target;
         x = e.offsetX / img.clientWidth;
         y = e.offsetY / img.clientHeight;
-        ppoiField.value = x.toFixed(2) + 'x' + y.toFixed(2);
+        ppoiField.value = x.toFixed(3) + 'x' + y.toFixed(3);
         movePoint(point, img, x, y);
       }
     });
