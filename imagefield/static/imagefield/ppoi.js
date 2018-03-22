@@ -4,7 +4,6 @@
     function movePoint(point, img, x, y) {
       point.style.left = (img.clientWidth * x) + 'px';
       point.style.top = (img.clientHeight * y) + 'px';
-
     }
 
     Array.prototype.slice.call(document.querySelectorAll(

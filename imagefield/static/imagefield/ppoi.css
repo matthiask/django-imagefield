@@ -6,11 +6,16 @@
     position: absolute;
     background: #800;
     border: 2px solid #e00;
-    opacity: 0.8;
+    opacity: 0.2;
     width: 12px;
     height: 12px;
     margin: -6px 0 0 -6px;
     border-radius: 50%;
     box-sizing: border-box;
     pointer-events: none;
+
+    transition: .15s;
+}
+.imagefield-preview:hover .imagefield-point {
+    opacity: 0.8;
 }
