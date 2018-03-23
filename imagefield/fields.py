@@ -104,7 +104,11 @@ class ImageField(models.ImageField):
         )
         return super().formfield(**kwargs)
 
-    # TODO reset PPOI when file is empty on save?
+    def save_form_data(self, instance, data):
+        if data is not None and not data:
+            super().save_form_data(instance, data)
+            if self.ppoi_field:
+                setattr(instance, self.ppoi_field, '0.5x0.5')
 
 
 class PPOIField(models.CharField):
