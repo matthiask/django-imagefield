@@ -4,6 +4,14 @@ from imagefield.fields import IMAGE_FIELDS
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            dest='force',
+            help='Force processing of images even if they exist already.',
+        )
+
     def handle(self, **options):
         for field in IMAGE_FIELDS:
             self.stdout.write('%s: %s' % (
@@ -17,7 +25,7 @@ class Command(BaseCommand):
                 fieldfile = getattr(instance, field.name)
                 if fieldfile and fieldfile.name:
                     for key in field.formats:
-                        fieldfile.process(key)
+                        fieldfile.process(key, force=options.get('force'))
 
                 if index % 10 == 0:
                     progress = '*' * int(index / count * 50)

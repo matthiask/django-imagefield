@@ -22,11 +22,12 @@ class ImageFieldFile(files.ImageFieldFile):
             return url
         raise AttributeError('Unknown attribute %r' % key)
 
-    def process(self, key):
+    def process(self, key, force=False):
         process_image(
             self,
             processors=self.field.formats[key],
             ppoi=self.ppoi(),
+            force=force,
         )
 
     def ppoi(self):

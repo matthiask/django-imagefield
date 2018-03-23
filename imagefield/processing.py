@@ -162,7 +162,16 @@ def get_processed_image_url(file, processors, ppoi):
     ))
 
 
-def process_image(file, processors, ppoi):
+def process_image(file, processors, ppoi, force=False):
+    filename = '%s/%s%s' % (
+        get_processed_image_base(file),
+        get_processed_image_name(processors, ppoi),
+        ext,
+    )
+
+    if not force and file.storage.exists(filename):
+        return
+
     # Build the processor chain
     def handler(*args):
         return args
@@ -186,10 +195,5 @@ def process_image(file, processors, ppoi):
         with io.BytesIO() as buf:
             image.save(buf, format=format, **context.save_kwargs)
 
-            filename = '%s/%s%s' % (
-                get_processed_image_base(file),
-                get_processed_image_name(processors, ppoi),
-                ext,
-            )
             file.storage.delete(filename)
             file.storage.save(filename, ContentFile(buf.getvalue()))
