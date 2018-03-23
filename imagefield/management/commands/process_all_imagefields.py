@@ -11,10 +11,18 @@ class Command(BaseCommand):
             dest='force',
             help='Force processing of images even if they exist already.',
         )
+        parser.add_argument(
+            'field',
+            nargs='*',
+            type=str,
+            help='Process only some fields (app.Model.field or app.Model).',
+        )
 
         # TODO --clear for removing previously generated images.
 
     def handle(self, **options):
+        # TODO handle options['field']
+
         for field in IMAGE_FIELDS:
             self.stdout.write('%s: %s' % (
                 field.model._meta.label,
