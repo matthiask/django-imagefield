@@ -28,11 +28,14 @@ def process_image(
 
     with file.open('rb') as orig:
         image = Image.open(orig)
-        context = SimpleNamespace(save_kwargs={})
+        context = SimpleNamespace(
+            ppoi=ppoi,
+            save_kwargs={},
+        )
         format = image.format
         _, ext = os.path.splitext(file.name)
 
-        handler = build_handler(itertools.chain(always, processors), ppoi)
+        handler = build_handler(itertools.chain(always, processors))
         image, context = handler(image, context)
 
         with io.BytesIO() as buf:
@@ -42,15 +45,15 @@ def process_image(
             file.storage.save(target, ContentFile(buf.getvalue()))
 
 
-def build_handler(processors, ppoi):
+def build_handler(processors):
     def handler(*args):
         return args
 
     for part in processors:
         if isinstance(part, (list, tuple)):
-            handler = PROCESSORS[part[0]](handler, ppoi, part[1:])
+            handler = PROCESSORS[part[0]](handler, part[1:])
         else:
-            handler = PROCESSORS[part](handler, ppoi, [])
+            handler = PROCESSORS[part](handler, [])
 
     return handler
 
@@ -61,7 +64,7 @@ def register(fn):
 
 
 @register
-def autorotate(get_image, ppoi, args):
+def autorotate(get_image, args):
     def processor(image, context):
         if not hasattr(image, '_getexif'):
             return get_image(image, context)
@@ -83,7 +86,7 @@ def autorotate(get_image, ppoi, args):
 
 
 @register
-def preprocess_jpeg(get_image, ppoi, args):
+def preprocess_jpeg(get_image, args):
     def processor(image, context):
         if image.format == 'JPEG':
             context.save_kwargs['quality'] = 90
@@ -95,7 +98,7 @@ def preprocess_jpeg(get_image, ppoi, args):
 
 
 @register
-def preprocess_gif(get_image, ppoi, args):
+def preprocess_gif(get_image, args):
     def processor(image, context):
         if image.format == 'GIF':
             if 'transparency' in image.info:
@@ -110,7 +113,7 @@ def preprocess_gif(get_image, ppoi, args):
 
 
 @register
-def preserve_icc_profile(get_image, ppoi, args):
+def preserve_icc_profile(get_image, args):
     def processor(image, context):
         context.save_kwargs['icc_profile'] = image.info.get('icc_profile')
         return get_image(image, context)
@@ -118,7 +121,7 @@ def preserve_icc_profile(get_image, ppoi, args):
 
 
 @register
-def thumbnail(get_image, ppoi, args):
+def thumbnail(get_image, args):
     def processor(image, context):
         image = image.copy()
         image.thumbnail(args[0], Image.BICUBIC)
@@ -127,12 +130,12 @@ def thumbnail(get_image, ppoi, args):
 
 
 @register
-def crop(get_image, ppoi, args):
+def crop(get_image, args):
     width, height = args[0]
 
     def processor(image, context):
-        ppoi_x_axis = int(image.size[0] * ppoi[0])
-        ppoi_y_axis = int(image.size[1] * ppoi[1])
+        ppoi_x_axis = int(image.size[0] * context.ppoi[0])
+        ppoi_y_axis = int(image.size[1] * context.ppoi[1])
         center_pixel_coord = (ppoi_x_axis, ppoi_y_axis)
         # Calculate the aspect ratio of `image`
         orig_aspect_ratio = float(
@@ -201,15 +204,15 @@ def crop(get_image, ppoi, args):
 
 # TODO: How to specify the placeholder image?
 # @register
-# def placeholder(get_image):
-#     def processor(context):
-#         pass
-#
+# def placeholder(get_image, args):
+#     def processor(image, context):
+#         return get_image(image, context)
 #     return processor
-
+#
+#
 # TODO: Should we still try saving, or not?
 # @register
-# def revert_on_failure(get_image, ppoi, args):
+# def revert_on_failure(get_image, args):
 #     def processor(image, context):
 #         try:
 #             return get_image(image, context)
