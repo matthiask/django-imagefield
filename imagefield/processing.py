@@ -4,6 +4,7 @@ from hashlib import sha1
 from types import SimpleNamespace
 
 from django.core.files.base import ContentFile
+from django.utils.http import urlsafe_base64_encode
 
 from PIL import Image
 
@@ -129,15 +130,18 @@ def crop(get_image, ppoi, args):
 #     return processor
 
 
+def urlhash(str):
+    digest = sha1(str.encode('utf-8')).digest()
+    return urlsafe_base64_encode(digest).decode('ascii')
+
+
 def get_processed_image_base(file):
-    hd = sha1(file.name.encode('utf-8')).hexdigest()
+    hd = urlhash(file.name)
     return '__processed__/%s/%s/%s' % (hd[:2], hd[2:4], hd[4:])
 
 
 def get_processed_image_name(processors, ppoi):
-    s = '|'.join(str(p) for p in processors)
-    s += '|' + str(ppoi)
-    return sha1(s.encode('utf-8')).hexdigest()
+    return urlhash('|'.join(str(p) for p in processors) + '|' + str(ppoi))
 
 
 def get_processed_image_url(file, processors, ppoi):
