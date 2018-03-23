@@ -1,7 +1,8 @@
+from django.forms import ClearableFileInput
 from django.db import models
 from django.db.models.fields import files
 
-from .widgets import PPOIWidget, with_preview
+from .widgets import PPOIWidget, with_preview_and_ppoi
 
 
 IMAGE_FIELDS = []
@@ -33,10 +34,12 @@ class ImageField(models.ImageField):
         IMAGE_FIELDS.append(self)
 
     def formfield(self, **kwargs):
-        kwargs['widget'] = with_preview(
-            kwargs['widget'],
+        kwargs['widget'] = with_preview_and_ppoi(
+            kwargs.get('widget', ClearableFileInput),
             field_instance=self,
         )
+        from pprint import pprint
+        pprint(('in image field', self, self.__dict__, kwargs))
         return super().formfield(**kwargs)
 
     # TODO reset PPOI when file is empty on save

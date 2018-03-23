@@ -16,6 +16,7 @@
 
     transition: .15s;
 }
-.imagefield-preview:hover .imagefield-point {
+.imagefield-preview:hover .imagefield-point,
+.imagefield-point.opaque {
     opacity: 0.8;
 }

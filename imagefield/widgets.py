@@ -8,34 +8,32 @@ class PPOIWidget(forms.HiddenInput):
         js = ('imagefield/ppoi.js',)
 
 
-class PreviewMixin(object):
+class PreviewAndPPOIMixin(object):
     def render(self, name, value, attrs=None, renderer=None):
         widget = super().render(name, value, attrs=attrs, renderer=renderer)
 
-        print(self, self.field_instance, self.field_instance.ppoi_field)
+        # print(self, self.field_instance, self.field_instance.ppoi_field)
 
-        template = (
+        if not value:
+            return widget
+
+        return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
             '<div class="imagefield-preview">'
             '<img class="imagefield-preview-image" src="{url}" alt=""/>'
             '</div>'
             '<div class="imagefield-widget">{widget}</div>'
-            '</div>'
-        ) if value else (
-            '{widget}'
-        )
-        return format_html(
-            template,
+            '</div>',
             widget=widget,
             url=value and value.url,
             ppoi=self.field_instance.ppoi_field or '',  # TODO @id, not @name
         )
 
 
-def with_preview(widget, **attrs):
+def with_preview_and_ppoi(widget, **attrs):
     return type(
-        '%sWithPreview' % widget.__name__,
-        (PreviewMixin, widget),
+        '%sWithPreviewAndPPOI' % widget.__name__,
+        (PreviewAndPPOIMixin, widget),
         {
             '__module__': 'imagefield.widgets',
             **attrs,

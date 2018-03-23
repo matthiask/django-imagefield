@@ -14,8 +14,10 @@
 
       var point = document.createElement('div'),
         img = field.querySelector('img');
-      point.className = 'imagefield-point';
+      point.className = 'imagefield-point opaque';
       img.parentNode.appendChild(point);
+
+      setTimeout(function() { point.className = 'imagefield-point'; }, 1000);
 
       var matches = ppoiField.value.match(/^([\.0-9]+)x([\.0-9]+)$/);
       var x, y;
