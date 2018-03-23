@@ -1,6 +1,10 @@
 .imagefield-preview {
     position: relative;
     display: inline-block;
+    max-width: 56rem;
+}
+.imagefield-preview img {
+    max-width: 100%;
 }
 .imagefield-point {
     position: absolute;
