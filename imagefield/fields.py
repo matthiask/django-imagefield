@@ -12,15 +12,10 @@ IMAGE_FIELDS = []
 class ImageFieldFile(files.ImageFieldFile):
     def __getattr__(self, key):
         if key in self.field.formats:
-            if self.field.ppoi_field:
-                ppoi_value = getattr(self.instance, self.field.ppoi_field)
-            else:
-                ppoi_value = None
-
             url = get_processed_image_url(
                 self,
                 processors=self.field.formats[key],
-                ppoi_value=ppoi_value,
+                ppoi=self.ppoi(),
             )
 
             setattr(self, key, url)
@@ -28,15 +23,19 @@ class ImageFieldFile(files.ImageFieldFile):
         raise AttributeError('Unknown attribute %r' % key)
 
     def process(self, key):
-        if self.field.ppoi_field:
-            ppoi_value = getattr(self.instance, self.field.ppoi_field)
-        else:
-            ppoi_value = None
         process_image(
             self,
-            self.field.formats[key],
-            ppoi_value,
+            processors=self.field.formats[key],
+            ppoi=self.ppoi(),
         )
+
+    def ppoi(self):
+        if self.field.ppoi_field:
+            return [
+                float(coord) for coord in
+                getattr(self.instance, self.field.ppoi_field).split('x')
+            ]
+        return [0.5, 0.5]
 
 
 class ImageField(models.ImageField):
