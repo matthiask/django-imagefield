@@ -29,7 +29,7 @@ class PreviewAndPPOIMixin(object):
 
         try:
             ppoi = boundfield.form[boundfield.field.widget.ppoi_field].auto_id
-        except (AttributeError, TypeError) as exc:
+        except (AttributeError, KeyError, TypeError) as exc:
             ppoi = ''
 
         return format_html(
