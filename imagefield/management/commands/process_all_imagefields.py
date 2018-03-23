@@ -12,6 +12,8 @@ class Command(BaseCommand):
             help='Force processing of images even if they exist already.',
         )
 
+        # TODO --clear for removing previously generated images.
+
     def handle(self, **options):
         for field in IMAGE_FIELDS:
             self.stdout.write('%s: %s' % (
