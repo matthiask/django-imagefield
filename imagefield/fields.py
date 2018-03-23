@@ -80,6 +80,11 @@ class ImageFieldFile(files.ImageFieldFile):
                 self.storage.delete(target)
                 self.storage.save(target, ContentFile(buf.getvalue()))
 
+    def save(self, name, content, save=True):
+        super().save(name, content, save=True)
+        for key in self.field.formats:
+            self.process(key)
+
 
 class ImageField(models.ImageField):
     attr_class = ImageFieldFile
@@ -105,8 +110,8 @@ class ImageField(models.ImageField):
         return super().formfield(**kwargs)
 
     def save_form_data(self, instance, data):
+        super().save_form_data(instance, data)
         if data is not None and not data:
-            super().save_form_data(instance, data)
             if self.ppoi_field:
                 setattr(instance, self.ppoi_field, '0.5x0.5')
 

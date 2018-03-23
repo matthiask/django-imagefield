@@ -35,7 +35,10 @@ class Command(BaseCommand):
                 fieldfile = getattr(instance, field.name)
                 if fieldfile and fieldfile.name:
                     for key in field.formats:
-                        fieldfile.process(key, force=options.get('force'))
+                        try:
+                            fieldfile.process(key, force=options.get('force'))
+                        except Exception:
+                            pass
 
                 if index % 10 == 0:
                     progress = '*' * int(index / count * 50)
