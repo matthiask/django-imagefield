@@ -1,12 +1,11 @@
 import io
 import os
-from collections import deque
 from hashlib import sha1
 from types import SimpleNamespace
 
-from PIL import Image
-
 from django.core.files.base import ContentFile
+
+from PIL import Image
 
 
 PROCESSORS = {}
@@ -18,23 +17,26 @@ def register(fn):
 
 
 @register
-def autorotate(context):
-    return context.image
+def autorotate(get_image, ppoi_value, args):
+    def processor(image, context):
+        return get_image(image, context)
+    return processor
 
 
 @register
-def thumbnail(context):
-    dimensions = context.processors.popleft()
-    # return context.image.resize(dimensions, Image.BICUBIC)
-    image = context.image.copy()
-    image.thumbnail(dimensions, Image.BICUBIC)
-    return image
+def thumbnail(get_image, ppoi_value, args):
+    def processor(image, context):
+        image = image.copy()
+        image.thumbnail(args[0], Image.BICUBIC)
+        return get_image(image, context)
+    return processor
 
 
 @register
-def crop(context):
-    dimensions = context.processors.popleft()
-    return context.image
+def crop(get_image, ppoi_value, args):
+    def processor(image, context):
+        return get_image(image, context)
+    return processor
 
 
 # TODO: How to specify the placeholder image?
@@ -67,23 +69,28 @@ def get_processed_image_url(file, processors, ppoi_value):
 
 
 def process_image(file, processors, ppoi_value):
+    # Build the processor chain
+    def handler(*args):
+        return args
+
+    args = []
+    for part in reversed(processors):
+        if part in PROCESSORS:
+            print(PROCESSORS[part], handler, ppoi_value, args)
+            handler = PROCESSORS[part](handler, ppoi_value, args[:])
+            args.clear()
+        else:
+            args.append(part)
+
+    # Run it
     image = Image.open(file.open('rb'))
     format = image.format
     _, ext = os.path.splitext(file.name)
 
-    context = SimpleNamespace(
-        file=file,
-        image=image,
-        ppoi_value=ppoi_value,
-        processors=deque(processors),
-        save_kwargs={},
-    )
-
-    while context.processors:
-        context.image = PROCESSORS[context.processors.popleft()](context)
+    image, context = handler(image, SimpleNamespace(save_kwargs={}))
 
     with io.BytesIO() as buf:
-        context.image.save(buf, format=format, **context.save_kwargs)
+        image.save(buf, format=format, **context.save_kwargs)
 
         filename = '%s/%s%s' % (
             get_processed_image_base(file),
