@@ -1,15 +1,57 @@
 import io
+import itertools
 import os
-from hashlib import sha1
 from types import SimpleNamespace
 
 from django.core.files.base import ContentFile
-from django.utils.http import urlsafe_base64_encode
 
 from PIL import Image
 
 
 PROCESSORS = {}
+
+
+def process_image(
+        file,
+        *,
+
+        target,
+        processors,
+        ppoi,
+        force=False,
+        always=['autorotate', 'preprocess_jpeg', 'preprocess_gif'],
+    ):
+    if not force and file.storage.exists(target):
+        return
+
+    # Build the processor chain
+    def handler(*args):
+        return args
+
+    for part in itertools.chain(always, processors):
+        if isinstance(part, (list, tuple)):
+            handler = PROCESSORS[part[0]](handler, ppoi, part[1:])
+        else:
+            handler = PROCESSORS[part](handler, ppoi, [])
+
+    # Run it
+    with file.open('rb') as orig:
+        image = Image.open(orig)
+        context = SimpleNamespace(
+            save_kwargs={
+                'icc_profile': image.info.get('icc_profile'),
+            },
+        )
+        format = image.format
+        _, ext = os.path.splitext(file.name)
+
+        image, context = handler(image, context)
+
+        with io.BytesIO() as buf:
+            image.save(buf, format=format, **context.save_kwargs)
+
+            file.storage.delete(target)
+            file.storage.save(target, ContentFile(buf.getvalue()))
 
 
 def register(fn):
@@ -35,6 +77,27 @@ def autorotate(get_image, ppoi, args):
         }.get(orientation)
         if rotation:
             return get_image(image.transpose(rotation), context)
+        return get_image(image, context)
+    return processor
+
+
+@register
+def preprocess_jpeg(get_image, ppoi, args):
+    def processor(image, context):
+        if image.format == 'JPEG':
+            context.save_kwargs['quality'] = 90
+            context.save_kwargs['progressive'] = True
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+        return get_image(image, context)
+    return processor
+
+
+@register
+def preprocess_gif(get_image, ppoi, args):
+    def processor(image, context):
+        if image.format == 'GIF' and 'transparency' in image.info:
+            context.save_kwargs['transparency'] = image.info['transparency']
         return get_image(image, context)
     return processor
 
@@ -139,62 +202,3 @@ def crop(get_image, ppoi, args):
 #             # Or even get_image(fallback, context)?
 #             return image, context
 #     return processor
-
-def urlhash(str):
-    digest = sha1(str.encode('utf-8')).digest()
-    return urlsafe_base64_encode(digest).decode('ascii')
-
-
-def get_processed_image_base(file):
-    hd = urlhash(file.name)
-    return '__processed__/%s/%s/%s' % (hd[:2], hd[2:4], hd[4:])
-
-
-def get_processed_image_name(processors, ppoi):
-    return urlhash('|'.join(str(p) for p in processors) + '|' + str(ppoi))
-
-
-def get_processed_image_url(file, processors, ppoi):
-    _, ext = os.path.splitext(file.name)
-    return file.storage.url('%s/%s%s' % (
-        get_processed_image_base(file),
-        get_processed_image_name(processors, ppoi),
-        ext,
-    ))
-
-
-def process_image(file, processors, ppoi, force=False):
-    filename = '%s/%s%s' % (
-        get_processed_image_base(file),
-        get_processed_image_name(processors, ppoi),
-        ext,
-    )
-
-    if not force and file.storage.exists(filename):
-        return
-
-    # Build the processor chain
-    def handler(*args):
-        return args
-
-    args = []
-    for part in reversed(processors):
-        if part in PROCESSORS:
-            handler = PROCESSORS[part](handler, ppoi, args[:])
-            args.clear()
-        else:
-            args.append(part)
-
-    # Run it
-    with file.open('rb') as orig:
-        image = Image.open(orig)
-        format = image.format
-        _, ext = os.path.splitext(file.name)
-
-        image, context = handler(image, SimpleNamespace(save_kwargs={}))
-
-        with io.BytesIO() as buf:
-            image.save(buf, format=format, **context.save_kwargs)
-
-            file.storage.delete(filename)
-            file.storage.save(filename, ContentFile(buf.getvalue()))
