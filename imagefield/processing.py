@@ -19,7 +19,10 @@ def process_image(
         processors,
         ppoi,
         force=False,
-        always=['autorotate', 'preprocess_jpeg', 'preprocess_gif'],
+        always=[
+            'autorotate', 'preprocess_jpeg', 'preprocess_gif',
+            'preserve_icc_profile',
+        ],
     ):
     if not force and file.storage.exists(target):
         return
@@ -39,7 +42,6 @@ def process_image(
         image = Image.open(orig)
         context = SimpleNamespace(
             save_kwargs={
-                'icc_profile': image.info.get('icc_profile'),
             },
         )
         format = image.format
@@ -98,6 +100,14 @@ def preprocess_gif(get_image, ppoi, args):
     def processor(image, context):
         if image.format == 'GIF' and 'transparency' in image.info:
             context.save_kwargs['transparency'] = image.info['transparency']
+        return get_image(image, context)
+    return processor
+
+
+@register
+def preserve_icc_profile(get_image, ppoi, args):
+    def processor(image, context):
+        context.save_kwargs['icc_profile'] = image.info.get('icc_profile')
         return get_image(image, context)
     return processor
 
