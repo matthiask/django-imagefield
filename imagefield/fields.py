@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.fields import files
 from django.forms import ClearableFileInput
 
+from .processing import get_processed_image_url, process_image
 from .widgets import PPOIWidget, with_preview_and_ppoi
 
 
@@ -11,15 +12,31 @@ IMAGE_FIELDS = []
 class ImageFieldFile(files.ImageFieldFile):
     def __getattr__(self, key):
         if key in self.field.formats:
-            print((
+            if self.field.ppoi_field:
+                ppoi_value = getattr(self.instance, self.field.ppoi_field)
+            else:
+                ppoi_value = None
+
+            url = get_processed_image_url(
                 self,
-                getattr(self.instance, self.field.ppoi_field),
-                self.field.formats[key],
-            ))
-            url = '/bla/'  # TODO obviously
+                processors=self.field.formats[key],
+                ppoi_value=ppoi_value,
+            )
+
             setattr(self, key, url)
             return url
         raise AttributeError('Unknown attribute %r' % key)
+
+    def process(self, key):
+        if self.field.ppoi_field:
+            ppoi_value = getattr(self.instance, self.field.ppoi_field)
+        else:
+            ppoi_value = None
+        process_image(
+            self,
+            self.field.formats[key],
+            ppoi_value,
+        )
 
 
 class ImageField(models.ImageField):

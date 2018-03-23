@@ -12,7 +12,7 @@ class Model(models.Model):
         height_field='height',
         ppoi_field='ppoi',
         formats={
-            'thumbnail': ['thumbnail', '300x300'],
+            'thumbnail': ['autorotate', 'thumbnail', (300, 300)],
         },
     )
     width = models.PositiveIntegerField(
