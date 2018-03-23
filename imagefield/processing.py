@@ -129,6 +129,15 @@ def crop(get_image, ppoi, args):
 #
 #     return processor
 
+# TODO: Should we still try saving, or not?
+# @register
+# def revert_on_failure(get_image, ppoi, args):
+#     def processor(image, context):
+#         try:
+#             return get_image(image, context)
+#         except Exception:
+#             return image, context
+#     return processor
 
 def urlhash(str):
     digest = sha1(str.encode('utf-8')).digest()
