@@ -19,23 +19,14 @@ def urlhash(str):
 
 
 class ImageFieldFile(files.ImageFieldFile):
-    def __getattr__(self, key):
-        if key in self.field.formats:
-            url = self.storage.url(self._processed_name(key))
-            setattr(self, key, url)
+    def __getattr__(self, item):
+        if item in self.field.formats:
+            url = self.storage.url(
+                self._processed_name(self.field.formats[item]),
+            )
+            setattr(self, item, url)
             return url
-        raise AttributeError('Unknown attribute %r' % key)
-
-    def process(self, key, force=False):
-        process_image(
-            self,
-
-            target=self._processed_name(key),
-            processors=self.field.formats[key],
-            ppoi=self._ppoi(),
-
-            force=force,
-        )
+        raise AttributeError
 
     def _ppoi(self):
         if self.field.ppoi_field:
@@ -45,14 +36,27 @@ class ImageFieldFile(files.ImageFieldFile):
             ]
         return [0.5, 0.5]
 
-    def _processed_name(self, key):
+    def _processed_name(self, processors):
         p1 = urlhash(self.name)
         p2 = urlhash(
-            '|'.join(str(p) for p in self.field.formats[key]) + '|' +
-            str(self._ppoi()))
+            '|'.join(str(p) for p in processors) + '|' + str(self._ppoi()),
+        )
         _, ext = os.path.splitext(self.name)
 
         return '__processed__/%s/%s_%s%s' % (p1[:2], p1[2:], p2, ext)
+
+    def process(self, item, force=False):
+        processors = self.field.formats[item]
+
+        process_image(
+            self,
+
+            target=self._processed_name(processors),
+            processors=processors,
+            ppoi=self._ppoi(),
+
+            force=force,
+        )
 
 
 class ImageField(models.ImageField):

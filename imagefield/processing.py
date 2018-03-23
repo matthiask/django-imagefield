@@ -14,7 +14,6 @@ PROCESSORS = {}
 def process_image(
         file,
         *,
-
         target,
         processors,
         ppoi,
@@ -23,30 +22,17 @@ def process_image(
             'autorotate', 'preprocess_jpeg', 'preprocess_gif',
             'preserve_icc_profile',
         ],
-    ):
+):
     if not force and file.storage.exists(target):
         return
 
-    # Build the processor chain
-    def handler(*args):
-        return args
-
-    for part in itertools.chain(always, processors):
-        if isinstance(part, (list, tuple)):
-            handler = PROCESSORS[part[0]](handler, ppoi, part[1:])
-        else:
-            handler = PROCESSORS[part](handler, ppoi, [])
-
-    # Run it
     with file.open('rb') as orig:
         image = Image.open(orig)
-        context = SimpleNamespace(
-            save_kwargs={
-            },
-        )
+        context = SimpleNamespace(save_kwargs={})
         format = image.format
         _, ext = os.path.splitext(file.name)
 
+        handler = build_handler(itertools.chain(always, processors), ppoi)
         image, context = handler(image, context)
 
         with io.BytesIO() as buf:
@@ -54,6 +40,19 @@ def process_image(
 
             file.storage.delete(target)
             file.storage.save(target, ContentFile(buf.getvalue()))
+
+
+def build_handler(processors, ppoi):
+    def handler(*args):
+        return args
+
+    for part in processors:
+        if isinstance(part, (list, tuple)):
+            handler = PROCESSORS[part[0]](handler, ppoi, part[1:])
+        else:
+            handler = PROCESSORS[part](handler, ppoi, [])
+
+    return handler
 
 
 def register(fn):
