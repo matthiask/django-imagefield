@@ -102,6 +102,18 @@ class ImageField(models.ImageField):
 
         IMAGE_FIELDS.append(self)
 
+    """
+    def contribute_to_class(self, cls, name, **kwargs):
+        super().contribute_to_class(cls, name, **kwargs)
+        print(self, self.__dict__)
+
+        signals.post_init
+        signals.post_save
+        signals.post_delete
+
+        -> detect ppoi changes
+    """
+
     def formfield(self, **kwargs):
         kwargs['widget'] = with_preview_and_ppoi(
             kwargs.get('widget', ClearableFileInput),
