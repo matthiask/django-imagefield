@@ -98,8 +98,14 @@ def preprocess_jpeg(get_image, ppoi, args):
 @register
 def preprocess_gif(get_image, ppoi, args):
     def processor(image, context):
-        if image.format == 'GIF' and 'transparency' in image.info:
-            context.save_kwargs['transparency'] = image.info['transparency']
+        if image.format == 'GIF':
+            if 'transparency' in image.info:
+                context.save_kwargs['transparency'] =\
+                    image.info['transparency']
+            palette = image.getpalette()
+            image, context = get_image(image, context)
+            image.putpalette(palette)
+            return image, context
         return get_image(image, context)
     return processor
 
