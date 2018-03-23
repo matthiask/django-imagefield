@@ -9,7 +9,7 @@
     Array.prototype.slice.call(document.querySelectorAll(
       '.imagefield[data-ppoi-id]'
     )).forEach(function(field) {
-      var ppoiField = document.querySelector('input[name="' + field.dataset.ppoiId + '"]');
+      var ppoiField = document.querySelector('#' + field.dataset.ppoiId);
       if (!ppoiField) return;
 
       var point = document.createElement('div'),
@@ -35,7 +35,7 @@
       if (e.target && e.target.matches && e.target.matches('img.imagefield-preview-image')) {
 
         var field = e.target.closest('.imagefield[data-ppoi-id]');
-        var ppoiField = document.querySelector('input[name="' + field.dataset.ppoiId + '"]');
+        var ppoiField = document.querySelector('#' + field.dataset.ppoiId);
         if (!ppoiField) return;
 
         var point = field.querySelector('.imagefield-point'),

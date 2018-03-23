@@ -1,3 +1,5 @@
+import inspect
+
 from django import forms
 from django.utils.html import format_html
 
@@ -11,11 +13,24 @@ class PPOIWidget(forms.HiddenInput):
 class PreviewAndPPOIMixin(object):
     def render(self, name, value, attrs=None, renderer=None):
         widget = super().render(name, value, attrs=attrs, renderer=renderer)
-
-        # print(self, self.field_instance, self.field_instance.ppoi_field)
-
         if not value:
             return widget
+
+        # find our BoundField
+        for frameinfo in inspect.stack():
+            self_ = frameinfo.frame.f_locals.get('self')
+            if isinstance(self_, forms.BoundField):
+                boundfield = self_
+                break
+
+        else:
+            # Bail out
+            return widget
+
+        try:
+            ppoi = boundfield.form[boundfield.field.widget.ppoi_field].auto_id
+        except (AttributeError, TypeError) as exc:
+            ppoi = ''
 
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
@@ -26,7 +41,7 @@ class PreviewAndPPOIMixin(object):
             '</div>',
             widget=widget,
             url=value and value.url,
-            ppoi=self.field_instance.ppoi_field or '',  # TODO @id, not @name
+            ppoi=ppoi,
         )
 
 
