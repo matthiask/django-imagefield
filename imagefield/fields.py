@@ -58,7 +58,7 @@ class ImageFieldFile(files.ImageFieldFile):
             return
 
         always = [
-            'autorotate', 'preprocess_jpeg', 'preprocess_gif',
+            'autorotate', 'process_jpeg', 'process_gif',
             'preserve_icc_profile',
         ]
 
