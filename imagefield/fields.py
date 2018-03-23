@@ -11,6 +11,11 @@ IMAGE_FIELDS = []
 class ImageFieldFile(files.ImageFieldFile):
     def __getattr__(self, key):
         if key in self.field.formats:
+            print((
+                self,
+                getattr(self.instance, self.field.ppoi_field),
+                self.field.formats[key],
+            ))
             url = '/bla/'  # TODO obviously
             setattr(self, key, url)
             return url
