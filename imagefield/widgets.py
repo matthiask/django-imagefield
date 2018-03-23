@@ -16,7 +16,7 @@ class PreviewAndPPOIMixin(object):
         if not value:
             return widget
 
-        # find our BoundField
+        # find our BoundField so that we may access the form etc.
         for frameinfo in inspect.stack():
             self_ = frameinfo.frame.f_locals.get('self')
             if isinstance(self_, forms.BoundField):

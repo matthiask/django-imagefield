@@ -42,7 +42,6 @@ class ImageField(models.ImageField):
         kwargs['widget'] = with_preview_and_ppoi(
             kwargs.get('widget', ClearableFileInput),
             ppoi_field=self.ppoi_field,
-            field_instance=self,
         )
         # from pprint import pprint
         # pprint(('in image field', self, self.__dict__, kwargs))
