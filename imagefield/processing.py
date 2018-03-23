@@ -1,48 +1,7 @@
-import io
-import itertools
-import os
-from types import SimpleNamespace
-
-from django.core.files.base import ContentFile
-
 from PIL import Image
 
 
 PROCESSORS = {}
-
-
-def process_image(
-        file,
-        *,
-        target,
-        processors,
-        ppoi,
-        force=False,
-        always=[
-            'autorotate', 'preprocess_jpeg', 'preprocess_gif',
-            'preserve_icc_profile',
-        ],
-):
-    if not force and file.storage.exists(target):
-        return
-
-    with file.open('rb') as orig:
-        image = Image.open(orig)
-        context = SimpleNamespace(
-            ppoi=ppoi,
-            save_kwargs={},
-        )
-        format = image.format
-        _, ext = os.path.splitext(file.name)
-
-        handler = build_handler(itertools.chain(always, processors))
-        image, context = handler(image, context)
-
-        with io.BytesIO() as buf:
-            image.save(buf, format=format, **context.save_kwargs)
-
-            file.storage.delete(target)
-            file.storage.save(target, ContentFile(buf.getvalue()))
 
 
 def build_handler(processors):

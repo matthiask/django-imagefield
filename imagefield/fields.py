@@ -1,12 +1,18 @@
 import hashlib
+import io
+import itertools
 import os
+from types import SimpleNamespace
 
+from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models.fields import files
 from django.forms import ClearableFileInput
 from django.utils.http import urlsafe_base64_encode
 
-from .processing import process_image
+from PIL import Image
+
+from .processing import build_handler
 from .widgets import PPOIWidget, with_preview_and_ppoi
 
 
@@ -47,16 +53,32 @@ class ImageFieldFile(files.ImageFieldFile):
 
     def process(self, item, force=False):
         processors = self.field.formats[item]
+        target = self._processed_name(processors)
+        if not force and self.storage.exists(target):
+            return
 
-        process_image(
-            self,
+        always = [
+            'autorotate', 'preprocess_jpeg', 'preprocess_gif',
+            'preserve_icc_profile',
+        ]
 
-            target=self._processed_name(processors),
-            processors=processors,
-            ppoi=self._ppoi(),
+        with self.open('rb') as orig:
+            image = Image.open(orig)
+            context = SimpleNamespace(
+                ppoi=self._ppoi(),
+                save_kwargs={},
+            )
+            format = image.format
+            _, ext = os.path.splitext(self.name)
 
-            force=force,
-        )
+            handler = build_handler(itertools.chain(always, processors))
+            image, context = handler(image, context)
+
+            with io.BytesIO() as buf:
+                image.save(buf, format=format, **context.save_kwargs)
+
+                self.storage.delete(target)
+                self.storage.save(target, ContentFile(buf.getvalue()))
 
 
 class ImageField(models.ImageField):
