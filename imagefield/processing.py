@@ -136,6 +136,7 @@ def crop(get_image, ppoi, args):
 #         try:
 #             return get_image(image, context)
 #         except Exception:
+#             # Or even get_image(fallback, context)?
 #             return image, context
 #     return processor
 
