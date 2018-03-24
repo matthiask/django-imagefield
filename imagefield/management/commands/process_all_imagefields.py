@@ -61,8 +61,8 @@ class Command(BaseCommand):
                     for key in field.formats:
                         try:
                             fieldfile.process(key, force=options.get('force'))
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            self.stderr.write(exc)
 
                 if index % 5 == 0:
                     progress = '*' * int(index / count * 50)
