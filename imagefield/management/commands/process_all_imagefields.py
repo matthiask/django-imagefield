@@ -21,9 +21,21 @@ class Command(BaseCommand):
         # TODO --clear for removing previously generated images.
 
     def handle(self, **options):
-        # TODO handle options['field']
+        filter = None
+        if options['field']:
+            filter = {}
+            for field in options['field']:
+                parts = field.lower().split('.')
+                filter['.'.join(parts[:2])] = parts[2:]
 
         for field in IMAGE_FIELDS:
+            if filter:
+                fields = filter.get(field.model._meta.label_lower)
+                if fields is None:
+                    continue
+                if fields and field.name not in fields:
+                    continue
+
             self.stdout.write('%s: %s' % (
                 field.model._meta.label,
                 field.name,
