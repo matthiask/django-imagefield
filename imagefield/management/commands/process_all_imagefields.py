@@ -47,13 +47,13 @@ class Command(BaseCommand):
                 ))
                 continue
 
-
             queryset = field.model._default_manager.all()
             count = queryset.count()
-            self.stdout.write('%s.%s - %s objects' % (
+            self.stdout.write('%s.%s - %s objects - %s' % (
                 field.model._meta.label_lower,
                 field.name,
                 count,
+                ', '.join(sorted(field.formats.keys())) or '<no formats!>',
             ))
             for index, instance in enumerate(queryset):
                 fieldfile = getattr(instance, field.name)
