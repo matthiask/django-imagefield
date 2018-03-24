@@ -102,7 +102,7 @@ class ImageField(models.ImageField):
     def formats(self):
         setting = getattr(settings, 'IMAGEFIELD_FORMATS', {})
         return setting.get(
-            '%s.%s' % (self.model._meta.label_lower, field.name),
+            ('%s.%s' % (self.model._meta.label_lower, self.name)).lower(),
             self._formats,
         )
 
