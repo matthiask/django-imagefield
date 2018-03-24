@@ -3,10 +3,12 @@ import io
 import os
 from types import SimpleNamespace
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models.fields import files
 from django.forms import ClearableFileInput
+from django.utils.functional import cached_property
 from django.utils.http import urlsafe_base64_encode
 
 from PIL import Image
@@ -84,7 +86,7 @@ class ImageField(models.ImageField):
     attr_class = ImageFieldFile
 
     def __init__(self, verbose_name=None, **kwargs):
-        self.formats = kwargs.pop('formats', None) or {}
+        self._formats = kwargs.pop('formats', {})
         self.ppoi_field = kwargs.pop('ppoi_field', None)
 
         # TODO implement this? Or handle this outside? Maybe as an image
@@ -95,6 +97,14 @@ class ImageField(models.ImageField):
         super().__init__(verbose_name, **kwargs)
 
         IMAGE_FIELDS.append(self)
+
+    @cached_property
+    def formats(self):
+        setting = getattr(settings, 'IMAGEFIELD_FORMATS', {})
+        return setting.get(
+            '%s.%s' % (self.model._meta.label_lower, field.name),
+            self._formats,
+        )
 
     """
     def contribute_to_class(self, cls, name, **kwargs):
