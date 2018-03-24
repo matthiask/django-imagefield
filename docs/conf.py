@@ -15,7 +15,7 @@ author = 'Feinheit AG'
 copyright = '2018,' + author
 version = __import__('imagefield').__version__
 release = subprocess.check_output(
-    'git fetch --tags; git describe',
+    'git fetch --tags; git describe --tags',
     shell=True,
     universal_newlines=True,
 ).strip()
