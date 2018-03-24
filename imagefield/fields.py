@@ -1,6 +1,5 @@
 import hashlib
 import io
-import itertools
 import os
 from types import SimpleNamespace
 
@@ -57,11 +56,6 @@ class ImageFieldFile(files.ImageFieldFile):
         if not force and self.storage.exists(target):
             return
 
-        always = [
-            'autorotate', 'process_jpeg', 'process_gif',
-            'preserve_icc_profile',
-        ]
-
         with self.open('rb') as orig:
             image = Image.open(orig)
             context = SimpleNamespace(
@@ -71,7 +65,7 @@ class ImageFieldFile(files.ImageFieldFile):
             format = image.format
             _, ext = os.path.splitext(self.name)
 
-            handler = build_handler(itertools.chain(always, processors))
+            handler = build_handler(processors)
             image, context = handler(image, context)
 
             with io.BytesIO() as buf:

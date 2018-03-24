@@ -8,7 +8,7 @@ def build_handler(processors):
     def handler(*args):
         return args
 
-    for part in processors:
+    for part in reversed(processors):
         if isinstance(part, (list, tuple)):
             handler = PROCESSORS[part[0]](handler, part[1:])
         else:
@@ -20,6 +20,15 @@ def build_handler(processors):
 def register(fn):
     PROCESSORS[fn.__name__] = fn
     return fn
+
+
+@register
+def default(get_image, args):
+    handler = autorotate(get_image, [])
+    handler = process_jpeg(handler, [])
+    handler = process_gif(handler, [])
+    handler = preserve_icc_profile(handler, [])
+    return handler
 
 
 @register
@@ -59,15 +68,15 @@ def process_jpeg(get_image, args):
 @register
 def process_gif(get_image, args):
     def processor(image, context):
-        if image.format == 'GIF':
-            if 'transparency' in image.info:
-                context.save_kwargs['transparency'] =\
-                    image.info['transparency']
-            palette = image.getpalette()
-            image, context = get_image(image, context)
-            image.putpalette(palette)
-            return image, context
-        return get_image(image, context)
+        if image.format != 'GIF':
+            return get_image(image, context)
+
+        if 'transparency' in image.info:
+            context.save_kwargs['transparency'] = image.info['transparency']
+        palette = image.getpalette()
+        image, context = get_image(image, context)
+        image.putpalette(palette)
+        return image, context
     return processor
 
 
@@ -82,9 +91,15 @@ def preserve_icc_profile(get_image, args):
 @register
 def thumbnail(get_image, args):
     def processor(image, context):
-        image = image.copy()
-        image.thumbnail(args[0], Image.BICUBIC)
-        return get_image(image, context)
+        image, context = get_image(image, context)
+        f = min((
+            args[0][0] / image.size[0],
+            args[0][1] / image.size[1],
+        ))
+        return image.resize(
+            [int(f * coord) for coord in image.size],
+            Image.BICUBIC,
+        ), context
     return processor
 
 
@@ -93,6 +108,8 @@ def crop(get_image, args):
     width, height = args[0]
 
     def processor(image, context):
+        image, context = get_image(image, context)
+
         ppoi_x_axis = int(image.size[0] * context.ppoi[0])
         ppoi_y_axis = int(image.size[1] * context.ppoi[1])
         center_pixel_coord = (ppoi_x_axis, ppoi_y_axis)
@@ -151,13 +168,7 @@ def crop(get_image, args):
         )
         # Resizing the newly cropped image to the size specified
         # (as determined by `width`x`height`)
-        return get_image(
-            cropped_image.resize(
-                (width, height),
-                Image.BICUBIC,
-            ),
-            context,
-        )
+        return cropped_image.resize((width, height), Image.BICUBIC), context
     return processor
 
 
