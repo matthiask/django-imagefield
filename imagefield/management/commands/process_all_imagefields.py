@@ -23,11 +23,11 @@ class Command(BaseCommand):
     def _make_filter(self, fields):
         if not fields:
             self._filter = None
-
-        self._filter = {}
-        for field in fields:
-            parts = field.lower().split('.')
-            self._filter['.'.join(parts[:2])] = parts[2:]
+        else:
+            self._filter = {}
+            for field in fields:
+                parts = field.lower().split('.')
+                self._filter['.'.join(parts[:2])] = parts[2:]
 
     def _skip_field(self, field):
         if self._filter is None:
@@ -41,15 +41,20 @@ class Command(BaseCommand):
 
         for field in IMAGE_FIELDS:
             if self._skip_field(field):
+                self.stdout.write('%s.%s - skipped' % (
+                    field.model._meta.label_lower,
+                    field.name,
+                ))
                 continue
 
-            self.stdout.write('%s: %s' % (
-                field.model._meta.label,
-                field.name,
-            ))
 
             queryset = field.model._default_manager.all()
             count = queryset.count()
+            self.stdout.write('%s.%s - %s objects' % (
+                field.model._meta.label_lower,
+                field.name,
+                count,
+            ))
             for index, instance in enumerate(queryset):
                 fieldfile = getattr(instance, field.name)
                 if fieldfile and fieldfile.name:
@@ -59,7 +64,8 @@ class Command(BaseCommand):
                         except Exception:
                             pass
 
-                if index % 10 == 0:
+                if index % 5 == 0:
                     progress = '*' * int(index / count * 50)
-                    self.stdout.write('\r|%s|' % progress.rjust(50), ending='')
+                    self.stdout.write('\r|%s|' % progress.ljust(50), ending='')
+
             self.stdout.write('\r|%s|' % ('*' * 50,))
