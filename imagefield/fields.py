@@ -143,11 +143,11 @@ class ImageField(models.ImageField):
 
     def _generate_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
-        for item in f.field.formats:
-            f.process(item)
+        if f.name:
+            for item in f.field.formats:
+                f.process(item)
 
-    @staticmethod
-    def _clear_generated_files(instance, **kwargs):
+    def _clear_generated_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
         folder, startswith = f._processed_name()
         for file in f.storage.listdir(folder):
