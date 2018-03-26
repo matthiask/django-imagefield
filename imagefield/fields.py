@@ -170,16 +170,15 @@ class ImageField(models.ImageField):
             if self.ppoi_field:
                 setattr(instance, self.ppoi_field, '0.5x0.5')
 
-        f = getattr(instance, self.name)
-        if f.name:
-            try:
-                # Anything which exercises the machinery so that we may find
-                # out whether the image works at all (or not)
-                f._process(['default', ('thumbnail', (20, 20))])
-            except Exception as exc:
-                raise ValidationError(str(exc))
-        # TODO _generate_files and raise ValidationError on failure? Or maybe
-        # just run a custom pipeline without saving to the storage at the end?
+        elif data is not None:
+            f = getattr(instance, self.name)
+            if f.name:
+                try:
+                    # Anything which exercises the machinery so that we may
+                    # find out whether the image works at all (or not)
+                    f._process(['default', ('thumbnail', (20, 20))])
+                except Exception as exc:
+                    raise ValidationError(str(exc))
 
     def _generate_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
