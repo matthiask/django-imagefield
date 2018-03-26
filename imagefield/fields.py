@@ -1,5 +1,6 @@
 import hashlib
 import io
+import logging
 import os
 from types import SimpleNamespace
 
@@ -18,12 +19,9 @@ from .processing import build_handler
 from .widgets import PPOIWidget, with_preview_and_ppoi
 
 
-IMAGE_FIELDS = []
-
-
-def urlhash(str):
-    digest = hashlib.sha1(str.encode('utf-8')).digest()
-    return urlsafe_base64_encode(digest).decode('ascii')
+logger = logging.getLogger(__name__)
+#: Imagefield instances
+IMAGEFIELDS = set()
 
 
 class ImageFieldFile(files.ImageFieldFile):
@@ -44,9 +42,13 @@ class ImageFieldFile(files.ImageFieldFile):
             ]
         return [0.5, 0.5]
 
+    def _urlhash(self, str):
+        digest = hashlib.sha1(str.encode('utf-8')).digest()
+        return urlsafe_base64_encode(digest).decode('ascii')
+
     def _processed_name(self, processors):
-        p1 = urlhash(self.name)
-        p2 = urlhash(
+        p1 = self._urlhash(self.name)
+        p2 = self._urlhash(
             '|'.join(str(p) for p in processors) + '|' + str(self._ppoi()),
         )
         _, ext = os.path.splitext(self.name)
@@ -54,34 +56,49 @@ class ImageFieldFile(files.ImageFieldFile):
         return '__processed__/%s/%s_%s%s' % (p1[:2], p1[2:], p2, ext)
 
     def _processed_base(self):
-        p1 = urlhash(self.name)
+        p1 = self._urlhash(self.name)
         return '__processed__/%s' % p1[:2], '%s_' % p1[2:]
 
     def process(self, item, force=False):
         processors = self.field.formats[item]
         target = self._processed_name(processors)
+        logger.debug(
+            'Processing image %(image)s as "%(key)s" with target %(target)s',
+            {'image': self, 'key': item, 'target': target},
+        )
         if not force and self.storage.exists(target):
             return
 
-        with self.open('rb') as orig:
-            image = Image.open(orig)
-            context = SimpleNamespace(
-                ppoi=self._ppoi(),
-                save_kwargs={},
-            )
-            format = image.format
-            _, ext = os.path.splitext(self.name)
+        try:
+            with self.open('rb') as orig:
+                image = Image.open(orig)
+                context = SimpleNamespace(
+                    ppoi=self._ppoi(),
+                    save_kwargs={},
+                )
+                format = image.format
+                _, ext = os.path.splitext(self.name)
 
-            handler = build_handler(processors)
-            image, context = handler(image, context)
+                logger.debug(
+                    'Building image processing pipeline: %(processors)s',
+                    {'processors': processors},
+                )
+                handler = build_handler(processors)
+                image, context = handler(image, context)
 
-            with io.BytesIO() as buf:
-                image.save(buf, format=format, **context.save_kwargs)
+                with io.BytesIO() as buf:
+                    image.save(buf, format=format, **context.save_kwargs)
 
-                self.storage.delete(target)
-                self.storage.save(target, ContentFile(buf.getvalue()))
+                    self.storage.delete(target)
+                    self.storage.save(target, ContentFile(buf.getvalue()))
 
-                print('Saved', target)
+                    logger.info(
+                        'Saved processed image %(target)s',
+                        {'target': target},
+                    )
+        except Exception:
+            logger.exception('Exception while processing')
+            raise
 
 
 class ImageField(models.ImageField):
@@ -98,7 +115,7 @@ class ImageField(models.ImageField):
 
         super().__init__(verbose_name, **kwargs)
 
-        IMAGE_FIELDS.append(self)
+        IMAGEFIELDS.add(self)
 
     @cached_property
     def formats(self):

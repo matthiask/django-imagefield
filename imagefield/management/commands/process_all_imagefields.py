@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from imagefield.fields import IMAGE_FIELDS
+from imagefield.fields import IMAGEFIELDS
 
 
 class Command(BaseCommand):
@@ -39,7 +39,7 @@ class Command(BaseCommand):
     def handle(self, **options):
         self._make_filter(options['field'])
 
-        for field in IMAGE_FIELDS:
+        for field in IMAGEFIELDS:
             if self._skip_field(field):
                 self.stdout.write('%s.%s - skipped' % (
                     field.model._meta.label_lower,
@@ -62,7 +62,7 @@ class Command(BaseCommand):
                         try:
                             fieldfile.process(key, force=options.get('force'))
                         except Exception as exc:
-                            self.stderr.write(exc)
+                            self.stdout.write(str(exc))
 
                 if index % 5 == 0:
                     progress = '*' * int(index / count * 50)
