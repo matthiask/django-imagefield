@@ -28,7 +28,12 @@ class Test(TestCase):
         self.user = User.objects.create_superuser(
             'admin', 'admin@test.ch', 'blabla')
         deactivate_all()
+        self._rmtree()
 
+    def tearDown(self):
+        self._rmtree()
+
+    def _rmtree(self):
         shutil.rmtree(
             os.path.join(settings.MEDIA_ROOT, '__processed__'),
             ignore_errors=True,

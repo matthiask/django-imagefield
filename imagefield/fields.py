@@ -73,10 +73,8 @@ class ImageFieldFile(files.ImageFieldFile):
             return
 
         try:
-            # Django 1.11 Y U NO implement with self.open?
-            orig = self.open('rb')
-
-            image = Image.open(orig)
+            self.open('rb')
+            image = Image.open(self.file)
             context = SimpleNamespace(
                 ppoi=self._ppoi(),
                 save_kwargs={},
@@ -101,6 +99,8 @@ class ImageFieldFile(files.ImageFieldFile):
                     'Saved processed image %(target)s',
                     {'target': target},
                 )
+
+            self.close()
         except Exception:
             logger.exception('Exception while processing')
             raise
