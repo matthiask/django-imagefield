@@ -2,7 +2,6 @@ import hashlib
 import io
 import logging
 import os
-from types import SimpleNamespace
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -18,6 +17,15 @@ from PIL import Image
 
 from .processing import build_handler
 from .widgets import PPOIWidget, with_preview_and_ppoi
+
+
+try:
+    from types import SimpleNamespace
+except ImportError:  # pragma: no cover
+    # Python < 3.3
+    class SimpleNamespace(object):
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
 
 
 logger = logging.getLogger(__name__)
