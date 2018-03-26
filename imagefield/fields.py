@@ -67,8 +67,14 @@ class ImageFieldFile(files.ImageFieldFile):
         processors = self.field.formats[item]
         target = self._processed_name(processors)
         logger.debug(
-            'Processing image %(image)s as "%(key)s" with target %(target)s',
-            {'image': self, 'key': item, 'target': target},
+            'Processing image %(image)s as "%(key)s" with target %(target)s'
+            ' and pipeline %(processors)s',
+            {
+                'image': self,
+                'key': item,
+                'target': target,
+                'processors': processors,
+            },
         )
         if not force and self.storage.exists(target):
             return
@@ -97,10 +103,6 @@ class ImageFieldFile(files.ImageFieldFile):
         format = image.format
         _, ext = os.path.splitext(self.name)
 
-        logger.debug(
-            'Building image processing pipeline: %(processors)s',
-            {'processors': processors},
-        )
         handler = build_handler(processors)
         image, context = handler(image, context)
 
