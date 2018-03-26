@@ -15,6 +15,9 @@ class Model(models.Model):
             'thumbnail': ['default', ('crop', (300, 300))],
             'desktop': ['default', ('thumbnail', (300, 225))],
         },
+
+        # Should have no effect, but not hurt either:
+        auto_add_fields=True,
     )
     width = models.PositiveIntegerField(
         _('image width'),

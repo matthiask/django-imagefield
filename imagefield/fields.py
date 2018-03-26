@@ -140,17 +140,17 @@ class ImageField(models.ImageField):
 
     def contribute_to_class(self, cls, name, **kwargs):
         if self._auto_add_fields:
-            if not self.width_field:
+            if self.width_field is None:
                 self.width_field = '%s_width' % name
                 models.PositiveIntegerField(
                     blank=True, null=True, editable=False,
                 ).contribute_to_class(cls, self.width_field)
-            if not self.height_field:
+            if self.height_field is None:
                 self.height_field = '%s_height' % name
                 models.PositiveIntegerField(
                     blank=True, null=True, editable=False,
                 ).contribute_to_class(cls, self.height_field)
-            if not self.ppoi_field:
+            if self.ppoi_field is None:
                 self.ppoi_field = '%s_ppoi' % name
                 PPOIField().contribute_to_class(cls, self.ppoi_field)
 
