@@ -11,3 +11,8 @@ class ModelAdmin(admin.ModelAdmin):
 @admin.register(models.ModelWithOptional)
 class ModelWithOptionalAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.Image)
+class ImageAdmin(admin.ModelAdmin):
+    pass

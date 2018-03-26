@@ -10,7 +10,7 @@ from django.utils.translation import deactivate_all
 
 from PIL import Image
 
-from .models import Model, ModelWithOptional
+from .models import Image as Image_, Model, ModelWithOptional
 
 
 def openimage(path):
@@ -89,8 +89,27 @@ class Test(TestCase):
     def test_model_with_optional(self):
         client = self.login()
         response = client.get('/admin/testapp/modelwithoptional/add/')
-        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'src="/static/imagefield/ppoi.js"',
+        )
         # print(response.content.decode('utf-8'))
+
+    def test_image_model(self):
+        client = self.login()
+        response = client.get('/admin/testapp/image/add/')
+        self.assertNotContains(
+            response,
+            'src="/static/imagefield/ppoi.js"',
+        )
+
+        m = Image_.objects.create(
+            image='python-logo.png',
+        )
+        self.assertEqual(
+            m.image._ppoi(),
+            [0.5, 0.5],
+        )
 
     def test_upload(self):
         client = self.login()
@@ -198,3 +217,47 @@ class Test(TestCase):
             Model.objects.create(
                 image='broken.png',
             )
+
+        client = self.login()
+        with openimage('broken.png') as f:
+            response = client.post(
+                '/admin/testapp/model/add/',
+                {
+                    'image': f,
+                    'ppoi': '0.5x0.5',
+                },
+            )
+
+        self.assertContains(
+            response,
+            'Upload a valid image. The file you uploaded was either'
+            ' not an image or a corrupted image.',
+        )
+
+        with openimage('python-logo.jpg') as f:
+            response = client.post(
+                '/admin/testapp/model/add/',
+                {
+                    'image': f,
+                    'ppoi': '0.5x0.5',
+                },
+            )
+            self.assertRedirects(
+                response,
+                '/admin/testapp/model/',
+            )
+
+            f.seek(0)
+            with io.BytesIO(f.read()[:-1000]) as buf:
+                buf.name = 'python-logo.jpg'
+                response = client.post(
+                    '/admin/testapp/model/add/',
+                    {
+                        'image': buf,
+                        'ppoi': '0.5x0.5',
+                    },
+                )
+                self.assertRegex(
+                    response.content.decode('utf-8'),
+                    r'image file is truncated \([0-9]+ bytes not processed\)',
+                )
