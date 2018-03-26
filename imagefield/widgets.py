@@ -40,7 +40,7 @@ class PreviewAndPPOIMixin(object):
             '<div class="imagefield-widget">{widget}</div>'
             '</div>',
             widget=widget,
-            url=value and value.url,
+            url=getattr(value, 'url', ''),
             ppoi=ppoi,
         )
 
