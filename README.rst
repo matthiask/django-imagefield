@@ -19,6 +19,8 @@ with a few important differences:
 - Generating images on-demand inside rendering code is made hard on
   purpose. Instead, images are generated when models are saved and also
   by running the management command ``process_all_imagefields``.
+- django-imagefield does not depend on a fast storage or a cache to be
+  and stay fast.
 
 Replacing existing uses of django-versatileimagefield requires the
 following steps:
