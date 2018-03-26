@@ -24,7 +24,7 @@ class PreviewAndPPOIMixin(object):
                 break
 
         else:
-            # Bail out
+            # Bail out. I have absolutely no idea why this would ever happen.
             return widget
 
         try:

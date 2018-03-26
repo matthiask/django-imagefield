@@ -5,6 +5,7 @@ import os
 from types import SimpleNamespace
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import signals
@@ -73,37 +74,41 @@ class ImageFieldFile(files.ImageFieldFile):
             return
 
         try:
-            self.open('rb')
-            image = Image.open(self.file)
-            context = SimpleNamespace(
-                ppoi=self._ppoi(),
-                save_kwargs={},
-            )
-            format = image.format
-            _, ext = os.path.splitext(self.name)
-
-            logger.debug(
-                'Building image processing pipeline: %(processors)s',
-                {'processors': processors},
-            )
-            handler = build_handler(processors)
-            image, context = handler(image, context)
-
-            with io.BytesIO() as buf:
-                image.save(buf, format=format, **context.save_kwargs)
-
-                self.storage.delete(target)
-                self.storage.save(target, ContentFile(buf.getvalue()))
-
-                logger.info(
-                    'Saved processed image %(target)s',
-                    {'target': target},
-                )
-
-            self.close()
+            buf = self._process(processors)
         except Exception:
             logger.exception('Exception while processing')
             raise
+
+        self.storage.delete(target)
+        self.storage.save(target, ContentFile(buf))
+
+        logger.info(
+            'Saved processed image %(target)s',
+            {'target': target},
+        )
+
+    def _process(self, processors):
+        self.open('rb')
+        image = Image.open(self.file)
+        context = SimpleNamespace(
+            ppoi=self._ppoi(),
+            save_kwargs={},
+        )
+        format = image.format
+        _, ext = os.path.splitext(self.name)
+
+        logger.debug(
+            'Building image processing pipeline: %(processors)s',
+            {'processors': processors},
+        )
+        handler = build_handler(processors)
+        image, context = handler(image, context)
+
+        with io.BytesIO() as buf:
+            image.save(buf, format=format, **context.save_kwargs)
+            return buf.getvalue()
+
+        self.close()
 
 
 class ImageField(models.ImageField):
@@ -163,7 +168,16 @@ class ImageField(models.ImageField):
             if self.ppoi_field:
                 setattr(instance, self.ppoi_field, '0.5x0.5')
 
-        # TODO _generate_files and raise ValidationError on failure?
+        f = getattr(instance, self.name)
+        if f.name:
+            try:
+                # Anything which exercises the machinery so that we may find
+                # out whether the image works at all (or not)
+                f._process(['default', ('thumbnail', (20, 20))])
+            except Exception as exc:
+                raise ValidationError(str(exc))
+        # TODO _generate_files and raise ValidationError on failure? Or maybe
+        # just run a custom pipeline without saving to the storage at the end?
 
     def _generate_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
