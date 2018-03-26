@@ -205,3 +205,21 @@ class PPOIField(models.CharField):
     def formfield(self, **kwargs):
         kwargs['widget'] = PPOIWidget
         return super().formfield(**kwargs)
+
+
+class CompleteImageField(ImageField):
+    def contribute_to_class(self, cls, name, **kwargs):
+        models.PositiveIntegerField(
+            blank=True, null=True, editable=True,
+        ).contribute_to_class(cls, '%s_width' % name)
+        models.PositiveIntegerField(
+            blank=True, null=True, editable=True,
+        ).contribute_to_class(cls, '%s_height' % name)
+
+        PPOIField().contribute_to_class(cls, '%s_ppoi' % name)
+
+        self.width_field = '%s_width' % name
+        self.height_field = '%s_height' % name
+        self.ppoi_field = '%s_ppoi' % name
+
+        super().contribute_to_class(cls, name, **kwargs)

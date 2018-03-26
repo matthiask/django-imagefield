@@ -171,7 +171,7 @@ class Test(TestCase):
                 '/admin/testapp/modelwithoptional/add/',
                 {
                     'image': f,
-                    'ppoi': '0.25x0.25',
+                    'image_ppoi': '0.25x0.25',
                 },
             )
             self.assertRedirects(response, '/admin/testapp/modelwithoptional/')
@@ -183,7 +183,7 @@ class Test(TestCase):
             '/admin/testapp/modelwithoptional/%s/change/' % m.pk,
             {
                 'image-clear': '1',
-                'ppoi': '0.25x0.25',
+                'image_ppoi': '0.25x0.25',
             },
         )
 
@@ -191,7 +191,7 @@ class Test(TestCase):
 
         m = ModelWithOptional.objects.get()
         self.assertEqual(m.image.name, '')
-        self.assertEqual(m.ppoi, '0.5x0.5')
+        self.assertEqual(m.image_ppoi, '0.5x0.5')
 
     def test_broken(self):
         with self.assertRaises(OSError):

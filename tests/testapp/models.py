@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from imagefield.fields import ImageField, PPOIField
+from imagefield.fields import CompleteImageField, ImageField, PPOIField
 
 
 class Model(models.Model):
@@ -32,6 +32,7 @@ class Model(models.Model):
 
 
 class ModelWithOptional(models.Model):
+    """
     image = ImageField(
         _('image'),
         upload_to='images',
@@ -53,3 +54,10 @@ class ModelWithOptional(models.Model):
         editable=False,
     )
     ppoi = PPOIField(_('primary point of interest'))
+    """
+
+    image = CompleteImageField(
+        _('image'),
+        upload_to='images',
+        blank=True,
+    )
