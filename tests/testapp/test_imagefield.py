@@ -105,10 +105,8 @@ class Test(TestCase):
             m.image.thumbnail,
             '/media/__processed__/Aq/qeyFxGp-gwNJbrT9WyBNu93Jk_JPhwI4PndMFMtagIW3tLVD17vWk.png',  # noqa
         )
-        self.assertRaises(
-            AttributeError,
-            lambda: m.image.not_exists,
-        )
+        with self.assertRaises(AttributeError):
+            m.image.not_exists
 
     def test_autorotate(self):
         field = Model._meta.get_field('image')
@@ -165,3 +163,9 @@ class Test(TestCase):
         m = ModelWithOptional.objects.get()
         self.assertEqual(m.image.name, '')
         self.assertEqual(m.ppoi, '0.5x0.5')
+
+    def test_broken(self):
+        with self.assertRaises(OSError):
+            Model.objects.create(
+                image='broken.png',
+            )
