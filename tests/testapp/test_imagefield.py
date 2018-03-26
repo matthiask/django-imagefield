@@ -131,3 +131,8 @@ class Test(TestCase):
                 self.assertEqual(len(contents('__processed__')), 1)
                 field._clear_generated_files(m)
                 self.assertEqual(contents('__processed__'), [])
+
+    def test_empty(self):
+        m = Model()
+        self.assertEqual(m.image.name, '')
+        self.assertEqual(m.image.desktop, '')
