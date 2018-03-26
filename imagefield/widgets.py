@@ -30,6 +30,8 @@ class PreviewAndPPOIMixin(object):
             # Bail out. I have absolutely no idea why this would ever happen.
             return widget
 
+        del frame
+
         try:
             ppoi = boundfield.form[boundfield.field.widget.ppoi_field].auto_id
         except (AttributeError, KeyError, TypeError) as exc:
