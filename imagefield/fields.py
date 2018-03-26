@@ -117,6 +117,7 @@ class ImageField(models.ImageField):
     attr_class = ImageFieldFile
 
     def __init__(self, verbose_name=None, **kwargs):
+        self._auto_add_fields = kwargs.pop('auto_add_fields', False)
         self._formats = kwargs.pop('formats', {})
         self.ppoi_field = kwargs.pop('ppoi_field', None)
 
@@ -138,6 +139,21 @@ class ImageField(models.ImageField):
         )
 
     def contribute_to_class(self, cls, name, **kwargs):
+        if self._auto_add_fields:
+            if not self.width_field:
+                self.width_field = '%s_width' % name
+                models.PositiveIntegerField(
+                    blank=True, null=True, editable=False,
+                ).contribute_to_class(cls, self.width_field)
+            if not self.height_field:
+                self.height_field = '%s_height' % name
+                models.PositiveIntegerField(
+                    blank=True, null=True, editable=False,
+                ).contribute_to_class(cls, self.height_field)
+            if not self.ppoi_field:
+                self.ppoi_field = '%s_ppoi' % name
+                PPOIField().contribute_to_class(cls, self.ppoi_field)
+
         super().contribute_to_class(cls, name, **kwargs)
 
         if not cls._meta.abstract:
@@ -205,21 +221,3 @@ class PPOIField(models.CharField):
     def formfield(self, **kwargs):
         kwargs['widget'] = PPOIWidget
         return super().formfield(**kwargs)
-
-
-class CompleteImageField(ImageField):
-    def contribute_to_class(self, cls, name, **kwargs):
-        models.PositiveIntegerField(
-            blank=True, null=True, editable=True,
-        ).contribute_to_class(cls, '%s_width' % name)
-        models.PositiveIntegerField(
-            blank=True, null=True, editable=True,
-        ).contribute_to_class(cls, '%s_height' % name)
-
-        PPOIField().contribute_to_class(cls, '%s_ppoi' % name)
-
-        self.width_field = '%s_width' % name
-        self.height_field = '%s_height' % name
-        self.ppoi_field = '%s_ppoi' % name
-
-        super().contribute_to_class(cls, name, **kwargs)
