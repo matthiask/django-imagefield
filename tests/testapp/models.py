@@ -7,12 +7,13 @@ from imagefield.fields import ImageField, PPOIField
 class Model(models.Model):
     image = ImageField(
         _('image'),
-        upload_to='images/%Y/%m',
+        upload_to='images',
         width_field='width',
         height_field='height',
         ppoi_field='ppoi',
         formats={
             'thumbnail': ['default', ('crop', (300, 300))],
+            'desktop': ['default', ('thumbnail', (300, 225))],
         },
     )
     width = models.PositiveIntegerField(
@@ -33,7 +34,7 @@ class Model(models.Model):
 class ModelWithOptional(models.Model):
     image = ImageField(
         _('image'),
-        upload_to='images/%Y/%m',
+        upload_to='images',
         width_field='width',
         height_field='height',
         ppoi_field='ppoi',
