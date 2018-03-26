@@ -98,7 +98,7 @@ def thumbnail(get_image, args):
         ))
         return image.resize(
             [int(f * coord) for coord in image.size],
-            Image.BICUBIC,
+            Image.LANCZOS,
         ), context
     return processor
 
@@ -168,7 +168,7 @@ def crop(get_image, args):
         )
         # Resizing the newly cropped image to the size specified
         # (as determined by `width`x`height`)
-        return cropped_image.resize((width, height), Image.BICUBIC), context
+        return cropped_image.resize((width, height), Image.LANCZOS), context
     return processor
 
 
