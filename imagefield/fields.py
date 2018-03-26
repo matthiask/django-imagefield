@@ -169,10 +169,12 @@ class ImageField(models.ImageField):
 
     def _clear_generated_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
-        folder, startswith = f._processed_name()
-        for file in f.storage.listdir(folder):
+        folder, startswith = f._processed_base()
+
+        folders, files = f.storage.listdir(folder)
+        for file in files:
             if file.startswith(startswith):
-                f.storage.delete(file)
+                f.storage.delete(os.path.join(folder, file))
 
 
 class PPOIField(models.CharField):

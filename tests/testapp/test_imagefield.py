@@ -1,4 +1,5 @@
 import io
+import itertools
 import os
 import shutil
 
@@ -14,6 +15,12 @@ from .models import Model  # , ModelWithOptional
 
 def openimage(path):
     return io.open(os.path.join(settings.MEDIA_ROOT, path), 'rb')
+
+
+def contents(path):
+    return list(itertools.chain.from_iterable(
+        i[2] for i in os.walk(os.path.join(settings.MEDIA_ROOT, path))
+    ))
 
 
 class Test(TestCase):
@@ -48,18 +55,37 @@ class Test(TestCase):
         )
 
     def test_model(self):
-        m = Model.objects.create()
+        m = Model.objects.create(
+            image='python-logo.png',
+        )
 
         client = self.login()
         response = client.get('/admin/testapp/model/%s/change/' % m.id)
 
-        print(response.content.decode('utf-8'))
+        self.assertContains(
+            response,
+            'value="0.5x0.5"',
+        )
+        self.assertContains(
+            response,
+            'src="/static/imagefield/ppoi.js"',
+        )
+        self.assertContains(
+            response,
+            '<div class="imagefield" data-ppoi-id="id_ppoi">',
+        )
+        self.assertContains(
+            response,
+            '<img class="imagefield-preview-image"'
+            ' src="/media/python-logo.png" alt=""/>',
+        )
+        # print(response.content.decode('utf-8'))
 
     def test_model_with_optional(self):
         client = self.login()
         response = client.get('/admin/testapp/modelwithoptional/add/')
-
-        print(response.content.decode('utf-8'))
+        self.assertEqual(response.status_code, 200)
+        # print(response.content.decode('utf-8'))
 
     def test_upload(self):
         client = self.login()
@@ -85,6 +111,8 @@ class Test(TestCase):
         )
 
     def test_autorotate(self):
+        field = Model._meta.get_field('image')
+
         for image in ['Landscape_3.jpg', 'Landscape_6.jpg', 'Landscape_8.jpg']:
             with self.subTest(image=image):
                 m = Model(
@@ -99,3 +127,7 @@ class Test(TestCase):
                         image.size,
                         (300, 225),
                     )
+
+                self.assertEqual(len(contents('__processed__')), 1)
+                field._clear_generated_files(m)
+                self.assertEqual(contents('__processed__'), [])
