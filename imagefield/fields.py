@@ -209,7 +209,12 @@ class ImageField(models.ImageField):
         f = getattr(instance, self.name)
         folder, startswith = f._processed_base()
 
-        folders, files = f.storage.listdir(folder)
+        try:
+            folders, files = f.storage.listdir(folder)
+        except FileNotFoundError:
+            # Fine!
+            return
+
         for file in files:
             if file.startswith(startswith):
                 f.storage.delete(os.path.join(folder, file))
