@@ -64,7 +64,11 @@ class ImageFieldFile(files.ImageFieldFile):
         return '__processed__/%s' % p1[:2], '%s_' % p1[2:]
 
     def process(self, item, force=False):
-        processors = self.field.formats[item]
+        if isinstance(item, (list, tuple)):
+            processors = item
+            item = '<ad hoc>'
+        else:
+            processors = self.field.formats[item]
         target = self._processed_name(processors)
         logger.debug(
             'Processing image %(image)s as "%(key)s" with target %(target)s'
@@ -77,7 +81,7 @@ class ImageFieldFile(files.ImageFieldFile):
             },
         )
         if not force and self.storage.exists(target):
-            return
+            return target
 
         try:
             buf = self._process(processors)
@@ -92,6 +96,7 @@ class ImageFieldFile(files.ImageFieldFile):
             'Saved processed image %(target)s',
             {'target': target},
         )
+        return target
 
     def _process(self, processors):
         self.open('rb')
