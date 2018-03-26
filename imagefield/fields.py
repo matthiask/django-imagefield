@@ -110,8 +110,6 @@ class ImageFieldFile(files.ImageFieldFile):
             image.save(buf, format=format, **context.save_kwargs)
             return buf.getvalue()
 
-        self.close()
-
 
 class ImageField(models.ImageField):
     attr_class = ImageFieldFile
