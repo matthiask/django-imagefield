@@ -163,6 +163,8 @@ class ImageField(models.ImageField):
             if self.ppoi_field:
                 setattr(instance, self.ppoi_field, '0.5x0.5')
 
+        # TODO _generate_files and raise ValidationError on failure?
+
     def _generate_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
         if f.name:
