@@ -51,6 +51,6 @@ def with_preview_and_ppoi(widget, **attrs):
         (PreviewAndPPOIMixin, widget),
         {
             '__module__': 'imagefield.widgets',
-            **attrs,
+            **attrs
         },
     )

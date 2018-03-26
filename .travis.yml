@@ -4,6 +4,7 @@ sudo: false
 python:
 - '3.6'
 - '3.5'
+- '2.7'
 env:
 - REQ="Django>=1.11,<2.0"
 - REQ="Django>=2.0,<2.1"
@@ -11,6 +12,11 @@ env:
 matrix:
   allow_failures:
     - env: REQ="https://github.com/django/django/archive/master.zip#egg=Django"
+  exclude:
+    - python: '2.7'
+      env: REQ="Django>=2.0,<2.1"
+    - python: '2.7'
+      env: REQ="https://github.com/django/django/archive/master.zip#egg=Django"
 install:
 - pip install -U pip wheel
 - pip install $REQ Pillow pytz
