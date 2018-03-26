@@ -135,6 +135,30 @@ class Test(TestCase):
                 field._clear_generated_files(m)
                 self.assertEqual(contents('__processed__'), [])
 
+    def test_cmyk(self):
+        field = Model._meta.get_field('image')
+
+        m = Model(
+            image='cmyk.jpg',
+            ppoi='0.5x0.5',
+        )
+        m.image.process('desktop')
+
+        path = os.path.join(settings.MEDIA_ROOT, m.image.desktop[7:])
+        with Image.open(path) as image:
+            self.assertEqual(
+                image.format,
+                'JPEG',
+            )
+            self.assertEqual(
+                image.mode,
+                'RGB',
+            )
+
+        self.assertEqual(len(contents('__processed__')), 1)
+        field._clear_generated_files(m)
+        self.assertEqual(contents('__processed__'), [])
+
     def test_empty(self):
         m = Model()
         self.assertEqual(m.image.name, '')
