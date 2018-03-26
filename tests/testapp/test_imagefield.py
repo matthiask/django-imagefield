@@ -151,23 +151,22 @@ class Test(TestCase):
         field = Model._meta.get_field('image')
 
         for image in ['Landscape_3.jpg', 'Landscape_6.jpg', 'Landscape_8.jpg']:
-            with self.subTest(image=image):
-                m = Model(
-                    image='exif-orientation-examples/%s' % image,
-                    ppoi='0.5x0.5',
+            m = Model(
+                image='exif-orientation-examples/%s' % image,
+                ppoi='0.5x0.5',
+            )
+            m.image.process('desktop')
+
+            path = os.path.join(settings.MEDIA_ROOT, m.image.desktop[7:])
+            with Image.open(path) as image:
+                self.assertEqual(
+                    image.size,
+                    (300, 225),
                 )
-                m.image.process('desktop')
 
-                path = os.path.join(settings.MEDIA_ROOT, m.image.desktop[7:])
-                with Image.open(path) as image:
-                    self.assertEqual(
-                        image.size,
-                        (300, 225),
-                    )
-
-                self.assertEqual(len(contents('__processed__')), 1)
-                field._clear_generated_files(m)
-                self.assertEqual(contents('__processed__'), [])
+            self.assertEqual(len(contents('__processed__')), 1)
+            field._clear_generated_files(m)
+            self.assertEqual(contents('__processed__'), [])
 
     def test_cmyk(self):
         field = Model._meta.get_field('image')
@@ -228,7 +227,7 @@ class Test(TestCase):
         self.assertEqual(m.image_ppoi, '0.5x0.5')
 
     def test_broken(self):
-        with self.assertRaises(OSError):
+        with self.assertRaises((IOError, OSError)):
             Model.objects.create(
                 image='broken.png',
             )

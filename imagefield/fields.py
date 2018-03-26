@@ -137,7 +137,7 @@ class ImageField(models.ImageField):
         # ImageFileDescriptor (not hard, but too much copy paste for my taste)
         # self.placeholder = kwargs.pop('placeholder', None)
 
-        super().__init__(verbose_name, **kwargs)
+        super(ImageField, self).__init__(verbose_name, **kwargs)
 
         IMAGEFIELDS.add(self)
 
@@ -165,7 +165,7 @@ class ImageField(models.ImageField):
                 self.ppoi_field = '%s_ppoi' % name
                 PPOIField().contribute_to_class(cls, self.ppoi_field)
 
-        super().contribute_to_class(cls, name, **kwargs)
+        super(ImageField, self).contribute_to_class(cls, name, **kwargs)
 
         if not cls._meta.abstract:
             # TODO Avoid calling process() too often?
@@ -187,10 +187,10 @@ class ImageField(models.ImageField):
             kwargs.get('widget', ClearableFileInput),
             ppoi_field=self.ppoi_field,
         )
-        return super().formfield(**kwargs)
+        return super(ImageField, self).formfield(**kwargs)
 
     def save_form_data(self, instance, data):
-        super().save_form_data(instance, data)
+        super(ImageField, self).save_form_data(instance, data)
 
         # Reset PPOI field if image field is cleared
         if data is not None and not data:
@@ -232,8 +232,8 @@ class PPOIField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('default', '0.5x0.5')
         kwargs.setdefault('max_length', 20)
-        super().__init__(*args, **kwargs)
+        super(PPOIField, self).__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
         kwargs['widget'] = PPOIWidget
-        return super().formfield(**kwargs)
+        return super(PPOIField, self).formfield(**kwargs)

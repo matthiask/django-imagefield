@@ -12,24 +12,27 @@ class PPOIWidget(forms.HiddenInput):
 
 class PreviewAndPPOIMixin(object):
     def render(self, name, value, attrs=None, renderer=None):
-        widget = super().render(name, value, attrs=attrs, renderer=renderer)
+        widget = super(PreviewAndPPOIMixin, self).render(
+            name, value, attrs=attrs, renderer=renderer,
+        )
         if not value:
             return widget
 
         # find our BoundField so that we may access the form etc.
-        for frameinfo in inspect.stack():
-            self_ = frameinfo.frame.f_locals.get('self')
-            if isinstance(self_, forms.BoundField):
-                boundfield = self_
+        frame = inspect.currentframe()
+        while frame:
+            boundfield = frame.f_locals.get('self')
+            if isinstance(boundfield, forms.BoundField):
                 break
+            frame = frame.f_back
 
-        else:  # pragma: no cover
+        if frame is None:  # pragma: no cover
             # Bail out. I have absolutely no idea why this would ever happen.
             return widget
 
         try:
             ppoi = boundfield.form[boundfield.field.widget.ppoi_field].auto_id
-        except (AttributeError, KeyError, TypeError):
+        except (AttributeError, KeyError, TypeError) as exc:
             ppoi = ''
 
         return format_html(
@@ -49,8 +52,5 @@ def with_preview_and_ppoi(widget, **attrs):
     return type(
         '%sWithPreviewAndPPOI' % widget.__name__,
         (PreviewAndPPOIMixin, widget),
-        {
-            '__module__': 'imagefield.widgets',
-            **attrs
-        },
+        dict(attrs, __module__='imagefield.widgets'),
     )
