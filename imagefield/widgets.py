@@ -23,7 +23,7 @@ class PreviewAndPPOIMixin(object):
                 boundfield = self_
                 break
 
-        else:
+        else:  # pragma: no cover
             # Bail out. I have absolutely no idea why this would ever happen.
             return widget
 
