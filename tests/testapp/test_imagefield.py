@@ -10,7 +10,7 @@ from django.utils.translation import deactivate_all
 
 from PIL import Image
 
-from .models import Model  # , ModelWithOptional
+from .models import Model, ModelWithOptional
 
 
 def openimage(path):
@@ -136,3 +136,32 @@ class Test(TestCase):
         m = Model()
         self.assertEqual(m.image.name, '')
         self.assertEqual(m.image.desktop, '')
+
+    def test_ppoi_clearing(self):
+        client = self.login()
+        with openimage('python-logo.png') as f:
+            response = client.post(
+                '/admin/testapp/modelwithoptional/add/',
+                {
+                    'image': f,
+                    'ppoi': '0.25x0.25',
+                },
+            )
+            self.assertRedirects(response, '/admin/testapp/modelwithoptional/')
+
+        m = ModelWithOptional.objects.get()
+        self.assertEqual(m.image._ppoi(), [0.25, 0.25])
+
+        response = client.post(
+            '/admin/testapp/modelwithoptional/%s/change/' % m.pk,
+            {
+                'image-clear': '1',
+                'ppoi': '0.25x0.25',
+            },
+        )
+
+        self.assertRedirects(response, '/admin/testapp/modelwithoptional/')
+
+        m = ModelWithOptional.objects.get()
+        self.assertEqual(m.image.name, '')
+        self.assertEqual(m.ppoi, '0.5x0.5')
