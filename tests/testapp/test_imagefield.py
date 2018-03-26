@@ -111,6 +111,21 @@ class Test(TestCase):
             [0.5, 0.5],
         )
 
+        response = client.get('/admin/testapp/image/%s/change/' % m.pk)
+        self.assertNotContains(
+            response,
+            'src="/static/imagefield/ppoi.js"',
+        )
+        self.assertContains(
+            response,
+            '<div class="imagefield" data-ppoi-id="">',
+        )
+        self.assertContains(
+            response,
+            '<img class="imagefield-preview-image"'
+            ' src="/media/python-logo.png" alt=""/>',
+        )
+
     def test_upload(self):
         client = self.login()
         with openimage('python-logo.png') as f:
