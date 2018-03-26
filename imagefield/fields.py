@@ -27,9 +27,12 @@ IMAGEFIELDS = set()
 class ImageFieldFile(files.ImageFieldFile):
     def __getattr__(self, item):
         if item in self.field.formats:
-            url = self.storage.url(
-                self._processed_name(self.field.formats[item]),
-            )
+            if self.name:
+                url = self.storage.url(
+                    self._processed_name(self.field.formats[item]),
+                )
+            else:
+                url = ''
             setattr(self, item, url)
             return url
         raise AttributeError
