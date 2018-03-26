@@ -73,32 +73,34 @@ class ImageFieldFile(files.ImageFieldFile):
             return
 
         try:
-            with self.open('rb') as orig:
-                image = Image.open(orig)
-                context = SimpleNamespace(
-                    ppoi=self._ppoi(),
-                    save_kwargs={},
+            # Django 1.11 Y U NO implement with self.open?
+            orig = self.open('rb')
+
+            image = Image.open(orig)
+            context = SimpleNamespace(
+                ppoi=self._ppoi(),
+                save_kwargs={},
+            )
+            format = image.format
+            _, ext = os.path.splitext(self.name)
+
+            logger.debug(
+                'Building image processing pipeline: %(processors)s',
+                {'processors': processors},
+            )
+            handler = build_handler(processors)
+            image, context = handler(image, context)
+
+            with io.BytesIO() as buf:
+                image.save(buf, format=format, **context.save_kwargs)
+
+                self.storage.delete(target)
+                self.storage.save(target, ContentFile(buf.getvalue()))
+
+                logger.info(
+                    'Saved processed image %(target)s',
+                    {'target': target},
                 )
-                format = image.format
-                _, ext = os.path.splitext(self.name)
-
-                logger.debug(
-                    'Building image processing pipeline: %(processors)s',
-                    {'processors': processors},
-                )
-                handler = build_handler(processors)
-                image, context = handler(image, context)
-
-                with io.BytesIO() as buf:
-                    image.save(buf, format=format, **context.save_kwargs)
-
-                    self.storage.delete(target)
-                    self.storage.save(target, ContentFile(buf.getvalue()))
-
-                    logger.info(
-                        'Saved processed image %(target)s',
-                        {'target': target},
-                    )
         except Exception:
             logger.exception('Exception while processing')
             raise
