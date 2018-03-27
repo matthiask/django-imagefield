@@ -41,17 +41,15 @@ class Command(BaseCommand):
 
         for field in IMAGEFIELDS:
             if self._skip_field(field):
-                self.stdout.write('%s.%s - skipped' % (
-                    field.model._meta.label_lower,
-                    field.name,
+                self.stdout.write('%s - skipped' % (
+                    field.field_label,
                 ))
                 continue
 
             queryset = field.model._default_manager.all()
             count = queryset.count()
-            self.stdout.write('%s.%s - %s objects - %s' % (
-                field.model._meta.label_lower,
-                field.name,
+            self.stdout.write('%s - %s objects - %s' % (
+                field.field_label,
                 count,
                 ', '.join(sorted(field.formats.keys())) or '<no formats!>',
             ))

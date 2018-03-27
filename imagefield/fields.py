@@ -138,12 +138,13 @@ class ImageField(models.ImageField):
         IMAGEFIELDS.add(self)
 
     @cached_property
+    def field_label(self):
+        return ('%s.%s' % (self.model._meta.label_lower, self.name)).lower()
+
+    @cached_property
     def formats(self):
         setting = getattr(settings, 'IMAGEFIELD_FORMATS', {})
-        return setting.get(
-            ('%s.%s' % (self.model._meta.label_lower, self.name)).lower(),
-            self._formats,
-        )
+        return setting.get(self.field_label, self._formats)
 
     def contribute_to_class(self, cls, name, **kwargs):
         if self._auto_add_fields:
@@ -169,16 +170,16 @@ class ImageField(models.ImageField):
                 sender=cls,
             )
 
-            # TODO Allow deactivating this by to move it out of the
-            # request-response cycle.
-            signals.post_save.connect(
-                self._generate_files,
-                sender=cls,
-            )
-            signals.post_delete.connect(
-                self._clear_generated_files,
-                sender=cls,
-            )
+            autogenerate = getattr(settings, 'IMAGEFIELD_AUTOGENERATE', True)
+            if autogenerate is True or self.field_label in autogenerate:
+                signals.post_save.connect(
+                    self._generate_files,
+                    sender=cls,
+                )
+                signals.post_delete.connect(
+                    self._clear_generated_files,
+                    sender=cls,
+                )
 
     def formfield(self, **kwargs):
         kwargs['widget'] = with_preview_and_ppoi(
