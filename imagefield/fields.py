@@ -31,7 +31,7 @@ except ImportError:  # pragma: no cover
 
 logger = logging.getLogger(__name__)
 #: Imagefield instances
-IMAGEFIELDS = set()
+IMAGEFIELDS = []
 
 
 class ImageFieldFile(files.ImageFieldFile):
@@ -135,8 +135,6 @@ class ImageField(models.ImageField):
         self.ppoi_field = kwargs.pop('ppoi_field', None)
         super(ImageField, self).__init__(verbose_name, **kwargs)
 
-        IMAGEFIELDS.add(self)
-
     @cached_property
     def field_label(self):
         return ('%s.%s' % (self.model._meta.label_lower, self.name)).lower()
@@ -165,6 +163,8 @@ class ImageField(models.ImageField):
         super(ImageField, self).contribute_to_class(cls, name, **kwargs)
 
         if not cls._meta.abstract:
+            IMAGEFIELDS.append(self)
+
             signals.post_init.connect(
                 self._cache_previous,
                 sender=cls,
