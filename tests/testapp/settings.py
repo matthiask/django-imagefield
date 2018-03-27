@@ -1,3 +1,4 @@
+import logging
 import os
 
 
@@ -61,3 +62,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+if os.environ.get('LOG'):
+    logger = logging.getLogger('imagefield')
+    logger.addHandler(logging.StreamHandler())
+    logger.setLevel(logging.DEBUG)

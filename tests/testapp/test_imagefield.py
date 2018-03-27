@@ -18,9 +18,9 @@ def openimage(path):
 
 
 def contents(path):
-    return list(itertools.chain.from_iterable(
+    return sorted(list(itertools.chain.from_iterable(
         i[2] for i in os.walk(os.path.join(settings.MEDIA_ROOT, path))
-    ))
+    )))
 
 
 class Test(TestCase):
@@ -128,6 +128,8 @@ class Test(TestCase):
 
     def test_upload(self):
         client = self.login()
+        self.assertEqual(contents('__processed__'), [])
+
         with openimage('python-logo.png') as f:
             response = client.post(
                 '/admin/testapp/model/add/',
@@ -138,6 +140,16 @@ class Test(TestCase):
             )
             self.assertRedirects(response, '/admin/testapp/model/')
 
+        self.assertEqual(
+            contents('__processed__'),
+            [
+                # desktop
+                'qeyFxGp-gwNJbrT9WyBNu93Jk_5qmepxPI1H1ZVHxUVlK7Sga8gHg.png',
+                # thumbnail
+                'qeyFxGp-gwNJbrT9WyBNu93Jk_JPhwI4PndMFMtagIW3tLVD17vWk.png',
+            ],
+        )
+
         m = Model.objects.get()
         self.assertTrue(m.image.name)
         self.assertEqual(
@@ -146,6 +158,22 @@ class Test(TestCase):
         )
         with self.assertRaises(AttributeError):
             m.image.not_exists
+
+        response = client.post(
+            '/admin/testapp/model/%s/change/' % m.pk,
+            {
+                'image': '',
+                'ppoi': '0x0',
+            },
+        )
+        self.assertRedirects(response, '/admin/testapp/model/')
+        self.assertEqual(
+            contents('__processed__'),
+            [
+                'qeyFxGp-gwNJbrT9WyBNu93Jk_CWut4y9Cajl-DHakGDVTqj4VWkk.png',
+                'qeyFxGp-gwNJbrT9WyBNu93Jk_L1GJr36z-Td6I9mZP2IuIlTDlgw.png',
+            ],
+        )
 
     def test_autorotate(self):
         field = Model._meta.get_field('image')

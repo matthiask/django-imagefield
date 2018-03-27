@@ -80,12 +80,13 @@ class ImageFieldFile(files.ImageFieldFile):
         target = self._processed_name(processors)
         logger.debug(
             'Processing image %(image)s as "%(key)s" with target %(target)s'
-            ' and pipeline %(processors)s',
+            ' and pipeline %(processors)s, PPOI %(ppoi)s',
             {
                 'image': self,
                 'key': item,
                 'target': target,
                 'processors': processors,
+                'ppoi': self._ppoi(),
             },
         )
         if not force and self.storage.exists(target):
@@ -168,8 +169,10 @@ class ImageField(models.ImageField):
         super(ImageField, self).contribute_to_class(cls, name, **kwargs)
 
         if not cls._meta.abstract:
-            # TODO Avoid calling process() too often?
-            # signals.post_init.connect(self.cache_values, sender=cls)
+            signals.post_init.connect(
+                self._cache_previous,
+                sender=cls,
+            )
 
             # TODO Allow deactivating this by to move it out of the
             # request-response cycle.
@@ -190,18 +193,9 @@ class ImageField(models.ImageField):
         return super(ImageField, self).formfield(**kwargs)
 
     def save_form_data(self, instance, data):
-        try:
-            previous_name = getattr(instance, self.name).name
-        except Exception:
-            previous_name = ''
         super(ImageField, self).save_form_data(instance, data)
 
-        # Reset PPOI field if image field is cleared
-        if data is not None and not data:
-            if self.ppoi_field:
-                setattr(instance, self.ppoi_field, '0.5x0.5')
-
-        elif data is not None:
+        if data is not None:
             f = getattr(instance, self.name)
             if f.name:
                 try:
@@ -211,23 +205,25 @@ class ImageField(models.ImageField):
                 except Exception as exc:
                     raise ValidationError(str(exc))
 
+            # Reset PPOI field if image field is cleared
+            if not data and self.ppoi_field:
+                setattr(instance, self.ppoi_field, '0.5x0.5')
+
+    def _cache_previous(self, instance, **kwargs):
         f = getattr(instance, self.name)
-        setattr(
-            instance,
-            '_previous_%s' % self.name,
-            (previous_name, f._ppoi()),
-        )
+        setattr(instance, '_previous_%s' % self.name, (f.name, f._ppoi()))
 
     def _generate_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
+
+        previous = getattr(instance, '_previous_%s' % self.name, None)
+        if previous and previous[0] and previous != (f.name, f._ppoi()):
+            logger.info('Clearing generated files for %s', repr(previous))
+            self._clear_generated_files_for(f, previous[0])
+
         if f.name:
             for item in f.field.formats:
                 f.process(item)
-
-        previous = getattr(instance, '_previous_%s' % self.name, None)
-        current = (f.name, f._ppoi())
-        if previous and previous[0] and current != previous:
-            self._clear_generated_files_for(f, previous[0])
 
     def _clear_generated_files(self, instance, **kwargs):
         self._clear_generated_files_for(
