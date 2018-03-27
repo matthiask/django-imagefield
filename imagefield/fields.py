@@ -67,8 +67,8 @@ class ImageFieldFile(files.ImageFieldFile):
 
         return '__processed__/%s/%s_%s%s' % (p1[:2], p1[2:], p2, ext)
 
-    def _processed_base(self):
-        p1 = self._urlhash(self.name)
+    def _processed_base(self, name=None):
+        p1 = self._urlhash(self.name if name is None else name)
         return '__processed__/%s' % p1[:2], '%s_' % p1[2:]
 
     def process(self, item, force=False):
@@ -190,6 +190,10 @@ class ImageField(models.ImageField):
         return super(ImageField, self).formfield(**kwargs)
 
     def save_form_data(self, instance, data):
+        try:
+            previous_name = getattr(instance, self.name).name
+        except Exception:
+            previous_name = ''
         super(ImageField, self).save_form_data(instance, data)
 
         # Reset PPOI field if image field is cleared
@@ -207,25 +211,39 @@ class ImageField(models.ImageField):
                 except Exception as exc:
                     raise ValidationError(str(exc))
 
+        setattr(instance, '_previous_%s' % self.name, previous_name)
+        # print(repr(('save_form_data', old_name, f.name)))
+
     def _generate_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
         if f.name:
             for item in f.field.formats:
                 f.process(item)
 
+        previous_name = getattr(instance, '_previous_%s' % self.name, None)
+        if previous_name:
+            self._clear_generated_files_for(f, previous_name)
+            # print('Removing files from %s' % previous_name)
+            # print('_processed_base: %s, %s' % f._processed_base(previous_name))
+
     def _clear_generated_files(self, instance, **kwargs):
-        f = getattr(instance, self.name)
-        folder, startswith = f._processed_base()
+        self._clear_generated_files_for(
+            getattr(instance, self.name),
+            None,
+        )
+
+    def _clear_generated_files_for(self, fieldfile, filename):
+        folder, startswith = fieldfile._processed_base(filename)
 
         try:
-            folders, files = f.storage.listdir(folder)
+            folders, files = fieldfile.storage.listdir(folder)
         except FileNotFoundError:
             # Fine!
             return
 
         for file in files:
             if file.startswith(startswith):
-                f.storage.delete(os.path.join(folder, file))
+                fieldfile.storage.delete(os.path.join(folder, file))
 
 
 class PPOIField(models.CharField):
