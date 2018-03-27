@@ -39,7 +39,7 @@ class Command(BaseCommand):
     def handle(self, **options):
         self._make_filter(options['field'])
 
-        for field in IMAGEFIELDS:
+        for field in sorted(IMAGEFIELDS, key=lambda f: f.field_label):
             if self._skip_field(field):
                 self.stdout.write('%s - skipped' % (
                     field.field_label,
