@@ -303,3 +303,45 @@ class Test(TestCase):
                     response.content.decode('utf-8'),
                     r'image file is truncated \([0-9]+ bytes not processed\)',
                 )
+
+    def test_adhoc(self):
+        m = Model.objects.create(
+            image='python-logo.jpg',
+        )
+        self.assertEqual(
+            contents('__processed__'),
+            [
+                'iYv7k8q0rqBjKizxSQoZAWo2o_5qmepxPI1H1ZVHxUVlK7Sga8gHg.jpg',
+                'iYv7k8q0rqBjKizxSQoZAWo2o_JPhwI4PndMFMtagIW3tLVD17vWk.jpg',
+            ],
+        )
+        self.assertEqual(
+            m.image.process([('thumbnail', (20, 20))]),
+            '__processed__/0A/iYv7k8q0rqBjKizxSQoZAWo2o_Q_6wMcG-SSd_V-QDmw_yJsOvsqE.jpg',  # noqa
+        )
+        self.assertEqual(
+            contents('__processed__'),
+            [
+                'iYv7k8q0rqBjKizxSQoZAWo2o_5qmepxPI1H1ZVHxUVlK7Sga8gHg.jpg',
+                'iYv7k8q0rqBjKizxSQoZAWo2o_JPhwI4PndMFMtagIW3tLVD17vWk.jpg',
+                'iYv7k8q0rqBjKizxSQoZAWo2o_Q_6wMcG-SSd_V-QDmw_yJsOvsqE.jpg'
+            ],
+        )
+        m.delete()
+        self.assertEqual(
+            contents('__processed__'),
+            [],
+        )
+
+    def test_adhoc_lowlevel(self):
+        m = Model.objects.create(
+            image='python-logo.jpg',
+        )
+        m.image._process([('thumbnail', (20, 20))])
+        self.assertEqual(
+            contents('__processed__'),
+            [
+                'iYv7k8q0rqBjKizxSQoZAWo2o_5qmepxPI1H1ZVHxUVlK7Sga8gHg.jpg',
+                'iYv7k8q0rqBjKizxSQoZAWo2o_JPhwI4PndMFMtagIW3tLVD17vWk.jpg',
+            ],
+        )
