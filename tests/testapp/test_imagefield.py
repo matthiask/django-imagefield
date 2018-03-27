@@ -359,9 +359,9 @@ class Test(TestCase):
         )
 
         slow_storage.slow = True
-        m = SlowStorageImage.objects.get()
 
         start = time.monotonic()
+        m = SlowStorageImage.objects.get()
         self.assertEqual(
             m.image.thumb,
             '/media/__processed__/0A/iYv7k8q0rqBjKizxSQoZAWo2o_EMBw8XYfMA75GdqNrTUgkyoPyVU.jpg',  # noqa
