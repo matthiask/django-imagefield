@@ -66,6 +66,17 @@ class Command(BaseCommand):
 
                 if index % 5 == 0:
                     progress = '*' * int(index / count * 50)
-                    self.stdout.write('\r|%s|' % progress.ljust(50), ending='')
+                    self.stdout.write(
+                        '\r|%s| %s/%s' % (
+                            progress.ljust(50),
+                            index,
+                            count,
+                        ),
+                        ending='',
+                    )
 
-            self.stdout.write('\r|%s|' % ('*' * 50,))
+            self.stdout.write('\r|%s| %s/%s' % (
+                '*' * 50,
+                count,
+                count,
+            ))
