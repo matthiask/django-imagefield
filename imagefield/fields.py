@@ -240,7 +240,7 @@ class ImageField(models.ImageField):
 
         try:
             folders, files = fieldfile.storage.listdir(folder)
-        except FileNotFoundError:
+        except EnvironmentError:  # FileNotFoundError on PY3
             # Fine!
             return
 
