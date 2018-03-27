@@ -133,12 +133,6 @@ class ImageField(models.ImageField):
         self._auto_add_fields = kwargs.pop('auto_add_fields', False)
         self._formats = kwargs.pop('formats', {})
         self.ppoi_field = kwargs.pop('ppoi_field', None)
-
-        # TODO implement this? Or handle this outside? Maybe as an image
-        # processor? I fear that otherwise we have to reimplement parts of the
-        # ImageFileDescriptor (not hard, but too much copy paste for my taste)
-        # self.placeholder = kwargs.pop('placeholder', None)
-
         super(ImageField, self).__init__(verbose_name, **kwargs)
 
         IMAGEFIELDS.add(self)
