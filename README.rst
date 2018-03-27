@@ -14,8 +14,8 @@ Heavily based on `django-versatileimagefield
 <https://github.com/respondcreate/django-versatileimagefield>`_, but
 with a few important differences:
 
-- The amount of code is kept at a minimum. At the time of writing
-  django-versatileimagefield has 4-5 times as much code (without tests).
+- The amount of code is kept at a minimum. django-versatileimagefield
+  has several times as much code (without tests).
 - Generating images on-demand inside rendering code is made hard on
   purpose. Instead, images are generated when models are saved and also
   by running the management command ``process_all_imagefields``.
