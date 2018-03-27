@@ -4,6 +4,7 @@ import logging
 import os
 
 from django.conf import settings
+from django.core import checks
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import models
@@ -243,6 +244,24 @@ class ImageField(models.ImageField):
         for file in files:
             if file.startswith(startswith):
                 fieldfile.storage.delete(os.path.join(folder, file))
+
+    def check(self, **kwargs):
+        errors = super(ImageField, self).check(**kwargs)
+        if not all((self.width_field, self.height_field)):
+            errors.append(checks.Warning(
+                'ImageField without width_field/height_field will be slow!',
+                hint='auto_add_fields=True automatically adds the fields.',
+                obj=self,
+                id='imagefield.W001',
+            ))
+        if not self.ppoi_field:
+            errors.append(checks.Info(
+                'ImageField without ppoi_field.',
+                hint='auto_add_fields=True automatically adds the field.',
+                obj=self,
+                id='imagefield.I001',
+            ))
+        return errors
 
 
 class PPOIField(models.CharField):

@@ -100,7 +100,7 @@ class Test(TestCase):
         )
         # print(response.content.decode('utf-8'))
 
-    def test_image_model(self):
+    def test_model_without_height_width_ppoi(self):
         client = self.login()
         response = client.get('/admin/testapp/image/add/')
         self.assertNotContains(
