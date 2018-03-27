@@ -172,23 +172,3 @@ def crop(get_image, args):
         # (as determined by `width`x`height`)
         return cropped_image.resize((width, height), Image.LANCZOS), context
     return processor
-
-
-# TODO: How to specify the placeholder image?
-# @register
-# def placeholder(get_image, args):
-#     def processor(image, context):
-#         return get_image(image, context)
-#     return processor
-#
-#
-# TODO: Should we still try saving, or not?
-# @register
-# def revert_on_failure(get_image, args):
-#     def processor(image, context):
-#         try:
-#             return get_image(image, context)
-#         except Exception:
-#             # Or even get_image(fallback, context)?
-#             return image, context
-#     return processor
