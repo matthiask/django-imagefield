@@ -19,6 +19,8 @@ Change log
   alphabetic order. Also, made cosmetic changes to the progress output.
 - Added a test which verifies that generating processed image URLs is
   not slowed down by potentially slow storages (e.g. cloud storage)
+- Fixed the PPOI JavaScript to not crash when some imagefields have no
+  corresponding PPOI input.
 
 
 `0.1`_ (2018-03-27)
