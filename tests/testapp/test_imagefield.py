@@ -353,9 +353,11 @@ class Test(TestCase):
 
     @skipIf(sys.version_info[0] < 3, 'time.monotonic only with Python>=3.3')
     def test_fast(self):
+        # Generate thumbs, cache width/height
         SlowStorageImage.objects.create(
             image='python-logo.jpg',
         )
+
         slow_storage.slow = True
         m = SlowStorageImage.objects.get()
 

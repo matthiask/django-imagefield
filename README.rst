@@ -20,7 +20,8 @@ with a few important differences:
   purpose. Instead, images are generated when models are saved and also
   by running the management command ``process_all_imagefields``.
 - django-imagefield does not depend on a fast storage or a cache to be
-  and stay fast.
+  and stay fast, at least as long as the image width and height is saved
+  in the database.
 
 Replacing existing uses of django-versatileimagefield requires the
 following steps:
