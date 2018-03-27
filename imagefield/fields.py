@@ -211,8 +211,10 @@ class ImageField(models.ImageField):
                 except Exception as exc:
                     raise ValidationError(str(exc))
 
-        setattr(instance, '_previous_%s' % self.name, previous_name)
-        # print(repr(('save_form_data', old_name, f.name)))
+        setattr(instance, '_previous_%s' % self.name, (
+            previous_name,
+            getattr(instance, self.ppoi_field) if self.ppoi_field else None,
+        ))
 
     def _generate_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
@@ -220,11 +222,13 @@ class ImageField(models.ImageField):
             for item in f.field.formats:
                 f.process(item)
 
-        previous_name = getattr(instance, '_previous_%s' % self.name, None)
-        if previous_name:
-            self._clear_generated_files_for(f, previous_name)
-            # print('Removing files from %s' % previous_name)
-            # print('_processed_base: %s, %s' % f._processed_base(previous_name))
+        previous = getattr(instance, '_previous_%s' % self.name, None)
+        current = (
+            f.name,
+            getattr(instance, self.ppoi_field) if self.ppoi_field else None,
+        )
+        if previous and previous[0] and current != previous:
+            self._clear_generated_files_for(f, previous[0])
 
     def _clear_generated_files(self, instance, **kwargs):
         self._clear_generated_files_for(
