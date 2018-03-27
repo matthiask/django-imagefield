@@ -2,6 +2,9 @@ import io
 import itertools
 import os
 import shutil
+import sys
+import time
+from unittest import skipIf
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -10,7 +13,9 @@ from django.utils.translation import deactivate_all
 
 from PIL import Image
 
-from .models import Image as Image_, Model, ModelWithOptional
+from .models import (
+    Image as Image_, Model, ModelWithOptional, SlowStorageImage, slow_storage,
+)
 
 
 def openimage(path):
@@ -345,3 +350,20 @@ class Test(TestCase):
                 'iYv7k8q0rqBjKizxSQoZAWo2o_JPhwI4PndMFMtagIW3tLVD17vWk.jpg',
             ],
         )
+
+    @skipIf(sys.version_info[0] < 3, 'time.monotonic only with Python>=3.3')
+    def test_fast(self):
+        SlowStorageImage.objects.create(
+            image='python-logo.jpg',
+        )
+        slow_storage.slow = True
+        m = SlowStorageImage.objects.get()
+
+        start = time.monotonic()
+        self.assertEqual(
+            m.image.thumb,
+            '/media/__processed__/0A/iYv7k8q0rqBjKizxSQoZAWo2o_EMBw8XYfMA75GdqNrTUgkyoPyVU.jpg',  # noqa
+        )
+        duration = time.monotonic() - start
+        # No opens, no saves
+        self.assertTrue(duration < 0.1)

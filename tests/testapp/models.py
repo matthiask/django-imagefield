@@ -1,3 +1,6 @@
+from time import sleep
+
+from django.core.files import storage
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -47,4 +50,37 @@ class Image(models.Model):
     image = ImageField(
         _('image'),
         upload_to='images',
+    )
+
+
+class SlowStorage(storage.FileSystemStorage):
+    slow = False
+
+    def _open(self, name, mode='rb'):
+        if self.slow:
+            sleep(1)
+            import traceback
+            traceback.print_stack()
+        return super()._open(name, mode=mode)
+
+    def _save(self, name, content):
+        if self.slow:
+            sleep(1)
+            import traceback
+            traceback.print_stack()
+        return super()._save(name, content)
+
+
+slow_storage = SlowStorage()
+
+
+class SlowStorageImage(models.Model):
+    image = ImageField(
+        _('image'),
+        upload_to='images',
+        auto_add_fields=True,
+        storage=slow_storage,
+        formats={
+            'thumb': ['default', ('crop', (20, 20))],
+        },
     )
