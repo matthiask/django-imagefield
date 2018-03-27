@@ -218,6 +218,7 @@ class ImageField(models.ImageField):
         f = getattr(instance, self.name)
 
         previous = getattr(instance, '_previous_%s' % self.name, None)
+        # TODO This will not detect replaced/overwritten files.
         if previous and previous[0] and previous != (f.name, f._ppoi()):
             logger.info('Clearing generated files for %s', repr(previous))
             self._clear_generated_files_for(f, previous[0])
