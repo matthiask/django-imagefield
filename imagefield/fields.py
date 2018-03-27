@@ -211,10 +211,12 @@ class ImageField(models.ImageField):
                 except Exception as exc:
                     raise ValidationError(str(exc))
 
-        setattr(instance, '_previous_%s' % self.name, (
-            previous_name,
-            getattr(instance, self.ppoi_field) if self.ppoi_field else None,
-        ))
+        f = getattr(instance, self.name)
+        setattr(
+            instance,
+            '_previous_%s' % self.name,
+            (previous_name, f._ppoi()),
+        )
 
     def _generate_files(self, instance, **kwargs):
         f = getattr(instance, self.name)
@@ -223,10 +225,7 @@ class ImageField(models.ImageField):
                 f.process(item)
 
         previous = getattr(instance, '_previous_%s' % self.name, None)
-        current = (
-            f.name,
-            getattr(instance, self.ppoi_field) if self.ppoi_field else None,
-        )
+        current = (f.name, f._ppoi())
         if previous and previous[0] and current != previous:
             self._clear_generated_files_for(f, previous[0])
 
