@@ -53,18 +53,8 @@ class Test(TestCase):
         client.force_login(self.user)
         return client
 
-    def test_modules(self):
-        """Admin modules are present, necessary JS too"""
-
-        client = self.login()
-        response = client.get('/admin/')
-        self.assertContains(
-            response,
-            '<a href="/admin/testapp/model/">Models</a>',
-            1,
-        )
-
     def test_model(self):
+        """Behavior of model with ImageField(blank=False)"""
         m = Model.objects.create(
             image='python-logo.png',
         )
@@ -92,6 +82,7 @@ class Test(TestCase):
         # print(response.content.decode('utf-8'))
 
     def test_model_with_optional(self):
+        """Behavior of model with ImageField(blank=True)"""
         client = self.login()
         response = client.get('/admin/testapp/modelwithoptional/add/')
         self.assertContains(
@@ -101,6 +92,7 @@ class Test(TestCase):
         # print(response.content.decode('utf-8'))
 
     def test_model_without_height_width_ppoi(self):
+        """Behavior of model without width/height/ppoi fields"""
         client = self.login()
         response = client.get('/admin/testapp/image/add/')
         self.assertNotContains(
@@ -132,6 +124,7 @@ class Test(TestCase):
         )
 
     def test_upload(self):
+        """Adding and updating images does not leave old thumbs around"""
         client = self.login()
         self.assertEqual(contents('__processed__'), [])
 
@@ -159,7 +152,8 @@ class Test(TestCase):
         self.assertTrue(m.image.name)
         self.assertEqual(
             m.image.thumbnail,
-            '/media/__processed__/Aq/qeyFxGp-gwNJbrT9WyBNu93Jk_JPhwI4PndMFMtagIW3tLVD17vWk.png',  # noqa
+            '/media/__processed__/'
+            'Aq/qeyFxGp-gwNJbrT9WyBNu93Jk_JPhwI4PndMFMtagIW3tLVD17vWk.png',
         )
         with self.assertRaises(AttributeError):
             m.image.not_exists
@@ -181,6 +175,7 @@ class Test(TestCase):
         )
 
     def test_autorotate(self):
+        """Images are automatically rotated according to EXIF data"""
         field = Model._meta.get_field('image')
 
         for image in ['Landscape_3.jpg', 'Landscape_6.jpg', 'Landscape_8.jpg']:
@@ -202,6 +197,7 @@ class Test(TestCase):
             self.assertEqual(contents('__processed__'), [])
 
     def test_cmyk(self):
+        """JPEG in CMYK is converted to RGB"""
         field = Model._meta.get_field('image')
 
         m = Model(
@@ -221,16 +217,26 @@ class Test(TestCase):
                 'RGB',
             )
 
-        self.assertEqual(len(contents('__processed__')), 1)
+        self.assertEqual(
+            contents('__processed__'),
+            [
+                'RntjpL18ggirSNRLj2vX-WITA_5qmepxPI1H1ZVHxUVlK7Sga8gHg.jpg',
+            ],
+        )
         field._clear_generated_files(m)
-        self.assertEqual(contents('__processed__'), [])
+        self.assertEqual(
+            contents('__processed__'),
+            [],
+        )
 
     def test_empty(self):
+        """Model without an imagefield does not crash when accessing props"""
         m = Model()
         self.assertEqual(m.image.name, '')
         self.assertEqual(m.image.desktop, '')
 
-    def test_ppoi_clearing(self):
+    def test_ppoi_reset(self):
+        """PPOI field reverts to default when image field is cleared"""
         client = self.login()
         with openimage('python-logo.png') as f:
             response = client.post(
@@ -260,6 +266,7 @@ class Test(TestCase):
         self.assertEqual(m.image_ppoi, '0.5x0.5')
 
     def test_broken(self):
+        """Broken images are rejected early"""
         with self.assertRaises((IOError, OSError)):
             Model.objects.create(
                 image='broken.png',
@@ -310,6 +317,7 @@ class Test(TestCase):
                 )
 
     def test_adhoc(self):
+        """Ad-hoc processing pipelines may be built and executed"""
         m = Model.objects.create(
             image='python-logo.jpg',
         )
@@ -322,7 +330,8 @@ class Test(TestCase):
         )
         self.assertEqual(
             m.image.process([('thumbnail', (20, 20))]),
-            '__processed__/0A/iYv7k8q0rqBjKizxSQoZAWo2o_Q_6wMcG-SSd_V-QDmw_yJsOvsqE.jpg',  # noqa
+            '__processed__/0A/'
+            'iYv7k8q0rqBjKizxSQoZAWo2o_Q_6wMcG-SSd_V-QDmw_yJsOvsqE.jpg',
         )
         self.assertEqual(
             contents('__processed__'),
@@ -339,10 +348,12 @@ class Test(TestCase):
         )
 
     def test_adhoc_lowlevel(self):
+        """Low-level processing pipelines; no saving of generated images"""
         m = Model.objects.create(
             image='python-logo.jpg',
         )
         m.image._process([('thumbnail', (20, 20))])
+        # New thumb is not saved; still only "desktop" and "thumbnail" images
         self.assertEqual(
             contents('__processed__'),
             [
@@ -353,7 +364,8 @@ class Test(TestCase):
 
     @skipIf(sys.version_info[0] < 3, 'time.monotonic only with Python>=3.3')
     def test_fast(self):
-        # Generate thumbs, cache width/height
+        """Loading models and generating URLs is not slowed by storages"""
+        # Generate thumbs, cache width/height in DB fields
         SlowStorageImage.objects.create(
             image='python-logo.jpg',
         )
@@ -364,7 +376,8 @@ class Test(TestCase):
         m = SlowStorageImage.objects.get()
         self.assertEqual(
             m.image.thumb,
-            '/media/__processed__/0A/iYv7k8q0rqBjKizxSQoZAWo2o_EMBw8XYfMA75GdqNrTUgkyoPyVU.jpg',  # noqa
+            '/media/__processed__/0A/'
+            'iYv7k8q0rqBjKizxSQoZAWo2o_EMBw8XYfMA75GdqNrTUgkyoPyVU.jpg',
         )
         duration = time.monotonic() - start
         # No opens, no saves
