@@ -6,8 +6,10 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Rename management command to ``process_imagefields``, and add
+  ``--all`` option to process all imagefields.
 - Fixed a bug where not all image fields from base classes were picked
-  up for processing by ``process_all_imagefields``.
+  up for processing by ``process_imagefields``.
 - Added the ``IMAGEFIELD_AUTOGENERATE`` setting, which can be set to a
   list of image fields (in ``app.model.field`` notation, lowercased) to
   only activate automatic processing of images upon model creation and
@@ -15,7 +17,7 @@ Change log
   functionality for all fields.
 - Added system checks which warn when ``width_field`` and
   ``height_field`` are not used.
-- Changed ``process_all_imagefields`` to process image fields in
+- Changed ``process_imagefields`` to process image fields in
   alphabetic order. Also, made cosmetic changes to the progress output.
 - Added a test which verifies that generating processed image URLs is
   not slowed down by potentially slow storages (e.g. cloud storage)

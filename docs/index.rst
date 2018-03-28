@@ -12,7 +12,7 @@ with a few important differences:
   has several times as much code (without tests).
 - Generating images on-demand inside rendering code is made hard on
   purpose. Instead, images are generated when models are saved and also
-  by running the management command ``process_all_imagefields``.
+  by running the management command ``process_imagefields``.
 - django-imagefield does not depend on a fast storage or a cache to be
   and stay fast, at least as long as the image width and height is saved
   in the database.
@@ -40,7 +40,7 @@ following setting::
         },
     }
 
-After running ``./manage.py process_all_imagefields`` once you can now
+After running ``./manage.py process_imagefields`` once you can now
 use use ``instance.image.square`` and ``instance.image.thumbnail`` in
 templates instead. Note that the properties on the ``image`` file do by
 design not check whether thumbs exist.

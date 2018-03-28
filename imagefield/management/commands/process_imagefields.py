@@ -1,10 +1,18 @@
-from django.core.management.base import BaseCommand
+import sys
+
+from django.core.management.base import BaseCommand, CommandError
 
 from imagefield.fields import IMAGEFIELDS
 
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
+        parser.add_argument(
+            '--all',
+            action='store_true',
+            dest='all',
+            help='Process all fields.',
+        )
         parser.add_argument(
             '--force',
             action='store_true',
@@ -15,35 +23,34 @@ class Command(BaseCommand):
             'field',
             nargs='*',
             type=str,
-            help='Process only some fields (app.Model.field or app.Model).',
+            help='Fields to process:\n%s' % (
+                ', '.join(sorted(f.field_label for f in IMAGEFIELDS)),
+            ),
         )
 
         # TODO --clear for removing previously generated images.
 
-    def _make_filter(self, fields):
-        if not fields:
-            self._filter = None
+    def _make_filter(self, options):
+        if options['all']:
+            return type(str('c'), (), {'__contains__': lambda *a: True})()
+        elif options['field']:
+            unknown = set(options['field']).difference(
+                f.field_label for f in IMAGEFIELDS
+            )
+            if unknown:
+                raise CommandError('Unknown imagefields: %s' % (
+                    ', '.join(sorted(unknown)),
+                ))
+            return options['field']
         else:
-            self._filter = {}
-            for field in fields:
-                parts = field.lower().split('.')
-                self._filter['.'.join(parts[:2])] = parts[2:]
-
-    def _skip_field(self, field):
-        if self._filter is None:
-            # Process all fields
-            return False
-        fields = self._filter.get(field.model._meta.label_lower)
-        return fields is None or (fields and field.name not in fields)
+            self.print_help(sys.argv[0], sys.argv[1])
+            sys.exit(1)
 
     def handle(self, **options):
-        self._make_filter(options['field'])
+        self._fields = self._make_filter(options)
 
         for field in sorted(IMAGEFIELDS, key=lambda f: f.field_label):
-            if self._skip_field(field):
-                self.stdout.write('%s - skipped' % (
-                    field.field_label,
-                ))
+            if field.field_label not in self._fields:
                 continue
 
             queryset = field.model._default_manager.all()
