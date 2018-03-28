@@ -6,6 +6,10 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+
+`0.2`_ (2018-03-28)
+~~~~~~~~~~~~~~~~~~~
+
 - Rename management command to ``process_imagefields``, and add
   ``--all`` option to process all imagefields.
 - Fixed a bug where not all image fields from base classes were picked
@@ -32,4 +36,5 @@ Change log
 
 
 .. _0.1: https://github.com/matthiask/django-imagefield/commit/013b9a810fa6
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.1...master
+.. _0.2: https://github.com/matthiask/django-imagefield/compare/0.1...0.2
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.2...master
