@@ -22,6 +22,8 @@ with a few important differences:
 - django-imagefield does not depend on a fast storage or a cache to be
   and stay fast, at least as long as the image width and height is saved
   in the database.
+- django-imagefield fails early when image data is incomplete or not
+  processable by Pillow_ for some reason.
 
 Replacing existing uses of django-versatileimagefield requires the
 following steps:
@@ -133,4 +135,5 @@ using tox_::
 
 
 .. _documentation: https://django-imagefield.readthedocs.io/en/latest/
+.. _Pillow: https://pillow.readthedocs.io/en/latest/
 .. _tox: https://tox.readthedocs.io/
