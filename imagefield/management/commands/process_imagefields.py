@@ -60,6 +60,12 @@ class Command(BaseCommand):
                 count,
                 ', '.join(sorted(field.formats.keys())) or '<no formats!>',
             ))
+            self.stdout.write('\r|%s| %s/%s' % (
+                ' ' * 50,
+                0,
+                count,
+            ))
+
             for index, instance in enumerate(queryset):
                 fieldfile = getattr(instance, field.name)
                 if fieldfile and fieldfile.name:
@@ -69,16 +75,19 @@ class Command(BaseCommand):
                         except Exception as exc:
                             self.stdout.write(str(exc))
 
-                if index % 5 == 0:
-                    progress = '*' * int(index / count * 50)
-                    self.stdout.write(
-                        '\r|%s| %s/%s' % (
-                            progress.ljust(50),
-                            index,
-                            count,
-                        ),
-                        ending='',
-                    )
+                progress = '*' * int(index / count * 50)
+                self.stdout.write(
+                    '\r|%s| %s/%s' % (
+                        progress.ljust(50),
+                        index + 1,
+                        count,
+                    ),
+                    ending='',
+                )
+
+                # Save instance once for good measure; fills in width/height
+                # if not done already
+                instance.save()
 
             self.stdout.write('\r|%s| %s/%s' % (
                 '*' * 50,
