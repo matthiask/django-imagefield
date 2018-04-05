@@ -210,6 +210,10 @@ class ImageField(models.ImageField):
         setattr(instance, '_previous_%s' % self.name, (f.name, f._ppoi()))
 
     def _generate_files(self, instance, **kwargs):
+        # Set by the process_imagefields management command
+        if getattr(instance, '_skip_generate_files', False):
+            return
+
         f = getattr(instance, self.name)
 
         previous = getattr(instance, '_previous_%s' % self.name, None)

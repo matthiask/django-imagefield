@@ -87,6 +87,7 @@ class Command(BaseCommand):
 
                 # Save instance once for good measure; fills in width/height
                 # if not done already
+                instance._skip_generate_files = True
                 instance.save()
 
             self.stdout.write('\r|%s| %s/%s' % (
