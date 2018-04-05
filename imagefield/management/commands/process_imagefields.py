@@ -64,6 +64,7 @@ class Command(BaseCommand):
                 ' ' * 50,
                 0,
                 count,
+                ending='',
             ))
 
             for index, instance in enumerate(queryset):
