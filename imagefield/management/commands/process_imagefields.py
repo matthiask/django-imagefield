@@ -60,12 +60,10 @@ class Command(BaseCommand):
                 count,
                 ', '.join(sorted(field.formats.keys())) or '<no formats!>',
             ))
-            self.stdout.write('\r|%s| %s/%s' % (
-                ' ' * 50,
-                0,
-                count,
+            self.stdout.write(
+                '\r|%s| %s/%s' % (' ' * 50, 0, count),
                 ending='',
-            ))
+            )
 
             for index, instance in enumerate(queryset):
                 fieldfile = getattr(instance, field.name)
@@ -78,11 +76,7 @@ class Command(BaseCommand):
 
                 progress = '*' * int(index / count * 50)
                 self.stdout.write(
-                    '\r|%s| %s/%s' % (
-                        progress.ljust(50),
-                        index + 1,
-                        count,
-                    ),
+                    '\r|%s| %s/%s' % (progress.ljust(50), index + 1, count),
                     ending='',
                 )
 
@@ -91,8 +85,4 @@ class Command(BaseCommand):
                 instance._skip_generate_files = True
                 instance.save()
 
-            self.stdout.write('\r|%s| %s/%s' % (
-                '*' * 50,
-                count,
-                count,
-            ))
+            self.stdout.write('\r|%s| %s/%s' % ('*' * 50, count, count))
