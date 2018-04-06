@@ -77,9 +77,9 @@ class Test(TestCase):
         self.assertContains(
             response,
             '<img class="imagefield-preview-image"'
-            ' src="/media/python-logo.png" alt=""/>',
+            ' src="/media/__processed__/vr/h-OWjL8SmpaLbBaC1qUgGqxIw'
+            '_bj33RNyCvPdornzp1GHuLsfqUcg.png" alt=""/>',
         )
-        # print(response.content.decode('utf-8'))
 
     def test_model_with_optional(self):
         """Behavior of model with ImageField(blank=True)"""
@@ -120,8 +120,10 @@ class Test(TestCase):
         self.assertContains(
             response,
             '<img class="imagefield-preview-image"'
-            ' src="/media/python-logo.png" alt=""/>',
+            ' src="/media/__processed__/vr/h-OWjL8SmpaLbBaC1qUgGqxIw_'
+            'bj33RNyCvPdornzp1GHuLsfqUcg.png" alt=""/>',
         )
+        # print(response.content.decode('utf-8'))
 
     def test_upload(self):
         """Adding and updating images does not leave old thumbs around"""
