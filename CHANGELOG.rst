@@ -6,6 +6,11 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Improved progress reporting in ``process_imagefields``.
+- Added a call to ``instance.save()`` in ``process_imagefields`` so that
+  width and height fields are saved (if any).
+- Added ``accept="image/*"`` attribute to the file upload widget.
+
 
 `0.2`_ (2018-03-28)
 ~~~~~~~~~~~~~~~~~~~
