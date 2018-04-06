@@ -1,6 +1,7 @@
 import inspect
 
 from django import forms
+from django.core.cache import cache
 from django.utils.html import format_html
 
 
@@ -18,7 +19,7 @@ class PreviewAndPPOIMixin(object):
         widget = super(PreviewAndPPOIMixin, self).render(
             name, value, attrs=attrs, renderer=renderer,
         )
-        if not value:
+        if not getattr(value, 'url', ''):
             return widget
 
         # Find our BoundField so that we may access the form instance to
@@ -41,11 +42,17 @@ class PreviewAndPPOIMixin(object):
         except (AttributeError, KeyError, TypeError) as exc:
             ppoi = ''
 
-        try:
-            name = value.process(['default', ('thumbnail', (300, 300))])
-            url = value.storage.url(name)
-        except Exception:
-            url = getattr(value, 'url', '')
+        key = 'imagefield-admin-thumb:%s' % value.name
+        url = cache.get(key, '')
+        if not url:
+            try:
+                url = value.storage.url(
+                    value.process(['default', ('thumbnail', (300, 300))]),
+                )
+                cache.set(key, url, timeout=30 * 86400)
+
+            except Exception:
+                pass
 
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
