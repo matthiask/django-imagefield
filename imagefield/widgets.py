@@ -13,6 +13,7 @@ class PPOIWidget(forms.HiddenInput):
 class PreviewAndPPOIMixin(object):
     def render(self, name, value, attrs=None, renderer=None):
         attrs = attrs or {}
+        # Can be dropped once we drop support for Django<2.1
         attrs.setdefault('accept', 'image/*')
         widget = super(PreviewAndPPOIMixin, self).render(
             name, value, attrs=attrs, renderer=renderer,
