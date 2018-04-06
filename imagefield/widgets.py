@@ -12,6 +12,8 @@ class PPOIWidget(forms.HiddenInput):
 
 class PreviewAndPPOIMixin(object):
     def render(self, name, value, attrs=None, renderer=None):
+        attrs = attrs or {}
+        attrs.setdefault('accept', 'image/*')
         widget = super(PreviewAndPPOIMixin, self).render(
             name, value, attrs=attrs, renderer=renderer,
         )
