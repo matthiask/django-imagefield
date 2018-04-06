@@ -21,7 +21,8 @@ class PreviewAndPPOIMixin(object):
         if not value:
             return widget
 
-        # find our BoundField so that we may access the form etc.
+        # Find our BoundField so that we may access the form instance to
+        # finally determine the ID attribute of our PPOI field.
         frame = inspect.currentframe()
         while frame:
             boundfield = frame.f_locals.get('self')
@@ -40,6 +41,12 @@ class PreviewAndPPOIMixin(object):
         except (AttributeError, KeyError, TypeError) as exc:
             ppoi = ''
 
+        try:
+            name = value.process(['default', ('thumbnail', (300, 300))])
+            url = value.storage.url(name)
+        except Exception:
+            url = getattr(value, 'url', '')
+
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
             '<div class="imagefield-preview">'
@@ -48,7 +55,7 @@ class PreviewAndPPOIMixin(object):
             '<div class="imagefield-widget">{widget}</div>'
             '</div>',
             widget=widget,
-            url=getattr(value, 'url', ''),
+            url=url,
             ppoi=ppoi,
         )
 
