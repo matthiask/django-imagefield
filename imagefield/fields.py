@@ -5,6 +5,7 @@ import os
 
 from django.conf import settings
 from django.core import checks
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import models
@@ -233,6 +234,9 @@ class ImageField(models.ImageField):
         )
 
     def _clear_generated_files_for(self, fieldfile, filename):
+        key = 'imagefield-admin-thumb:%s' % filename
+        cache.delete(key)
+
         folder, startswith = fieldfile._processed_base(filename)
 
         try:
