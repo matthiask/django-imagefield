@@ -19,7 +19,9 @@ class PreviewAndPPOIMixin(object):
         widget = super(PreviewAndPPOIMixin, self).render(
             name, value, attrs=attrs, renderer=renderer,
         )
-        if not getattr(value, 'url', ''):
+
+        # name does not require a file, .url does
+        if not getattr(value, 'name', ''):
             return widget
 
         # Find our BoundField so that we may access the form instance to

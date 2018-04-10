@@ -11,6 +11,8 @@ Change log
   width and height fields are saved (if any).
 - Added ``accept="image/*"`` attribute to the file upload widget.
 - Replaced the full image in the admin widget with an ad-hoc thumbnail.
+- Fixed a bug where blank imagefields would not work correctly in the
+  administration interface.
 
 
 `0.2`_ (2018-03-28)

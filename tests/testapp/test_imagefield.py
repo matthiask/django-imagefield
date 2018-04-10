@@ -89,7 +89,16 @@ class Test(TestCase):
             response,
             'src="/static/imagefield/ppoi.js"',
         )
-        # print(response.content.decode('utf-8'))
+
+        m = ModelWithOptional.objects.create()
+        response = client.get(
+            '/admin/testapp/modelwithoptional/%s/change/' % m.id
+        )
+        self.assertContains(
+            response,
+            '<input type="file" name="image" id="id_image" accept="image/*"/>',
+            html=True,
+        )
 
     def test_model_without_height_width_ppoi(self):
         """Behavior of model without width/height/ppoi fields"""
