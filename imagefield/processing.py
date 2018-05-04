@@ -6,9 +6,8 @@ from PIL import Image
 PROCESSORS = {}
 
 
-def build_handler(processors):
-    def handler(*args):
-        return args
+def build_handler(processors, handler=None):
+    handler = handler or (lambda *args: args)
 
     for part in reversed(processors):
         if isinstance(part, (list, tuple)):
@@ -26,11 +25,10 @@ def register(fn):
 
 @register
 def default(get_image, args):
-    handler = autorotate(get_image, [])
-    handler = process_jpeg(handler, [])
-    handler = process_gif(handler, [])
-    handler = preserve_icc_profile(handler, [])
-    return handler
+    return build_handler(
+        ['preserve_icc_profile', 'process_gif', 'process_jpeg', 'autorotate'],
+        get_image,
+    )
 
 
 @register
