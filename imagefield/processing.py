@@ -26,15 +26,15 @@ def register(fn):
 @register
 def default(get_image, args):
     return build_handler(
-        ['preserve_icc_profile', 'process_gif', 'process_jpeg', 'autorotate'],
-        get_image,
+        ["preserve_icc_profile", "process_gif", "process_jpeg", "autorotate"], get_image
     )
 
 
 @register
 def autorotate(get_image, args):
+
     def processor(image, context):
-        if not hasattr(image, '_getexif'):
+        if not hasattr(image, "_getexif"):
             return get_image(image, context)
 
         exif = image._getexif()
@@ -42,64 +42,67 @@ def autorotate(get_image, args):
             return get_image(image, context)
 
         orientation = dict(exif.items()).get(274)
-        rotation = {
-            3: Image.ROTATE_180,
-            6: Image.ROTATE_270,
-            8: Image.ROTATE_90,
-        }.get(orientation)
+        rotation = {3: Image.ROTATE_180, 6: Image.ROTATE_270, 8: Image.ROTATE_90}.get(
+            orientation
+        )
         if rotation:
             return get_image(image.transpose(rotation), context)
         return get_image(image, context)
+
     return processor
 
 
 @register
 def process_jpeg(get_image, args):
+
     def processor(image, context):
-        if image.format == 'JPEG':
-            context.save_kwargs['quality'] = 90
-            context.save_kwargs['progressive'] = True
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
+        if image.format == "JPEG":
+            context.save_kwargs["quality"] = 90
+            context.save_kwargs["progressive"] = True
+            if image.mode != "RGB":
+                image = image.convert("RGB")
         return get_image(image, context)
+
     return processor
 
 
 @register
 def process_gif(get_image, args):
+
     def processor(image, context):
-        if image.format != 'GIF':
+        if image.format != "GIF":
             return get_image(image, context)
 
-        if 'transparency' in image.info:
-            context.save_kwargs['transparency'] = image.info['transparency']
+        if "transparency" in image.info:
+            context.save_kwargs["transparency"] = image.info["transparency"]
         palette = image.getpalette()
         image, context = get_image(image, context)
         image.putpalette(palette)
         return image, context
+
     return processor
 
 
 @register
 def preserve_icc_profile(get_image, args):
+
     def processor(image, context):
-        context.save_kwargs['icc_profile'] = image.info.get('icc_profile')
+        context.save_kwargs["icc_profile"] = image.info.get("icc_profile")
         return get_image(image, context)
+
     return processor
 
 
 @register
 def thumbnail(get_image, args):
+
     def processor(image, context):
         image, context = get_image(image, context)
-        f = min((
-            args[0][0] / image.size[0],
-            args[0][1] / image.size[1],
-        ))
+        f = min((args[0][0] / image.size[0], args[0][1] / image.size[1]))
         return image.resize(
-            [int(f * coord) for coord in image.size],
-            Image.LANCZOS,
+            [int(f * coord) for coord in image.size], Image.LANCZOS
         ), context
+
     return processor
 
 
@@ -114,20 +117,14 @@ def crop(get_image, args):
         ppoi_y_axis = int(image.size[1] * context.ppoi[1])
         center_pixel_coord = (ppoi_x_axis, ppoi_y_axis)
         # Calculate the aspect ratio of `image`
-        orig_aspect_ratio = float(
-            image.size[0]
-        ) / float(
-            image.size[1]
-        )
+        orig_aspect_ratio = float(image.size[0]) / float(image.size[1])
         crop_aspect_ratio = float(width) / float(height)
 
         # Figure out if we're trimming from the left/right or top/bottom
         if orig_aspect_ratio >= crop_aspect_ratio:
             # `image` is wider than what's needed,
             # crop from left/right sides
-            orig_crop_width = int(
-                (crop_aspect_ratio * float(image.size[1])) + 0.5
-            )
+            orig_crop_width = int((crop_aspect_ratio * float(image.size[1])) + 0.5)
             orig_crop_height = image.size[1]
             crop_boundary_top = 0
             crop_boundary_bottom = orig_crop_height
@@ -144,9 +141,7 @@ def crop(get_image, args):
             # `image` is taller than what's needed,
             # crop from top/bottom sides
             orig_crop_width = image.size[0]
-            orig_crop_height = int(
-                (float(image.size[0]) / crop_aspect_ratio) + 0.5
-            )
+            orig_crop_height = int((float(image.size[0]) / crop_aspect_ratio) + 0.5)
             crop_boundary_left = 0
             crop_boundary_right = orig_crop_width
             crop_boundary_top = center_pixel_coord[1] - (orig_crop_height // 2)
@@ -163,10 +158,11 @@ def crop(get_image, args):
                 crop_boundary_left,
                 crop_boundary_top,
                 crop_boundary_right,
-                crop_boundary_bottom
+                crop_boundary_bottom,
             )
         )
         # Resizing the newly cropped image to the size specified
         # (as determined by `width`x`height`)
         return cropped_image.resize((width, height), Image.LANCZOS), context
+
     return processor

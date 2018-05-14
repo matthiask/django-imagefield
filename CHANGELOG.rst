@@ -13,6 +13,9 @@ Change log
 - Replaced the full image in the admin widget with an ad-hoc thumbnail.
 - Fixed a bug where blank imagefields would not work correctly in the
   administration interface.
+- Switched the preferred quote to ``"`` and started using `black
+  <https://pypi.org/project/black/>`_ to automatically format Python
+  code.
 
 
 `0.2`_ (2018-03-28)

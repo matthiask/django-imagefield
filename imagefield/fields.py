@@ -26,6 +26,7 @@ try:
 except ImportError:  # pragma: no cover
     # Python < 3.3
     class SimpleNamespace(object):
+
         def __init__(self, **kwargs):
             self.__dict__.update(kwargs)
 
@@ -36,14 +37,13 @@ IMAGEFIELDS = []
 
 
 class ImageFieldFile(files.ImageFieldFile):
+
     def __getattr__(self, item):
         if item in self.field.formats:
             if self.name:
-                url = self.storage.url(
-                    self._processed_name(self.field.formats[item]),
-                )
+                url = self.storage.url(self._processed_name(self.field.formats[item]))
             else:
-                url = ''
+                url = ""
             setattr(self, item, url)
             return url
         raise AttributeError
@@ -51,44 +51,44 @@ class ImageFieldFile(files.ImageFieldFile):
     def _ppoi(self):
         if self.field.ppoi_field:
             return [
-                float(coord) for coord in
-                getattr(self.instance, self.field.ppoi_field).split('x')
+                float(coord)
+                for coord in getattr(self.instance, self.field.ppoi_field).split("x")
             ]
         return [0.5, 0.5]
 
     def _urlhash(self, str):
-        digest = hashlib.sha1(str.encode('utf-8')).digest()
-        return urlsafe_base64_encode(digest).decode('ascii')
+        digest = hashlib.sha1(str.encode("utf-8")).digest()
+        return urlsafe_base64_encode(digest).decode("ascii")
 
     def _processed_name(self, processors):
         p1 = self._urlhash(self.name)
         p2 = self._urlhash(
-            '|'.join(str(p) for p in processors) + '|' + str(self._ppoi()),
+            "|".join(str(p) for p in processors) + "|" + str(self._ppoi())
         )
         _, ext = os.path.splitext(self.name)
 
-        return '__processed__/%s/%s_%s%s' % (p1[:2], p1[2:], p2, ext)
+        return "__processed__/%s/%s_%s%s" % (p1[:2], p1[2:], p2, ext)
 
     def _processed_base(self, name=None):
         p1 = self._urlhash(self.name if name is None else name)
-        return '__processed__/%s' % p1[:2], '%s_' % p1[2:]
+        return "__processed__/%s" % p1[:2], "%s_" % p1[2:]
 
     def process(self, item, force=False):
         if isinstance(item, (list, tuple)):
             processors = item
-            item = '<ad hoc>'
+            item = "<ad hoc>"
         else:
             processors = self.field.formats[item]
         target = self._processed_name(processors)
         logger.debug(
             'Processing image %(image)s as "%(key)s" with target %(target)s'
-            ' and pipeline %(processors)s, PPOI %(ppoi)s',
+            " and pipeline %(processors)s, PPOI %(ppoi)s",
             {
-                'image': self,
-                'key': item,
-                'target': target,
-                'processors': processors,
-                'ppoi': self._ppoi(),
+                "image": self,
+                "key": item,
+                "target": target,
+                "processors": processors,
+                "ppoi": self._ppoi(),
             },
         )
         if not force and self.storage.exists(target):
@@ -97,25 +97,19 @@ class ImageFieldFile(files.ImageFieldFile):
         try:
             buf = self._process(processors)
         except Exception:
-            logger.exception('Exception while processing')
+            logger.exception("Exception while processing")
             raise
 
         self.storage.delete(target)
         self.storage.save(target, ContentFile(buf))
 
-        logger.info(
-            'Saved processed image %(target)s',
-            {'target': target},
-        )
+        logger.info("Saved processed image %(target)s", {"target": target})
         return target
 
     def _process(self, processors):
-        self.open('rb')
+        self.open("rb")
         image = Image.open(self.file)
-        context = SimpleNamespace(
-            ppoi=self._ppoi(),
-            save_kwargs={},
-        )
+        context = SimpleNamespace(ppoi=self._ppoi(), save_kwargs={})
         format = image.format
         _, ext = os.path.splitext(self.name)
 
@@ -131,34 +125,38 @@ class ImageField(models.ImageField):
     attr_class = ImageFieldFile
 
     def __init__(self, verbose_name=None, **kwargs):
-        self._auto_add_fields = kwargs.pop('auto_add_fields', False)
-        self._formats = kwargs.pop('formats', {})
-        self.ppoi_field = kwargs.pop('ppoi_field', None)
+        self._auto_add_fields = kwargs.pop("auto_add_fields", False)
+        self._formats = kwargs.pop("formats", {})
+        self.ppoi_field = kwargs.pop("ppoi_field", None)
         super(ImageField, self).__init__(verbose_name, **kwargs)
 
     @cached_property
     def field_label(self):
-        return ('%s.%s' % (self.model._meta.label_lower, self.name)).lower()
+        return ("%s.%s" % (self.model._meta.label_lower, self.name)).lower()
 
     @cached_property
     def formats(self):
-        setting = getattr(settings, 'IMAGEFIELD_FORMATS', {})
+        setting = getattr(settings, "IMAGEFIELD_FORMATS", {})
         return setting.get(self.field_label, self._formats)
 
     def contribute_to_class(self, cls, name, **kwargs):
         if self._auto_add_fields:
             if self.width_field is None:
-                self.width_field = '%s_width' % name
+                self.width_field = "%s_width" % name
                 models.PositiveIntegerField(
-                    blank=True, null=True, editable=False,
-                ).contribute_to_class(cls, self.width_field)
+                    blank=True, null=True, editable=False
+                ).contribute_to_class(
+                    cls, self.width_field
+                )
             if self.height_field is None:
-                self.height_field = '%s_height' % name
+                self.height_field = "%s_height" % name
                 models.PositiveIntegerField(
-                    blank=True, null=True, editable=False,
-                ).contribute_to_class(cls, self.height_field)
+                    blank=True, null=True, editable=False
+                ).contribute_to_class(
+                    cls, self.height_field
+                )
             if self.ppoi_field is None:
-                self.ppoi_field = '%s_ppoi' % name
+                self.ppoi_field = "%s_ppoi" % name
                 PPOIField().contribute_to_class(cls, self.ppoi_field)
 
         super(ImageField, self).contribute_to_class(cls, name, **kwargs)
@@ -166,26 +164,16 @@ class ImageField(models.ImageField):
         if not cls._meta.abstract:
             IMAGEFIELDS.append(self)
 
-            signals.post_init.connect(
-                self._cache_previous,
-                sender=cls,
-            )
+            signals.post_init.connect(self._cache_previous, sender=cls)
 
-            autogenerate = getattr(settings, 'IMAGEFIELD_AUTOGENERATE', True)
+            autogenerate = getattr(settings, "IMAGEFIELD_AUTOGENERATE", True)
             if autogenerate is True or self.field_label in autogenerate:
-                signals.post_save.connect(
-                    self._generate_files,
-                    sender=cls,
-                )
-                signals.post_delete.connect(
-                    self._clear_generated_files,
-                    sender=cls,
-                )
+                signals.post_save.connect(self._generate_files, sender=cls)
+                signals.post_delete.connect(self._clear_generated_files, sender=cls)
 
     def formfield(self, **kwargs):
-        kwargs['widget'] = with_preview_and_ppoi(
-            kwargs.get('widget', ClearableFileInput),
-            ppoi_field=self.ppoi_field,
+        kwargs["widget"] = with_preview_and_ppoi(
+            kwargs.get("widget", ClearableFileInput), ppoi_field=self.ppoi_field
         )
         return super(ImageField, self).formfield(**kwargs)
 
@@ -198,29 +186,29 @@ class ImageField(models.ImageField):
                 try:
                     # Anything which exercises the machinery so that we may
                     # find out whether the image works at all (or not)
-                    f._process(['default', ('thumbnail', (20, 20))])
+                    f._process(["default", ("thumbnail", (20, 20))])
                 except Exception as exc:
                     raise ValidationError(str(exc))
 
             # Reset PPOI field if image field is cleared
             if not data and self.ppoi_field:
-                setattr(instance, self.ppoi_field, '0.5x0.5')
+                setattr(instance, self.ppoi_field, "0.5x0.5")
 
     def _cache_previous(self, instance, **kwargs):
         f = getattr(instance, self.name)
-        setattr(instance, '_previous_%s' % self.name, (f.name, f._ppoi()))
+        setattr(instance, "_previous_%s" % self.name, (f.name, f._ppoi()))
 
     def _generate_files(self, instance, **kwargs):
         # Set by the process_imagefields management command
-        if getattr(instance, '_skip_generate_files', False):
+        if getattr(instance, "_skip_generate_files", False):
             return
 
         f = getattr(instance, self.name)
 
-        previous = getattr(instance, '_previous_%s' % self.name, None)
+        previous = getattr(instance, "_previous_%s" % self.name, None)
         # TODO This will not detect replaced/overwritten files.
         if previous and previous[0] and previous != (f.name, f._ppoi()):
-            logger.info('Clearing generated files for %s', repr(previous))
+            logger.info("Clearing generated files for %s", repr(previous))
             self._clear_generated_files_for(f, previous[0])
 
         if f.name:
@@ -228,13 +216,10 @@ class ImageField(models.ImageField):
                 f.process(item)
 
     def _clear_generated_files(self, instance, **kwargs):
-        self._clear_generated_files_for(
-            getattr(instance, self.name),
-            None,
-        )
+        self._clear_generated_files_for(getattr(instance, self.name), None)
 
     def _clear_generated_files_for(self, fieldfile, filename):
-        key = 'imagefield-admin-thumb:%s' % filename
+        key = "imagefield-admin-thumb:%s" % filename
         cache.delete(key)
 
         folder, startswith = fieldfile._processed_base(filename)
@@ -252,28 +237,33 @@ class ImageField(models.ImageField):
     def check(self, **kwargs):
         errors = super(ImageField, self).check(**kwargs)
         if not all((self.width_field, self.height_field)):
-            errors.append(checks.Warning(
-                'ImageField without width_field/height_field will be slow!',
-                hint='auto_add_fields=True automatically adds the fields.',
-                obj=self,
-                id='imagefield.W001',
-            ))
+            errors.append(
+                checks.Warning(
+                    "ImageField without width_field/height_field will be slow!",
+                    hint="auto_add_fields=True automatically adds the fields.",
+                    obj=self,
+                    id="imagefield.W001",
+                )
+            )
         if not self.ppoi_field:
-            errors.append(checks.Info(
-                'ImageField without ppoi_field.',
-                hint='auto_add_fields=True automatically adds the field.',
-                obj=self,
-                id='imagefield.I001',
-            ))
+            errors.append(
+                checks.Info(
+                    "ImageField without ppoi_field.",
+                    hint="auto_add_fields=True automatically adds the field.",
+                    obj=self,
+                    id="imagefield.I001",
+                )
+            )
         return errors
 
 
 class PPOIField(models.CharField):
+
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('default', '0.5x0.5')
-        kwargs.setdefault('max_length', 20)
+        kwargs.setdefault("default", "0.5x0.5")
+        kwargs.setdefault("max_length", 20)
         super(PPOIField, self).__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
-        kwargs['widget'] = PPOIWidget
+        kwargs["widget"] = PPOIWidget
         return super(PPOIField, self).formfield(**kwargs)
