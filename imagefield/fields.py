@@ -13,7 +13,6 @@ from django.db.models import signals
 from django.db.models.fields import files
 from django.forms import ClearableFileInput
 from django.utils.functional import cached_property
-from django.utils.http import urlsafe_base64_encode
 
 from PIL import Image
 
@@ -36,6 +35,10 @@ logger = logging.getLogger(__name__)
 IMAGEFIELDS = []
 
 
+def hashdigest(str):
+    return hashlib.sha1(str.encode("utf-8")).hexdigest()
+
+
 class ImageFieldFile(files.ImageFieldFile):
 
     def __getattr__(self, item):
@@ -56,22 +59,16 @@ class ImageFieldFile(files.ImageFieldFile):
             ]
         return [0.5, 0.5]
 
-    def _urlhash(self, str):
-        digest = hashlib.sha1(str.encode("utf-8")).digest()
-        return urlsafe_base64_encode(digest).decode("ascii")
+    def _processed_base(self, name):
+        p1 = hashdigest(name)
+        filename, _ = os.path.splitext(os.path.basename(name))
+        return "__processed__/%s/%s" % (p1[:2], p1[2:4]), "%s-" % filename
 
     def _processed_name(self, processors):
-        p1 = self._urlhash(self.name)
-        p2 = self._urlhash(
-            "|".join(str(p) for p in processors) + "|" + str(self._ppoi())
-        )
+        path, basename = self._processed_base(self.name)
+        p2 = hashdigest("|".join(str(p) for p in processors) + "|" + str(self._ppoi()))
         _, ext = os.path.splitext(self.name)
-
-        return "__processed__/%s/%s_%s%s" % (p1[:2], p1[2:], p2, ext)
-
-    def _processed_base(self, name=None):
-        p1 = self._urlhash(self.name if name is None else name)
-        return "__processed__/%s" % p1[:2], "%s_" % p1[2:]
+        return "%s/%s%s%s" % (path, basename, p2[:12], ext)
 
     def process(self, item, force=False):
         if isinstance(item, (list, tuple)):
@@ -215,6 +212,8 @@ class ImageField(models.ImageField):
         self._clear_generated_files_for(getattr(instance, self.name), None)
 
     def _clear_generated_files_for(self, fieldfile, filename):
+        filename = fieldfile.name if filename is None else filename
+
         key = "imagefield-admin-thumb:%s" % filename
         cache.delete(key)
 

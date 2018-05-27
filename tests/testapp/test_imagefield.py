@@ -67,11 +67,12 @@ class Test(TestCase):
         self.assertContains(response, 'value="0.5x0.5"')
         self.assertContains(response, 'src="/static/imagefield/ppoi.js"')
         self.assertContains(response, '<div class="imagefield" data-ppoi-id="id_ppoi">')
+
         self.assertContains(
             response,
             '<img class="imagefield-preview-image"'
-            ' src="/media/__processed__/vr/h-OWjL8SmpaLbBaC1qUgGqxIw'
-            '_bj33RNyCvPdornzp1GHuLsfqUcg.png" alt=""/>',
+            ' src="/media/__processed__/be/b8/python-logo-6e3df744dc82.png"'
+            ' alt=""/>',
         )
 
     def test_model_with_optional(self):
@@ -103,10 +104,8 @@ class Test(TestCase):
         self.assertContains(
             response,
             '<img class="imagefield-preview-image"'
-            ' src="/media/__processed__/vr/h-OWjL8SmpaLbBaC1qUgGqxIw_'
-            'bj33RNyCvPdornzp1GHuLsfqUcg.png" alt=""/>',
+            ' src="/media/__processed__/be/b8/python-logo-6e3df744dc82.png" alt=""/>',
         )
-        # print(response.content.decode('utf-8'))
 
     def test_upload(self):
         """Adding and updating images does not leave old thumbs around"""
@@ -121,20 +120,13 @@ class Test(TestCase):
 
         self.assertEqual(
             contents("__processed__"),
-            [
-                # desktop
-                "qeyFxGp-gwNJbrT9WyBNu93Jk_5qmepxPI1H1ZVHxUVlK7Sga8gHg.png",
-                # thumbnail
-                "qeyFxGp-gwNJbrT9WyBNu93Jk_JPhwI4PndMFMtagIW3tLVD17vWk.png",
-            ],
+            ["python-logo-24f8702383e7.png", "python-logo-e6a99ea713c8.png"],
         )
 
         m = Model.objects.get()
         self.assertTrue(m.image.name)
         self.assertEqual(
-            m.image.thumbnail,
-            "/media/__processed__/"
-            "Aq/qeyFxGp-gwNJbrT9WyBNu93Jk_JPhwI4PndMFMtagIW3tLVD17vWk.png",
+            m.image.thumbnail, "/media/__processed__/02/aa/python-logo-24f8702383e7.png"
         )
         with self.assertRaises(AttributeError):
             m.image.not_exists
@@ -145,10 +137,7 @@ class Test(TestCase):
         self.assertRedirects(response, "/admin/testapp/model/")
         self.assertEqual(
             contents("__processed__"),
-            [
-                "qeyFxGp-gwNJbrT9WyBNu93Jk_CWut4y9Cajl-DHakGDVTqj4VWkk.png",
-                "qeyFxGp-gwNJbrT9WyBNu93Jk_L1GJr36z-Td6I9mZP2IuIlTDlgw.png",
-            ],
+            ["python-logo-096bade32f42.png", "python-logo-2f5189af7eb3.png"],
         )
 
     def test_autorotate(self):
@@ -179,10 +168,7 @@ class Test(TestCase):
             self.assertEqual(image.format, "JPEG")
             self.assertEqual(image.mode, "RGB")
 
-        self.assertEqual(
-            contents("__processed__"),
-            ["RntjpL18ggirSNRLj2vX-WITA_5qmepxPI1H1ZVHxUVlK7Sga8gHg.jpg"],
-        )
+        self.assertEqual(contents("__processed__"), ["cmyk-e6a99ea713c8.jpg"])
         field._clear_generated_files(m)
         self.assertEqual(contents("__processed__"), [])
 
@@ -255,22 +241,18 @@ class Test(TestCase):
         m = Model.objects.create(image="python-logo.jpg")
         self.assertEqual(
             contents("__processed__"),
-            [
-                "iYv7k8q0rqBjKizxSQoZAWo2o_5qmepxPI1H1ZVHxUVlK7Sga8gHg.jpg",
-                "iYv7k8q0rqBjKizxSQoZAWo2o_JPhwI4PndMFMtagIW3tLVD17vWk.jpg",
-            ],
+            ["python-logo-24f8702383e7.jpg", "python-logo-e6a99ea713c8.jpg"],
         )
         self.assertEqual(
             m.image.process([("thumbnail", (20, 20))]),
-            "__processed__/0A/"
-            "iYv7k8q0rqBjKizxSQoZAWo2o_Q_6wMcG-SSd_V-QDmw_yJsOvsqE.jpg",
+            "__processed__/d0/08/python-logo-43feb031c1be.jpg",
         )
         self.assertEqual(
             contents("__processed__"),
             [
-                "iYv7k8q0rqBjKizxSQoZAWo2o_5qmepxPI1H1ZVHxUVlK7Sga8gHg.jpg",
-                "iYv7k8q0rqBjKizxSQoZAWo2o_JPhwI4PndMFMtagIW3tLVD17vWk.jpg",
-                "iYv7k8q0rqBjKizxSQoZAWo2o_Q_6wMcG-SSd_V-QDmw_yJsOvsqE.jpg",
+                "python-logo-24f8702383e7.jpg",
+                "python-logo-43feb031c1be.jpg",
+                "python-logo-e6a99ea713c8.jpg",
             ],
         )
         m.delete()
@@ -283,10 +265,7 @@ class Test(TestCase):
         # New thumb is not saved; still only "desktop" and "thumbnail" images
         self.assertEqual(
             contents("__processed__"),
-            [
-                "iYv7k8q0rqBjKizxSQoZAWo2o_5qmepxPI1H1ZVHxUVlK7Sga8gHg.jpg",
-                "iYv7k8q0rqBjKizxSQoZAWo2o_JPhwI4PndMFMtagIW3tLVD17vWk.jpg",
-            ],
+            ["python-logo-24f8702383e7.jpg", "python-logo-e6a99ea713c8.jpg"],
         )
 
     @skipIf(sys.version_info[0] < 3, "time.monotonic only with Python>=3.3")
@@ -300,9 +279,7 @@ class Test(TestCase):
         start = time.monotonic()
         m = SlowStorageImage.objects.get()
         self.assertEqual(
-            m.image.thumb,
-            "/media/__processed__/0A/"
-            "iYv7k8q0rqBjKizxSQoZAWo2o_EMBw8XYfMA75GdqNrTUgkyoPyVU.jpg",
+            m.image.thumb, "/media/__processed__/d0/08/python-logo-10c070f1761f.jpg"
         )
         duration = time.monotonic() - start
         # No opens, no saves

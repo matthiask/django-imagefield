@@ -6,6 +6,11 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- **BACKWARDS INCOMPATIBLE**: Changed the filename generation method to
+  preserve the filename part of the original file for SEO purposes etc.
+  You should run ``process_imagefields --all``, and optionally empty the
+  ``__processed__`` folder before doing that if you do not want to keep
+  old images around.
 - Improved progress reporting in ``process_imagefields``.
 - Added a call to ``instance.save()`` in ``process_imagefields`` so that
   width and height fields are saved (if any).
