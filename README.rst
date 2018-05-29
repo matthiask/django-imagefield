@@ -9,6 +9,7 @@ django-imagefield
     :target: https://django-imagefield.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
+Version |release|
 
 Heavily based on `django-versatileimagefield
 <https://github.com/respondcreate/django-versatileimagefield>`_, but
@@ -24,6 +25,9 @@ with a few important differences:
   in the database.
 - django-imagefield fails early when image data is incomplete or not
   processable by Pillow_ for some reason.
+- django-imagefield allows adding width, height and PPOI (primary point
+  of interest) fields to the model by adding ``auto_add_fields=True`` to
+  the field instead of boringly and verbosingly adding them yourself.
 
 Replacing existing uses of django-versatileimagefield requires the
 following steps:
@@ -31,10 +35,15 @@ following steps:
 - ``from imagefield.fields import ImageField as VersatileImageField, PPOIField``
 - Specify the image sizes by either providing ``ImageField(formats=...)`` or
   adding the ``IMAGEFIELD_FORMATS`` setting.
-- Convert template code to access the new properties.
+- Convert template code to access the new properties (e.g.
+  ``instance.image.square`` instead of ``instance.image.crop.200x200``
+  when using the ``IMAGEFIELD_FORMATS`` setting below).
 - When using django-imagefield with a PPOI, make sure that the PPOI
   field is also added to ``ModelAdmin`` or ``InlineModelAdmin``
   fieldsets, otherwise you'll just see the image, but no PPOI picker.
+  Contrary to django-versatileimagefield the PPOI field is editable
+  itself, which avoids apart from other complexities a pitfall with
+  inline form change detection.
 
 If you used e.g. ``instance.image.crop.200x200`` and
 ``instance.image.thumbnail.800x500`` before, you should add the
