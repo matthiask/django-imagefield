@@ -71,7 +71,7 @@ class Test(TestCase):
         self.assertContains(
             response,
             '<img class="imagefield-preview-image"'
-            ' src="/media/__processed__/be/b8/python-logo-6e3df744dc82.png"'
+            ' src="/media/__processed__/beb/python-logo-6e3df744dc82.png"'
             ' alt=""/>',
         )
 
@@ -104,7 +104,7 @@ class Test(TestCase):
         self.assertContains(
             response,
             '<img class="imagefield-preview-image"'
-            ' src="/media/__processed__/be/b8/python-logo-6e3df744dc82.png" alt=""/>',
+            ' src="/media/__processed__/beb/python-logo-6e3df744dc82.png" alt=""/>',
         )
 
     def test_upload(self):
@@ -126,7 +126,7 @@ class Test(TestCase):
         m = Model.objects.get()
         self.assertTrue(m.image.name)
         self.assertEqual(
-            m.image.thumbnail, "/media/__processed__/02/aa/python-logo-24f8702383e7.png"
+            m.image.thumbnail, "/media/__processed__/02a/python-logo-24f8702383e7.png"
         )
         with self.assertRaises(AttributeError):
             m.image.not_exists
@@ -245,7 +245,7 @@ class Test(TestCase):
         )
         self.assertEqual(
             m.image.process([("thumbnail", (20, 20))]),
-            "__processed__/d0/08/python-logo-43feb031c1be.jpg",
+            "__processed__/d00/python-logo-43feb031c1be.jpg",
         )
         self.assertEqual(
             contents("__processed__"),
@@ -279,7 +279,7 @@ class Test(TestCase):
         start = time.monotonic()
         m = SlowStorageImage.objects.get()
         self.assertEqual(
-            m.image.thumb, "/media/__processed__/d0/08/python-logo-10c070f1761f.jpg"
+            m.image.thumb, "/media/__processed__/d00/python-logo-10c070f1761f.jpg"
         )
         duration = time.monotonic() - start
         # No opens, no saves

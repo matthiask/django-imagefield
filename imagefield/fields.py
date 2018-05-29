@@ -62,7 +62,7 @@ class ImageFieldFile(files.ImageFieldFile):
     def _processed_base(self, name):
         p1 = hashdigest(name)
         filename, _ = os.path.splitext(os.path.basename(name))
-        return "__processed__/%s/%s" % (p1[:2], p1[2:4]), "%s-" % filename
+        return "__processed__/%s" % p1[:3], "%s-" % filename
 
     def _processed_name(self, processors):
         path, basename = self._processed_base(self.name)
