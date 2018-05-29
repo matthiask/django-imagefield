@@ -47,7 +47,9 @@ following steps:
 
 If you used e.g. ``instance.image.crop.200x200`` and
 ``instance.image.thumbnail.800x500`` before, you should add the
-following setting::
+following setting:
+
+.. code-block:: python
 
     IMAGEFIELD_FORMATS = {
         # image field path, lowercase
@@ -89,7 +91,9 @@ Processors can be specified either using their name alone, or if they
 take arguments, using a tuple ``(processor_name, args...)``.
 
 You can easily register your own processors or even override built-in
-processors if you want to::
+processors if you want to:
+
+.. code-block:: python
 
     from imagefield.processing import register
 
@@ -129,7 +133,9 @@ Development
 
 django-imagefield uses both flake8 and isort to check for style violations. It is
 recommended to add the following git hook as an executable file at
-``.git/hooks/pre-commit``::
+``.git/hooks/pre-commit``:
+
+.. code-block:: bash
 
     #!/bin/bash
     set -ex
@@ -137,7 +143,9 @@ recommended to add the following git hook as an executable file at
     tox -e style
 
 The easiest way to build the documentation and run the test suite is
-using tox_::
+using tox_:
+
+.. code-block:: bash
 
     tox -e docs  # Open docs/build/html/index.html
     tox -e tests
