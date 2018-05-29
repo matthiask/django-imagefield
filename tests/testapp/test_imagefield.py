@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.utils.translation import deactivate_all
 
+from imagefield.fields import IMAGEFIELDS
 from PIL import Image
 
 from .models import (
@@ -284,3 +285,14 @@ class Test(TestCase):
         duration = time.monotonic() - start
         # No opens, no saves
         self.assertTrue(duration < 0.1)
+
+    def test_imagefields(self):
+        self.assertEqual(
+            set(f.field_label for f in IMAGEFIELDS),
+            {
+                "testapp.model.image",
+                "testapp.slowstorageimage.image",
+                "testapp.image.image",
+                "testapp.modelwithoptional.image",
+            },
+        )
