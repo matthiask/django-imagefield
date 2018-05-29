@@ -6,6 +6,9 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+`0.3`_ (2018-05-29)
+~~~~~~~~~~~~~~~~~~~
+
 - **BACKWARDS INCOMPATIBLE**: Changed the filename generation method to
   preserve the filename part of the original file for SEO purposes etc.
   You should run ``process_imagefields --all``, and optionally empty the
@@ -53,4 +56,5 @@ Change log
 
 .. _0.1: https://github.com/matthiask/django-imagefield/commit/013b9a810fa6
 .. _0.2: https://github.com/matthiask/django-imagefield/compare/0.1...0.2
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.2...master
+.. _0.3: https://github.com/matthiask/django-imagefield/compare/0.2...0.3
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.3...master
