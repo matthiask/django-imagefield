@@ -6,7 +6,6 @@ from imagefield.fields import IMAGEFIELDS
 
 
 class Command(BaseCommand):
-
     def add_arguments(self, parser):
         parser.add_argument(
             "--all", action="store_true", dest="all", help="Process all fields."

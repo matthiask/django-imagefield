@@ -32,7 +32,6 @@ def default(get_image, args):
 
 @register
 def autorotate(get_image, args):
-
     def processor(image, context):
         if not hasattr(image, "_getexif"):
             return get_image(image, context)
@@ -54,7 +53,6 @@ def autorotate(get_image, args):
 
 @register
 def process_jpeg(get_image, args):
-
     def processor(image, context):
         if image.format == "JPEG":
             context.save_kwargs["quality"] = 90
@@ -68,7 +66,6 @@ def process_jpeg(get_image, args):
 
 @register
 def process_gif(get_image, args):
-
     def processor(image, context):
         if image.format != "GIF":
             return get_image(image, context)
@@ -85,7 +82,6 @@ def process_gif(get_image, args):
 
 @register
 def preserve_icc_profile(get_image, args):
-
     def processor(image, context):
         context.save_kwargs["icc_profile"] = image.info.get("icc_profile")
         return get_image(image, context)
@@ -95,7 +91,6 @@ def preserve_icc_profile(get_image, args):
 
 @register
 def thumbnail(get_image, args):
-
     def processor(image, context):
         image, context = get_image(image, context)
         f = min((args[0][0] / image.size[0], args[0][1] / image.size[1]))

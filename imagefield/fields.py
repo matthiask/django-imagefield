@@ -25,7 +25,6 @@ try:
 except ImportError:  # pragma: no cover
     # Python < 3.3
     class SimpleNamespace(object):
-
         def __init__(self, **kwargs):
             self.__dict__.update(kwargs)
 
@@ -40,7 +39,6 @@ def hashdigest(str):
 
 
 class ImageFieldFile(files.ImageFieldFile):
-
     def __getattr__(self, item):
         if item in self.field.formats:
             if self.name:
@@ -253,7 +251,6 @@ class ImageField(models.ImageField):
 
 
 class PPOIField(models.CharField):
-
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("default", "0.5x0.5")
         kwargs.setdefault("max_length", 20)

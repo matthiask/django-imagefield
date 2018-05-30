@@ -6,14 +6,12 @@ from django.utils.html import format_html
 
 
 class PPOIWidget(forms.HiddenInput):
-
     class Media:
         css = {"screen": ("imagefield/ppoi.css",)}
         js = ("imagefield/ppoi.js",)
 
 
 class PreviewAndPPOIMixin(object):
-
     def render(self, name, value, attrs=None, renderer=None):
         attrs = attrs or {}
         # Can be dropped once we drop support for Django<2.1
