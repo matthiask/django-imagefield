@@ -30,7 +30,6 @@ jobs:
       env: REQ=none
       install: skip
       script:
-        - pip install flake8 isort unify
+        - pip install black flake8
         - flake8 .
-        - isort --check-only --recursive --diff imagefield tests
-        - unify --check-only --recursive --quote '"' imagefield tests
+        - black --check imagefield tests

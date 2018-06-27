@@ -131,19 +131,15 @@ variables (but feel free to add your own):
 Development
 ===========
 
-django-imagefield uses both flake8 and isort to check for style violations. It is
-recommended to add the following git hook as an executable file at
-``.git/hooks/pre-commit``:
+django-imagefield uses flake8 and black to keep the code clean and
+formatted. Run both using tox_:
 
 .. code-block:: bash
 
-    #!/bin/bash
-    set -ex
-    export PYTHONWARNINGS=ignore
     tox -e style
 
 The easiest way to build the documentation and run the test suite is
-using tox_:
+also by using tox_:
 
 .. code-block:: bash
 
