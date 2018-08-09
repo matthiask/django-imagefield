@@ -22,7 +22,9 @@ with a few important differences:
   by running the management command ``process_imagefields``.
 - django-imagefield does not depend on a fast storage or a cache to be
   and stay fast, at least as long as the image width and height is saved
-  in the database.
+  in the database. An important part of this is never determining
+  whether a processed image exists in the hot path at all (except if you
+  ``force`` it).
 - django-imagefield fails early when image data is incomplete or not
   processable by Pillow_ for some reason.
 - django-imagefield allows adding width, height and PPOI (primary point
