@@ -1,6 +1,7 @@
 import io
 import itertools
 import os
+import re
 import shutil
 import sys
 import time
@@ -10,6 +11,11 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.utils.translation import deactivate_all
+
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 
 from imagefield.fields import IMAGEFIELDS
 from PIL import Image
@@ -54,7 +60,8 @@ class Test(TestCase):
 
     def login(self):
         client = Client()
-        client.force_login(self.user)
+        client.login(username="admin", password="blabla")
+        # client.force_login(self.user)
         return client
 
     def test_model(self):
@@ -62,7 +69,7 @@ class Test(TestCase):
         m = Model.objects.create(image="python-logo.png")
 
         client = self.login()
-        response = client.get("/admin/testapp/model/%s/change/" % m.id)
+        response = client.get(reverse("admin:testapp_model_change", args=(m.id,)))
 
         self.assertContains(response, 'value="0.5x0.5"')
         self.assertContains(response, 'src="/static/imagefield/ppoi.js"')
@@ -82,7 +89,9 @@ class Test(TestCase):
         self.assertContains(response, 'src="/static/imagefield/ppoi.js"')
 
         m = ModelWithOptional.objects.create()
-        response = client.get("/admin/testapp/modelwithoptional/%s/change/" % m.id)
+        response = client.get(
+            reverse("admin:testapp_modelwithoptional_change", args=(m.id,))
+        )
         self.assertContains(
             response,
             '<input type="file" name="image" id="id_image" accept="image/*"/>',
@@ -98,7 +107,7 @@ class Test(TestCase):
         m = Image_.objects.create(image="python-logo.png")
         self.assertEqual(m.image._ppoi(), [0.5, 0.5])
 
-        response = client.get("/admin/testapp/image/%s/change/" % m.pk)
+        response = client.get(reverse("admin:testapp_image_change", args=(m.pk,)))
         self.assertNotContains(response, 'src="/static/imagefield/ppoi.js"')
         self.assertContains(response, '<div class="imagefield" data-ppoi-id="">')
         self.assertContains(
@@ -132,7 +141,8 @@ class Test(TestCase):
             m.image.not_exists
 
         response = client.post(
-            "/admin/testapp/model/%s/change/" % m.pk, {"image": "", "ppoi": "0x0"}
+            reverse("admin:testapp_model_change", args=(m.pk,)),
+            {"image": "", "ppoi": "0x0"},
         )
         self.assertRedirects(response, "/admin/testapp/model/")
         self.assertEqual(
@@ -192,7 +202,7 @@ class Test(TestCase):
         self.assertEqual(m.image._ppoi(), [0.25, 0.25])
 
         response = client.post(
-            "/admin/testapp/modelwithoptional/%s/change/" % m.pk,
+            reverse("admin:testapp_modelwithoptional_change", args=(m.pk,)),
             {"image-clear": "1", "image_ppoi": "0.25x0.25"},
         )
 
@@ -204,7 +214,13 @@ class Test(TestCase):
 
     def test_broken(self):
         """Broken images are rejected early"""
-        with self.assertRaises((IOError, OSError)):
+        exceptions = (IOError, OSError)
+        import django
+
+        if django.VERSION < (1, 11):
+            exceptions += (TypeError,)
+
+        with self.assertRaises(exceptions):
             Model.objects.create(image="broken.png")
 
         client = self.login()
@@ -231,9 +247,11 @@ class Test(TestCase):
                 response = client.post(
                     "/admin/testapp/model/add/", {"image": buf, "ppoi": "0.5x0.5"}
                 )
-                self.assertRegex(
-                    response.content.decode("utf-8"),
-                    r"image file is truncated \([0-9]+ bytes not processed\)",
+                self.assertTrue(
+                    re.search(
+                        r"image file is truncated \([0-9]+ bytes not processed\)",
+                        response.content.decode("utf-8"),
+                    )
                 )
 
     def test_adhoc(self):

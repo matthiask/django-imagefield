@@ -4,6 +4,11 @@ from django import forms
 from django.core.cache import cache
 from django.utils.html import format_html
 
+try:
+    from django.forms.boundfield import BoundField
+except ImportError:
+    from django.forms.forms import BoundField
+
 
 class PPOIWidget(forms.HiddenInput):
     class Media:
@@ -12,12 +17,12 @@ class PPOIWidget(forms.HiddenInput):
 
 
 class PreviewAndPPOIMixin(object):
-    def render(self, name, value, attrs=None, renderer=None):
+    def render(self, name, value, attrs=None, **kwargs):
         attrs = attrs or {}
         # Can be dropped once we drop support for Django<2.1
         attrs.setdefault("accept", "image/*")
         widget = super(PreviewAndPPOIMixin, self).render(
-            name, value, attrs=attrs, renderer=renderer
+            name, value, attrs=attrs, **kwargs
         )
 
         # name does not require a file, .url does
@@ -29,7 +34,7 @@ class PreviewAndPPOIMixin(object):
         frame = inspect.currentframe()
         while frame:
             boundfield = frame.f_locals.get("self")
-            if isinstance(boundfield, forms.BoundField):
+            if isinstance(boundfield, BoundField):
                 break
             frame = frame.f_back
 

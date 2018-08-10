@@ -127,7 +127,10 @@ class ImageField(models.ImageField):
 
     @cached_property
     def field_label(self):
-        return ("%s.%s" % (self.model._meta.label_lower, self.name)).lower()
+        return (
+            "%s.%s.%s"
+            % (self.model._meta.app_label, self.model._meta.model_name, self.name)
+        ).lower()
 
     @cached_property
     def formats(self):
@@ -179,7 +182,7 @@ class ImageField(models.ImageField):
                     # find out whether the image works at all (or not)
                     f._process(["default", ("thumbnail", (20, 20))])
                 except Exception as exc:
-                    raise ValidationError(str(exc))
+                    raise ValidationError({self.name: str(exc)})
 
             # Reset PPOI field if image field is cleared
             if not data and self.ppoi_field:

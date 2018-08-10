@@ -26,6 +26,9 @@ script: cd tests && ./manage.py test testapp && cd ..
 
 jobs:
   include:
+    - stage: prehistoric
+      python: "2.7"
+      env: REQ="Django>=1.8,<1.9"
     - stage: style
       env: REQ=none
       install: skip

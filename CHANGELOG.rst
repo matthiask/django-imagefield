@@ -6,6 +6,9 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Added compatibility with Django 1.8 for prehistoric projects.
+
+
 `0.3`_ (2018-05-29)
 ~~~~~~~~~~~~~~~~~~~
 
