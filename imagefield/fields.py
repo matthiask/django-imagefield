@@ -104,15 +104,16 @@ class ImageFieldFile(files.ImageFieldFile):
     def _process(self, processors):
         self.open("rb")
         image = Image.open(self.file)
-        context = SimpleNamespace(ppoi=self._ppoi(), save_kwargs={})
-        format = image.format
+        context = SimpleNamespace(
+            ppoi=self._ppoi(), save_kwargs={"format": image.format}
+        )
         _, ext = os.path.splitext(self.name)
 
         handler = build_handler(processors)
         image, context = handler(image, context)
 
         with io.BytesIO() as buf:
-            image.save(buf, format=format, **context.save_kwargs)
+            image.save(buf, **context.save_kwargs)
             return buf.getvalue()
 
 
