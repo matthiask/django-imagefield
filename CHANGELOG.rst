@@ -6,7 +6,11 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+`0.4`_ (2018-08-13)
+~~~~~~~~~~~~~~~~~~~
+
 - Added compatibility with Django 1.8 for prehistoric projects.
+- Polished tests and docs a bit.
 
 
 `0.3`_ (2018-05-29)
@@ -60,4 +64,5 @@ Change log
 .. _0.1: https://github.com/matthiask/django-imagefield/commit/013b9a810fa6
 .. _0.2: https://github.com/matthiask/django-imagefield/compare/0.1...0.2
 .. _0.3: https://github.com/matthiask/django-imagefield/compare/0.2...0.3
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.3...master
+.. _0.4: https://github.com/matthiask/django-imagefield/compare/0.3...0.4
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.4...master
