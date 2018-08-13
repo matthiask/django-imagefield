@@ -46,6 +46,7 @@ following steps:
   Contrary to django-versatileimagefield the PPOI field is editable
   itself, which avoids apart from other complexities a pitfall with
   inline form change detection.
+- Add ``"imagefield"`` to ``INSTALLED_APPS``.
 
 If you used e.g. ``instance.image.crop.200x200`` and
 ``instance.image.thumbnail.800x500`` before, you should add the
