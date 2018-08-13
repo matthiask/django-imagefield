@@ -36,7 +36,8 @@ following steps:
 
 - ``from imagefield.fields import ImageField as VersatileImageField, PPOIField``
 - Specify the image sizes by either providing ``ImageField(formats=...)`` or
-  adding the ``IMAGEFIELD_FORMATS`` setting.
+  adding the ``IMAGEFIELD_FORMATS`` setting. The latter overrides the
+  former if given.
 - Convert template code to access the new properties (e.g.
   ``instance.image.square`` instead of ``instance.image.crop.200x200``
   when using the ``IMAGEFIELD_FORMATS`` setting below).
