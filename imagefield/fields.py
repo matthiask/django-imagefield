@@ -233,13 +233,13 @@ class ImageField(models.ImageField):
 
     def check(self, **kwargs):
         errors = super(ImageField, self).check(**kwargs)
-        if not all((self.width_field, self.height_field)):
+        if not self.width_field or not self.height_field:
             errors.append(
-                checks.Warning(
-                    "ImageField without width_field/height_field will be slow!",
+                checks.Error(
+                    "ImageField without width_field/height_field is slow!",
                     hint="auto_add_fields=True automatically adds the fields.",
                     obj=self,
-                    id="imagefield.W001",
+                    id="imagefield.E001",
                 )
             )
         if not self.ppoi_field:

@@ -20,13 +20,7 @@ except ImportError:
 from imagefield.fields import IMAGEFIELDS
 from PIL import Image
 
-from .models import (
-    Image as Image_,
-    Model,
-    ModelWithOptional,
-    SlowStorageImage,
-    slow_storage,
-)
+from .models import Model, ModelWithOptional, SlowStorageImage, slow_storage
 
 
 def openimage(path):
@@ -96,24 +90,6 @@ class Test(TestCase):
             response,
             '<input type="file" name="image" id="id_image" accept="image/*"/>',
             html=True,
-        )
-
-    def test_model_without_height_width_ppoi(self):
-        """Behavior of model without width/height/ppoi fields"""
-        client = self.login()
-        response = client.get("/admin/testapp/image/add/")
-        self.assertNotContains(response, 'src="/static/imagefield/ppoi.js"')
-
-        m = Image_.objects.create(image="python-logo.png")
-        self.assertEqual(m.image._ppoi(), [0.5, 0.5])
-
-        response = client.get(reverse("admin:testapp_image_change", args=(m.pk,)))
-        self.assertNotContains(response, 'src="/static/imagefield/ppoi.js"')
-        self.assertContains(response, '<div class="imagefield" data-ppoi-id="">')
-        self.assertContains(
-            response,
-            '<img class="imagefield-preview-image"'
-            ' src="/media/__processed__/beb/python-logo-6e3df744dc82.png" alt=""/>',
         )
 
     def test_upload(self):
@@ -309,7 +285,6 @@ class Test(TestCase):
             {
                 "testapp.model.image",
                 "testapp.slowstorageimage.image",
-                "testapp.image.image",
                 "testapp.modelwithoptional.image",
             },
         )

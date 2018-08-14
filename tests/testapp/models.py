@@ -41,10 +41,6 @@ class ModelWithOptional(models.Model):
     image = ImageField(_("image"), upload_to="images", blank=True, auto_add_fields=True)
 
 
-class Image(models.Model):
-    image = ImageField(_("image"), upload_to="images")
-
-
 class SlowStorage(storage.FileSystemStorage):
     slow = False
 

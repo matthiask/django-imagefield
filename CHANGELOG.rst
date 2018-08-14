@@ -6,6 +6,11 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Dropped support for using image fields without associated height and
+  width fields, because it is almost (?) always a really bad idea
+  performance-wise.
+
+
 `0.4`_ (2018-08-13)
 ~~~~~~~~~~~~~~~~~~~
 
