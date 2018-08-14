@@ -70,7 +70,7 @@ class Command(BaseCommand):
                         except Exception as exc:
                             self.stdout.write(str(exc))
 
-                progress = "*" * int(index / count * 50)
+                progress = "*" * int(50.0 * index / count)
                 self.stdout.write(
                     "\r|%s| %s/%s" % (progress.ljust(50), index + 1, count), ending=""
                 )
