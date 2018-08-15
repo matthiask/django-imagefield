@@ -54,7 +54,7 @@ def autorotate(get_image, args):
 @register
 def process_jpeg(get_image, args):
     def processor(image, context):
-        if image.format == "JPEG":
+        if context.save_kwargs["format"] == "JPEG":
             context.save_kwargs["quality"] = 90
             context.save_kwargs["progressive"] = True
             if image.mode != "RGB":
@@ -67,7 +67,7 @@ def process_jpeg(get_image, args):
 @register
 def process_gif(get_image, args):
     def processor(image, context):
-        if image.format != "GIF":
+        if context.save_kwargs["format"] != "GIF":
             return get_image(image, context)
 
         if "transparency" in image.info:
