@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import hashlib
 import io
 import logging
@@ -183,7 +185,7 @@ class ImageField(models.ImageField):
                     # find out whether the image works at all (or not)
                     f._process(["default", ("thumbnail", (20, 20))])
                 except Exception as exc:
-                    raise ValidationError({self.name: str(exc)})
+                    raise ValidationError({self.name: "%s" % exc})
 
             # Reset PPOI field if image field is cleared
             if not data and self.ppoi_field:

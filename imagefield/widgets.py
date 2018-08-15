@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import inspect
 
 from django import forms
@@ -76,7 +78,7 @@ class PreviewAndPPOIMixin(object):
 
 def with_preview_and_ppoi(widget, **attrs):
     return type(
-        "%sWithPreviewAndPPOI" % widget.__name__,
+        str("%sWithPreviewAndPPOI" % widget.__name__),
         (PreviewAndPPOIMixin, widget),
         dict(attrs, __module__="imagefield.widgets"),
     )

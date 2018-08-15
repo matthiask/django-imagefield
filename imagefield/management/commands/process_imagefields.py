@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 import sys
 
 from django.core.management.base import BaseCommand, CommandError
@@ -68,9 +70,9 @@ class Command(BaseCommand):
                         try:
                             fieldfile.process(key, force=options.get("force"))
                         except Exception as exc:
-                            self.stdout.write(str(exc))
+                            self.stdout.write("%s" % exc)
 
-                progress = "*" * int(50.0 * index / count)
+                progress = "*" * (50 * index // count)
                 self.stdout.write(
                     "\r|%s| %s/%s" % (progress.ljust(50), index + 1, count), ending=""
                 )
