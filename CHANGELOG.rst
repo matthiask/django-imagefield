@@ -9,6 +9,8 @@ Change log
 - Dropped support for using image fields without associated height and
   width fields, because it is almost (?) always a really bad idea
   performance-wise.
+- Fixed a bug where processed image names on Python 2 were different
+  than those generated using Python 3.
 
 
 `0.4`_ (2018-08-13)

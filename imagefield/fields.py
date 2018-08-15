@@ -4,6 +4,7 @@ import hashlib
 import io
 import logging
 import os
+import re
 
 from django.conf import settings
 from django.core import checks
@@ -66,7 +67,9 @@ class ImageFieldFile(files.ImageFieldFile):
 
     def _processed_name(self, processors):
         path, basename = self._processed_base(self.name)
-        p2 = hashdigest("|".join(str(p) for p in processors) + "|" + str(self._ppoi()))
+        spec = "|".join(str(p) for p in processors) + "|" + str(self._ppoi())
+        spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
+        p2 = hashdigest(spec)
         _, ext = os.path.splitext(self.name)
         return "%s/%s%s%s" % (path, basename, p2[:12], ext)
 
