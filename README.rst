@@ -61,12 +61,15 @@ following setting:
             'square': ['default', ('crop', (200, 200))],
             'full': ['default', ('thumbnail', (800, 500))],
 
-            # The 'full' spec is equivalent to (the exact list of
-            # default processors may change in the future):
+            # The 'full' spec is equivalent to the following format
+            # specification in terms of image file produced (the
+            # resulting file name is different though):
             # 'full': [
             #     'autorotate', 'process_jpeg', 'process_gif', 'autorotate',
             #     ('thumbnail', (800, 500)),
             # ],
+            # Note that the exact list of default processors may
+            # change in the future.
         },
     }
 
