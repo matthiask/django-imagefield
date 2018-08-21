@@ -13,7 +13,9 @@ Change log
   width fields, because it is almost (?) always a really bad idea
   performance-wise.
 - Fixed a bug where processed image names on Python 2 were different
-  than those generated using Python 3.
+  than those generated using Python 3. This bug affects only
+  installations still using Python 2. Rerun ``./manage.py
+  process_imagefields --all`` after upgrading.
 
 
 `0.4`_ (2018-08-13)
@@ -28,9 +30,9 @@ Change log
 
 - **BACKWARDS INCOMPATIBLE**: Changed the filename generation method to
   preserve the filename part of the original file for SEO purposes etc.
-  You should run ``process_imagefields --all``, and optionally empty the
-  ``__processed__`` folder before doing that if you do not want to keep
-  old images around.
+  You should run ``./manage.py process_imagefields --all``, and
+  optionally empty the ``__processed__`` folder before doing that if you
+  do not want to keep old images around.
 - Improved progress reporting in ``process_imagefields``.
 - Added a call to ``instance.save()`` in ``process_imagefields`` so that
   width and height fields are saved (if any).
