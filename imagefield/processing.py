@@ -40,6 +40,7 @@ def autorotate(get_image, args):
         if not exif:
             return get_image(image, context)
 
+        # Do not add no exif data to save_kwargs.
         orientation = dict(exif.items()).get(274)
         rotation = {3: Image.ROTATE_180, 6: Image.ROTATE_270, 8: Image.ROTATE_90}.get(
             orientation
