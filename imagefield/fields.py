@@ -43,10 +43,12 @@ def hashdigest(str):
 
 class ImageFieldFile(files.ImageFieldFile):
     def __getattr__(self, item):
-        processors = self.__dict__["field"].formats.get(item)
-        if processors is not None:
+        # The "field" attribute is not there after unpickling, and
+        # FileDescriptor checks for its presence before re-assigning the field
+        # instance...
+        if hasattr(self, "field") and item in self.field.formats:
             if self.name:
-                url = self.storage.url(self._processed_name(processors))
+                url = self.storage.url(self._processed_name(self.field.formats[item]))
             else:
                 url = ""
             setattr(self, item, url)

@@ -6,6 +6,9 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Fixed a crash where unpickling image fields would fail.
+
+
 `0.5`_ (2018-08-15)
 ~~~~~~~~~~~~~~~~~~~
 
