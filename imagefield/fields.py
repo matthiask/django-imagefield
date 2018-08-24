@@ -125,11 +125,11 @@ class ImageFieldFile(files.ImageFieldFile):
 class ImageField(models.ImageField):
     attr_class = ImageFieldFile
 
-    def __init__(self, verbose_name=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         self._auto_add_fields = kwargs.pop("auto_add_fields", False)
         self._formats = kwargs.pop("formats", {})
         self.ppoi_field = kwargs.pop("ppoi_field", None)
-        super(ImageField, self).__init__(verbose_name, **kwargs)
+        super(ImageField, self).__init__(*args, **kwargs)
 
     @cached_property
     def field_label(self):
