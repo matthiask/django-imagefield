@@ -9,6 +9,7 @@ Change log
 - Fixed a crash where unpickling image fields would fail.
 - Changed ``process_imagefields`` to skip exclude model instances with
   an empty image field.
+- Changed the ``thumbnail`` processor to not upscale images.
 
 
 `0.5`_ (2018-08-15)

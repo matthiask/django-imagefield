@@ -93,7 +93,7 @@ The following processors are available out of the box:
 - ``process_gif``: Preserves transparency and palette data in resized
   images.
 - ``preserve_icc_profile``: As the name says.
-- ``thumbnail``: Resizes images to fit a bounding box.
+- ``thumbnail``: Resizes images to not exceed a bounding box.
 - ``crop``: Crops an image to the given dimensions, also takes the PPOI
   (primary point of interest) information into account if provided.
 - ``default``: The combination of ``autorotate``, ``process_jpeg``,

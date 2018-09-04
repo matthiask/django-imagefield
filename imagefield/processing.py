@@ -94,7 +94,7 @@ def preserve_icc_profile(get_image, args):
 def thumbnail(get_image, args):
     def processor(image, context):
         image, context = get_image(image, context)
-        f = min((args[0][0] / image.size[0], args[0][1] / image.size[1]))
+        f = min(1.0, args[0][0] / image.size[0], args[0][1] / image.size[1])
         return (
             image.resize([int(f * coord) for coord in image.size], Image.LANCZOS),
             context,
