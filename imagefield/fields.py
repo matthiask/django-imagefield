@@ -184,6 +184,9 @@ class ImageField(models.ImageField):
         try:
             super(ImageField, self).save_form_data(instance, data)
         except Exception as exc:
+            # The image was either of an unknown type or so corrupt Django
+            # couldn't even begin to process it.
+            super(ImageField, self).save_form_data(instance, "")
             raise ValidationError({self.name: "%s" % exc})
 
         if data is not None:
