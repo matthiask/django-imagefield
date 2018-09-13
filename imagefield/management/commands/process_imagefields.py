@@ -19,6 +19,12 @@ class Command(BaseCommand):
             help="Force processing of images even if they exist already.",
         )
         parser.add_argument(
+            "--housekeep",
+            choices=["blank-on-failure"],
+            default="",
+            help="Run house-keeping tasks.",
+        )
+        parser.add_argument(
             "field",
             nargs="*",
             type=str,
@@ -73,6 +79,9 @@ class Command(BaseCommand):
                             fieldfile.process(key, force=options.get("force"))
                         except Exception as exc:
                             self.stdout.write("%s" % exc)
+
+                            if options["housekeep"] == "blank-on-failure":
+                                field.save_form_data(instance, "")
 
                 progress = "*" * (50 * index // count)
                 self.stdout.write(

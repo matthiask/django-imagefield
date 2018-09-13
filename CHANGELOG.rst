@@ -13,6 +13,9 @@ Change log
 - Made ``process_imagefields`` not load the whole queryset at once to
   avoid massive slowdowns while determining the width and height of
   images (if those fields aren't filled in yet).
+- Added housekeeping options to ``process_imagefields``. The only method
+  implemented right now is ``--housekeep blank-on-failure`` which
+  empties image fields where processing fails.
 
 
 `0.5`_ (2018-08-15)
