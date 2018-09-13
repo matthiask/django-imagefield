@@ -10,6 +10,9 @@ Change log
 - Changed ``process_imagefields`` to skip exclude model instances with
   an empty image field.
 - Changed the ``thumbnail`` processor to not upscale images.
+- Made ``process_imagefields`` not load the whole queryset at once to
+  avoid massive slowdowns while determining the width and height of
+  images (if those fields aren't filled in yet).
 
 
 `0.5`_ (2018-08-15)
