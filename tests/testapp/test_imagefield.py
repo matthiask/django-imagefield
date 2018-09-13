@@ -232,6 +232,13 @@ class Test(TestCase):
                     )
                 )
 
+        with openimage("smallliz.tif") as f:
+            response = client.post(
+                "/admin/testapp/model/add/", {"image": f, "ppoi": "0.5x0.5"}
+            )
+
+        self.assertContains(response, "decoder tiff_jpeg not available")
+
     def test_adhoc(self):
         """Ad-hoc processing pipelines may be built and executed"""
         m = Model.objects.create(image="python-logo.jpg")
