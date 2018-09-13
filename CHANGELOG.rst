@@ -6,6 +6,9 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+`0.6`_ (2018-09-13)
+~~~~~~~~~~~~~~~~~~~
+
 - Fixed a crash where unpickling image fields would fail.
 - Changed ``process_imagefields`` to skip exclude model instances with
   an empty image field.
@@ -18,6 +21,8 @@ Change log
   empties image fields where processing fails.
 - Changed ``process_imagefields`` to process items in a deterministic
   order.
+- Clarified the processors spec documentation a bit and added an example
+  how to write a processor of your own.
 
 
 `0.5`_ (2018-08-15)
@@ -92,4 +97,5 @@ Change log
 .. _0.3: https://github.com/matthiask/django-imagefield/compare/0.2...0.3
 .. _0.4: https://github.com/matthiask/django-imagefield/compare/0.3...0.4
 .. _0.5: https://github.com/matthiask/django-imagefield/compare/0.4...0.5
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.5...master
+.. _0.6: https://github.com/matthiask/django-imagefield/compare/0.5...0.6
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.6...master
