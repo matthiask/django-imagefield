@@ -16,6 +16,8 @@ Change log
 - Added housekeeping options to ``process_imagefields``. The only method
   implemented right now is ``--housekeep blank-on-failure`` which
   empties image fields where processing fails.
+- Changed ``process_imagefields`` to process items in a deterministic
+  order.
 
 
 `0.5`_ (2018-08-15)

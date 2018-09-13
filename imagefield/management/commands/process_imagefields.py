@@ -57,7 +57,9 @@ class Command(BaseCommand):
             if field.field_label not in self._fields:
                 continue
 
-            queryset = field.model._default_manager.exclude(**{field.name: ""})
+            queryset = field.model._default_manager.exclude(
+                **{field.name: ""}
+            ).order_by("-pk")
             count = queryset.count()
             self.stdout.write(
                 "%s - %s objects - %s"
