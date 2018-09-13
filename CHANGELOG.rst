@@ -6,6 +6,11 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Made error reporting in ``process_imagefields`` include more info.
+- Made image field validation catch errors while determining the image
+  dimension too.
+
+
 `0.6`_ (2018-09-13)
 ~~~~~~~~~~~~~~~~~~~
 

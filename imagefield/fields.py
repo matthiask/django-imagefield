@@ -181,7 +181,10 @@ class ImageField(models.ImageField):
         return super(ImageField, self).formfield(**kwargs)
 
     def save_form_data(self, instance, data):
-        super(ImageField, self).save_form_data(instance, data)
+        try:
+            super(ImageField, self).save_form_data(instance, data)
+        except Exception as exc:
+            raise ValidationError({self.name: "%s" % exc})
 
         if data is not None:
             f = getattr(instance, self.name)
