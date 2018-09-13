@@ -141,6 +141,24 @@ variables (but feel free to add your own):
 - ``save_kwargs``: A dictionary of keyword arguments to pass to
   ``PIL.Image.save``.
 
+An example processor which converts images to grayscale would look as
+follows:
+
+.. code-block:: python
+
+    from PIL import ImageOps
+    from imagefield.processing import register
+
+    @register
+    def grayscale(get_image, args):
+        def processor(image, context):
+            image, context = get_image(image, context)
+            return ImageOps.grayscale(image), context
+        return processor
+
+Now include ``"grayscale"`` in the processing spec for the image where
+you want to use it.
+
 
 Development
 ===========
