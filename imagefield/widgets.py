@@ -8,7 +8,7 @@ from django.utils.html import format_html
 
 try:
     from django.forms.boundfield import BoundField
-except ImportError:
+except ImportError:  # pragma: no cover (Django<1.11)
     from django.forms.forms import BoundField
 
 
