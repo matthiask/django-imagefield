@@ -73,7 +73,12 @@ class Command(BaseCommand):
 
             # Relatively low chunk_size to avoid slowness when having to load
             # width and height for images when instantiating models.
-            for index, instance in enumerate(queryset.iterator(chunk_size=100)):
+            try:
+                iterator = queryset.iterator(chunk_size=100)
+            except TypeError:  # Older versions of Django
+                iterator = queryset.iterator()
+
+            for index, instance in enumerate(iterator):
                 fieldfile = getattr(instance, field.name)
                 if fieldfile and fieldfile.name:
                     for key in field.formats:

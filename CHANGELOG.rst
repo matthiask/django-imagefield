@@ -9,6 +9,8 @@ Change log
 - Made error reporting in ``process_imagefields`` include more info.
 - Made image field validation catch errors while determining the image
   dimension too.
+- Fixed a problem where older versions of Django didn't allow specifying
+  the chunk size for iterating over querysets.
 
 
 `0.6`_ (2018-09-13)
