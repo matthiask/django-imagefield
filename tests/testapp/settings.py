@@ -59,6 +59,7 @@ MIDDLEWARE = MIDDLEWARE_CLASSES = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+IMAGEFIELD_VERSATILEIMAGEPROXY = True
 
 if os.environ.get("LOG"):
     logger = logging.getLogger("imagefield")

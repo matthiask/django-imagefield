@@ -113,7 +113,7 @@ class Test(TestCase):
         m = Model.objects.get()
         self.assertTrue(m.image.name)
         self.assertEqual(
-            m.image.thumbnail, "/media/__processed__/02a/python-logo-24f8702383e7.png"
+            m.image.thumb, "/media/__processed__/02a/python-logo-24f8702383e7.png"
         )
         with self.assertRaises(AttributeError):
             m.image.not_exists
@@ -296,4 +296,24 @@ class Test(TestCase):
                 "testapp.slowstorageimage.image",
                 "testapp.modelwithoptional.image",
             },
+        )
+
+    def test_versatileimageproxy(self):
+        m = Model.objects.create(image="python-logo.jpg")
+        thumb = m.image.thumbnail["20x20"]
+        self.assertEqual(
+            contents("__processed__"),
+            ["python-logo-24f8702383e7.jpg", "python-logo-e6a99ea713c8.jpg"],
+        )
+        self.assertEqual(thumb.items, ["thumbnail", "20x20"])
+        self.assertEqual(
+            "{}".format(thumb), "/media/__processed__/d00/python-logo-f26eb6811b04.jpg"
+        )
+        self.assertEqual(
+            contents("__processed__"),
+            [
+                "python-logo-24f8702383e7.jpg",
+                "python-logo-e6a99ea713c8.jpg",
+                "python-logo-f26eb6811b04.jpg",
+            ],
         )

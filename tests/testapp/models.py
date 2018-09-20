@@ -17,7 +17,7 @@ class AbstractModel(models.Model):
         height_field="height",
         ppoi_field="ppoi",
         formats={
-            "thumbnail": ["default", ("crop", (300, 300))],
+            "thumb": ["default", ("crop", (300, 300))],
             "desktop": ["default", ("thumbnail", (300, 225))],
         },
         # Should have no effect, but not hurt either:

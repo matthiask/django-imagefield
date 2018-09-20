@@ -41,18 +41,51 @@ def hashdigest(str):
     return hashlib.sha1(str.encode("utf-8")).hexdigest()
 
 
+class VersatileImageProxy(object):
+    def __init__(self, file, item):
+        self.file = file
+        self.items = [item]
+
+    def __getattr__(self, item):
+        self.items.append(item)
+        return self
+
+    def __getitem__(self, item):
+        self.items.append(item)
+        return self
+
+    def __str__(self):
+        processors = [
+            "default",
+            (self.items[0], tuple(map(int, self.items[1].split("x")))),
+        ]
+        url = self.file.storage.url(self.file._processed_name(processors))
+        key = "v-i-p:{}".format(url)
+        if not cache.get(key):
+            self.file.process(processors)
+            cache.set(key, 1, timeout=None)
+        return url
+
+
 class ImageFieldFile(files.ImageFieldFile):
     def __getattr__(self, item):
         # The "field" attribute is not there after unpickling, and
         # FileDescriptor checks for its presence before re-assigning the field
         # instance...
-        if hasattr(self, "field") and item in self.field.formats:
+        if not hasattr(self, "field"):
+            raise AttributeError
+        if item in self.field.formats:
             if self.name:
                 url = self.storage.url(self._processed_name(self.field.formats[item]))
             else:
                 url = ""
             setattr(self, item, url)
             return url
+        elif getattr(settings, "IMAGEFIELD_VERSATILEIMAGEPROXY", False) and item in {
+            "thumbnail",
+            "crop",
+        }:
+            return VersatileImageProxy(self, item)
         raise AttributeError
 
     def _ppoi(self):
