@@ -7,6 +7,15 @@ from django.core.management.base import BaseCommand, CommandError
 from imagefield.fields import IMAGEFIELDS
 
 
+def iterator(queryset):
+    # Relatively low chunk_size to avoid slowness when having to load
+    # width and height for images when instantiating models.
+    try:
+        return queryset.iterator(chunk_size=100)
+    except TypeError:  # Older versions of Django
+        return queryset.iterator()
+
+
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
@@ -71,14 +80,7 @@ class Command(BaseCommand):
             )
             self.stdout.write("\r|%s| %s/%s" % (" " * 50, 0, count), ending="")
 
-            # Relatively low chunk_size to avoid slowness when having to load
-            # width and height for images when instantiating models.
-            try:
-                iterator = queryset.iterator(chunk_size=100)
-            except TypeError:  # Older versions of Django
-                iterator = queryset.iterator()
-
-            for index, instance in enumerate(iterator):
+            for index, instance in enumerate(iterator(queryset)):
                 fieldfile = getattr(instance, field.name)
                 if fieldfile and fieldfile.name:
                     for key in field.formats:
