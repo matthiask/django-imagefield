@@ -133,21 +133,6 @@ processors if you want to:
 
 The processor's name is taken directly from the registered object.
 
-The ``context`` is a namespace with the following attributes (feel free
-to add your own):
-
-- ``processors``: The list of processors.
-- ``name``: The name of the resulting image relative to its storages'
-  root.
-- ``extension``: The extension of the source and target.
-- ``ppoi``: The primary point of interest as a list of two floats
-  between 0 and 1.
-- ``save_kwargs``: A dictionary of keyword arguments to pass to
-  ``PIL.Image.save``.
-
-The ``ppoi``, ``extension``, ``processors`` and ``name`` attributes
-cannot be modified when running processors anymore.
-
 An example processor which converts images to grayscale would look as
 follows:
 
@@ -165,6 +150,62 @@ follows:
 
 Now include ``"grayscale"`` in the processing spec for the image where
 you want to use it.
+
+
+The processing context
+======================
+
+The ``context`` is a namespace with the following attributes (feel free
+to add your own):
+
+- ``processors``: The list of processors.
+- ``name``: The name of the resulting image relative to its storages'
+  root.
+- ``extension``: The extension of the source and target.
+- ``ppoi``: The primary point of interest as a list of two floats
+  between 0 and 1.
+- ``save_kwargs``: A dictionary of keyword arguments to pass to
+  ``PIL.Image.save``.
+
+The ``ppoi``, ``extension``, ``processors`` and ``name`` attributes
+cannot be modified when running processors anymore. Under some
+circumstances ``extension`` and ``name`` will not even be there.
+
+If you want to modify the extension or file type, or create a different
+processing pipeline depending on facts not known when configuring
+settings you can use a callable instead of the list of processors. The
+callable will receive the fieldfile and the context instance and must at
+least set the context's ``processors`` attribute to something sensible.
+Just as an example here's an image field which always returns JPEG
+thumbnails:
+
+.. code-block:: python
+
+    from imagefield.processing import register
+
+    @register
+    def force_jpeg(get_image, args):
+        def processor(image, context):
+            image = get_image(image, context)
+            context.save_kwargs["format"] = "JPEG"
+            context.save_kwargs["quality"] = 90
+            return image
+        return processor
+
+    def jpeg_processor_spec(fieldfile, context):
+        context.extension = ".jpg"
+        context.processors = [
+            "force_jpeg",
+            "autorotate",
+            ("thumbnail", (200, 200)),
+        ]
+
+    class Model(...):
+        image = ImageField(..., formats={"thumb": jpeg_processor_spec})
+
+Of course you can also access the model instance through the field file
+by way of its ``fieldfile.instance`` attribute and use those
+informations to customize the pipeline.
 
 
 Development
