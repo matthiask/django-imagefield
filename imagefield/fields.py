@@ -154,20 +154,20 @@ class ImageFieldFile(files.ImageFieldFile):
         context.seal()
         return context
 
-    def process(self, item, force=False):
-        if isinstance(item, (list, tuple)):
-            processors = item
-            item = "<ad hoc>"
-        elif callable(item):
-            processors = item  # Evaluated in _process_context
-            item = "<callable>"
+    def process(self, spec, force=False):
+        if isinstance(spec, (list, tuple)):
+            processors = spec
+            spec = "<ad hoc>"
+        elif callable(spec):
+            processors = spec  # Evaluated in _process_context
+            spec = "<callable>"
         else:
-            processors = self.field.formats[item]
+            processors = self.field.formats[spec]
 
         context = self._process_context(processors)
         logger.debug(
             'Processing image "%(image)s" as "%(key)s" with context %(context)s',
-            {"image": self, "key": item, "context": context},
+            {"image": self, "key": spec, "context": context},
         )
         if not force and self.storage.exists(context.name):
             return context.name
@@ -186,7 +186,8 @@ class ImageFieldFile(files.ImageFieldFile):
         logger.info('Saved "%(name)s" successfully', {"name": context.name})
         return context.name
 
-    def _process(self, *, processors=None, context=None):
+    def _process(self, *a, processors=None, context=None):
+        assert not a, "Keywords only"
         assert bool(processors) != bool(context), "Pass exactly one, not both"
 
         if context is None:
@@ -301,8 +302,8 @@ class ImageField(models.ImageField):
             self._clear_generated_files_for(f, previous[0])
 
         if f.name:
-            for item in f.field.formats:
-                f.process(item)
+            for spec in f.field.formats:
+                f.process(spec)
 
     def _clear_generated_files(self, instance, **kwargs):
         self._clear_generated_files_for(getattr(instance, self.name), None)
