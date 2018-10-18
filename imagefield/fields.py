@@ -24,13 +24,39 @@ from .processing import build_handler
 from .widgets import PPOIWidget, with_preview_and_ppoi
 
 
-try:
-    from types import SimpleNamespace
-except ImportError:  # pragma: no cover
-    # Python < 3.3
-    class SimpleNamespace(object):
-        def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
+class _SealableAttribute(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __get__(self, obj, type=None):
+        if obj is None:
+            return self
+        return obj.__dict__[self.name]
+
+    def __set__(self, obj, value):
+        if obj._is_sealed:
+            raise AttributeError("Sealed attribute")
+        obj.__dict__[self.name] = value
+
+
+class Context(object):
+    ppoi = _SealableAttribute("ppoi")
+    extension = _SealableAttribute("extension")
+    processors = _SealableAttribute("processors")
+    name = _SealableAttribute("name")
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._is_sealed = False
+
+    def __repr__(self):
+        # From https://docs.python.org/3/library/types.html#types.SimpleNamespace
+        keys = sorted(self.__dict__)
+        items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
+        return "{}({})".format(type(self).__name__, ", ".join(items))
+
+    def seal(self):
+        self._is_sealed = True
 
 
 logger = logging.getLogger(__name__)
@@ -60,7 +86,7 @@ class VersatileImageProxy(object):
             "default",
             (self.items[0], tuple(map(int, self.items[1].split("x")))),
         ]
-        url = self.file.storage.url(self.file._process_target(processors).name)
+        url = self.file.storage.url(self.file._process_context(processors).name)
         key = "v-i-p:{}".format(url)
         if not cache.get(key):
             self.file.process(processors)
@@ -69,7 +95,6 @@ class VersatileImageProxy(object):
 
 
 _ProcessBase = namedtuple("_ProcessBase", "path basename")
-_ProcessTarget = namedtuple("_ProcessTarget", "name processors context")
 
 
 class ImageFieldFile(files.ImageFieldFile):
@@ -82,7 +107,7 @@ class ImageFieldFile(files.ImageFieldFile):
         if item in self.field.formats:
             if self.name:
                 url = self.storage.url(
-                    self._process_target(self.field.formats[item]).name
+                    self._process_context(self.field.formats[item]).name
                 )
             else:
                 url = ""
@@ -108,61 +133,71 @@ class ImageFieldFile(files.ImageFieldFile):
         filename, _ = os.path.splitext(os.path.basename(name))
         return _ProcessBase("__processed__/%s" % p1[:3], "%s-" % filename)
 
-    def _process_target(self, processors):
-        context = SimpleNamespace(
+    def _process_context(self, processors):
+        context = Context(
             ppoi=self._ppoi(), save_kwargs={}, extension=os.path.splitext(self.name)[1]
         )
         if callable(processors):
-            processors, context = processors(self, context)
+            processors(self, context)
+        else:
+            context.processors = processors
         base = self._process_base(self.name)
-        spec = "|".join(str(p) for p in processors) + "|" + str(self._ppoi())
+        spec = "|".join(str(p) for p in context.processors) + "|" + str(self._ppoi())
         spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
         p2 = hashdigest(spec)
-        return _ProcessTarget(
-            "%s/%s%s%s" % (base.path, base.basename, p2[:12], context.extension),
-            processors,
-            context,
+        context.name = "%s/%s%s%s" % (
+            base.path,
+            base.basename,
+            p2[:12],
+            context.extension,
         )
+        context.seal()
+        return context
 
     def process(self, item, force=False):
         if isinstance(item, (list, tuple)):
             processors = item
             item = "<ad hoc>"
         elif callable(item):
-            processors = item  # Evaluated in _process_target
+            processors = item  # Evaluated in _process_context
             item = "<callable>"
         else:
             processors = self.field.formats[item]
 
-        target = self._process_target(processors)
+        context = self._process_context(processors)
         logger.debug(
-            'Processing image "%(image)s" as "%(key)s" with target %(target)s',
-            {"image": self, "key": item, "target": target},
+            'Processing image "%(image)s" as "%(key)s" with context %(context)s',
+            {"image": self, "key": item, "context": context},
         )
-        if not force and self.storage.exists(target.name):
-            return target.name
+        if not force and self.storage.exists(context.name):
+            return context.name
 
         try:
-            buf = self._process(target.processors, target.context)
+            buf = self._process(context=context)
         except Exception:
-            logger.exception("Exception while processing")
+            logger.exception(
+                'Exception while processing "%(context)s"', {"context": context}
+            )
             raise
 
-        self.storage.delete(target.name)
-        self.storage.save(target.name, ContentFile(buf))
+        self.storage.delete(context.name)
+        self.storage.save(context.name, ContentFile(buf))
 
-        logger.info("Saved processed image %(target)s", {"target": target.name})
-        return target.name
+        logger.info('Saved "%(name)s" successfully', {"name": context.name})
+        return context.name
 
-    def _process(self, processors, context=None):
+    def _process(self, *, processors=None, context=None):
+        assert bool(processors) != bool(context), "Pass exactly one, not both"
+
         if context is None:
-            context = SimpleNamespace(ppoi=self._ppoi(), save_kwargs={})
+            context = Context(ppoi=self._ppoi(), save_kwargs={}, processors=processors)
+            context.seal()
 
         self.open("rb")
         image = Image.open(self.file)
         context.save_kwargs.setdefault("format", image.format)
 
-        handler = build_handler(processors)
+        handler = build_handler(context.processors)
         image = handler(image, context)
 
         with io.BytesIO() as buf:
@@ -240,7 +275,7 @@ class ImageField(models.ImageField):
                 try:
                     # Anything which exercises the machinery so that we may
                     # find out whether the image works at all (or not)
-                    f._process(["default", ("thumbnail", (20, 20))])
+                    f._process(processors=["default", ("thumbnail", (20, 20))])
                 except Exception as exc:
                     raise ValidationError({self.name: "%s" % exc})
 

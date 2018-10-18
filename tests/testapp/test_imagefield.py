@@ -254,12 +254,13 @@ class Test(BaseTest):
             m.image.process([("thumbnail", (20, 20))]),
             "__processed__/d00/python-logo-43feb031c1be.jpg",
         )
+
         # Same result when using a callable as processor spec:
+        def spec(fieldfile, context):
+            context.processors = [("thumbnail", (20, 20))]
+
         self.assertEqual(
-            m.image.process(
-                lambda fieldfile, context: ([("thumbnail", (20, 20))], context)
-            ),
-            "__processed__/d00/python-logo-43feb031c1be.jpg",
+            m.image.process(spec), "__processed__/d00/python-logo-43feb031c1be.jpg"
         )
         self.assertEqual(
             contents("__processed__"),
@@ -275,7 +276,7 @@ class Test(BaseTest):
     def test_adhoc_lowlevel(self):
         """Low-level processing pipelines; no saving of generated images"""
         m = Model.objects.create(image="python-logo.jpg")
-        m.image._process([("thumbnail", (20, 20))])
+        m.image._process(processors=[("thumbnail", (20, 20))])
         # New thumb is not saved; still only "desktop" and "thumbnail" images
         self.assertEqual(
             contents("__processed__"),
@@ -341,10 +342,19 @@ def force_png(get_image, args):
     return processor
 
 
+@register
+def too_late(get_image, args):
+    def processor(image, context):
+        context.extension = ".png"
+        return get_image(image, context)
+
+    return processor
+
+
 def force_png_spec(fieldfile, context):
     # Make imagefield generate URLs and filenames with a .png extension:
     context.extension = ".png"
-    return ["force_png"], context
+    context.processors = ["force_png"]
 
 
 @override_settings(IMAGEFIELD_FORMATS={"testapp.model.image": {"test": force_png_spec}})
@@ -355,3 +365,10 @@ class ForcePNGTest(BaseTest):
             "{}".format(m.image.test),
             "/media/__processed__/d00/python-logo-5da93aa386ab.png",
         )
+
+    def test_too_late(self):
+        m = Model.objects.create(image="python-logo.jpg")
+        with self.assertRaises(AttributeError) as cm:
+            m.image.process(["too_late"])
+
+        self.assertIn("Sealed attribute", str(cm.exception))

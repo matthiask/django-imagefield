@@ -133,13 +133,20 @@ processors if you want to:
 
 The processor's name is taken directly from the registered object.
 
-The ``context`` is a ``types.SimpleNamespace`` containing the following
-variables (but feel free to add your own):
+The ``context`` is a namespace with the following attributes (feel free
+to add your own):
 
+- ``processors``: The list of processors.
+- ``name``: The name of the resulting image relative to its storages'
+  root.
+- ``extension``: The extension of the source and target.
 - ``ppoi``: The primary point of interest as a list of two floats
   between 0 and 1.
 - ``save_kwargs``: A dictionary of keyword arguments to pass to
   ``PIL.Image.save``.
+
+The ``ppoi``, ``extension``, ``processors`` and ``name`` attributes
+cannot be modified when running processors anymore.
 
 An example processor which converts images to grayscale would look as
 follows:
