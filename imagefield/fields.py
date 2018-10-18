@@ -137,11 +137,7 @@ class ImageFieldFile(files.ImageFieldFile):
         target = self._process_target(processors)
         logger.debug(
             'Processing image "%(image)s" as "%(key)s" with target %(target)s',
-            {
-                "image": self,
-                "key": item,
-                "target": target,
-            },
+            {"image": self, "key": item, "target": target},
         )
         if not force and self.storage.exists(target.name):
             return target.name
