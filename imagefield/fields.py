@@ -142,7 +142,7 @@ class ImageFieldFile(files.ImageFieldFile):
         else:
             context.processors = processors
         base = self._process_base(self.name)
-        spec = "|".join(str(p) for p in context.processors) + "|" + str(self._ppoi())
+        spec = "|".join(str(p) for p in context.processors) + "|" + str(context.ppoi)
         spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
         p2 = hashdigest(spec)
         context.name = "%s/%s%s%s" % (
