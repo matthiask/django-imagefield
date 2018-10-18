@@ -333,10 +333,10 @@ class Test(BaseTest):
 @register
 def force_png(get_image, args):
     def processor(image, context):
-        image, context = get_image(image, context)
+        image = get_image(image, context)
         # Make Pillow generate a PNG:
         context.save_kwargs["format"] = "PNG"
-        return image, context
+        return image
 
     return processor
 

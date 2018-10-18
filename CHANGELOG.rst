@@ -13,6 +13,9 @@ Change log
   the chunk size for iterating over querysets.
 - Modified django-imagefield's internals to allow changing the type and
   extension of generated images.
+- Changed the API of the ``get_image`` callable in processors to only
+  return the image without the context (since the context is mutable and
+  available already).
 
 
 `0.6`_ (2018-09-13)

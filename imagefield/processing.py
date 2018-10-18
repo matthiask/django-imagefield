@@ -7,7 +7,7 @@ PROCESSORS = {}
 
 
 def build_handler(processors, handler=None):
-    handler = handler or (lambda *args: args)
+    handler = handler or (lambda image, context: image)
 
     for part in reversed(processors):
         if isinstance(part, (list, tuple)):
@@ -74,9 +74,9 @@ def process_gif(get_image, args):
         if "transparency" in image.info:
             context.save_kwargs["transparency"] = image.info["transparency"]
         palette = image.getpalette()
-        image, context = get_image(image, context)
+        image = get_image(image, context)
         image.putpalette(palette)
-        return image, context
+        return image
 
     return processor
 
@@ -93,12 +93,9 @@ def preserve_icc_profile(get_image, args):
 @register
 def thumbnail(get_image, args):
     def processor(image, context):
-        image, context = get_image(image, context)
+        image = get_image(image, context)
         f = min(1.0, args[0][0] / image.size[0], args[0][1] / image.size[1])
-        return (
-            image.resize([int(f * coord) for coord in image.size], Image.LANCZOS),
-            context,
-        )
+        return image.resize([int(f * coord) for coord in image.size], Image.LANCZOS)
 
     return processor
 
@@ -108,7 +105,7 @@ def crop(get_image, args):
     width, height = args[0]
 
     def processor(image, context):
-        image, context = get_image(image, context)
+        image = get_image(image, context)
 
         ppoi_x_axis = int(image.size[0] * context.ppoi[0])
         ppoi_y_axis = int(image.size[1] * context.ppoi[1])
@@ -160,6 +157,6 @@ def crop(get_image, args):
         )
         # Resizing the newly cropped image to the size specified
         # (as determined by `width`x`height`)
-        return cropped_image.resize((width, height), Image.LANCZOS), context
+        return cropped_image.resize((width, height), Image.LANCZOS)
 
     return processor

@@ -123,12 +123,12 @@ processors if you want to:
             # or maybe modify it, but it's mostly recommended to modify
             # the image after calling get_image
 
-            image, context = get_image(image, context)
+            image = get_image(image, context)
 
             # modify the image, and return it...
             modified_image = ...
             # maybe modify the context...
-            return modified_image, context
+            return modified_image
         return processor
 
 The processor's name is taken directly from the registered object.
@@ -152,8 +152,8 @@ follows:
     @register
     def grayscale(get_image, args):
         def processor(image, context):
-            image, context = get_image(image, context)
-            return ImageOps.grayscale(image), context
+            image = get_image(image, context)
+            return ImageOps.grayscale(image)
         return processor
 
 Now include ``"grayscale"`` in the processing spec for the image where

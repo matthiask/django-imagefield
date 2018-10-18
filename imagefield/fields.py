@@ -163,7 +163,7 @@ class ImageFieldFile(files.ImageFieldFile):
         context.save_kwargs.setdefault("format", image.format)
 
         handler = build_handler(processors)
-        image, context = handler(image, context)
+        image = handler(image, context)
 
         with io.BytesIO() as buf:
             image.save(buf, **context.save_kwargs)
