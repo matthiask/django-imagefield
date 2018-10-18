@@ -186,8 +186,7 @@ class ImageFieldFile(files.ImageFieldFile):
         logger.info('Saved "%(name)s" successfully', {"name": context.name})
         return context.name
 
-    def _process(self, *a, processors=None, context=None):
-        assert not a, "Keywords only"
+    def _process(self, processors=None, context=None):
         assert bool(processors) != bool(context), "Pass exactly one, not both"
 
         if context is None:
