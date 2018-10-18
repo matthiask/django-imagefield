@@ -12,6 +12,7 @@ from unittest import skipIf
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
+from django.test.utils import override_settings
 from django.utils.translation import deactivate_all
 
 try:
@@ -20,6 +21,7 @@ except ImportError:
     from django.core.urlresolvers import reverse
 
 from imagefield.fields import IMAGEFIELDS
+from imagefield.processing import register
 from PIL import Image
 
 from .models import Model, ModelWithOptional, SlowStorageImage, slow_storage
@@ -39,9 +41,8 @@ def contents(path):
     )
 
 
-class Test(TestCase):
+class BaseTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_superuser("admin", "admin@test.ch", "blabla")
         deactivate_all()
         self._rmtree()
 
@@ -54,7 +55,10 @@ class Test(TestCase):
         )
         shutil.rmtree(os.path.join(settings.MEDIA_ROOT, "images"), ignore_errors=True)
 
+
+class Test(BaseTest):
     def login(self):
+        self.user = User.objects.create_superuser("admin", "admin@test.ch", "blabla")
         client = Client()
         client.login(username="admin", password="blabla")
         # client.force_login(self.user)
@@ -250,6 +254,13 @@ class Test(TestCase):
             m.image.process([("thumbnail", (20, 20))]),
             "__processed__/d00/python-logo-43feb031c1be.jpg",
         )
+        # Same result when using a callable as processor spec:
+        self.assertEqual(
+            m.image.process(
+                lambda fieldfile, context: ([("thumbnail", (20, 20))], context)
+            ),
+            "__processed__/d00/python-logo-43feb031c1be.jpg",
+        )
         self.assertEqual(
             contents("__processed__"),
             [
@@ -316,4 +327,31 @@ class Test(TestCase):
                 "python-logo-e6a99ea713c8.jpg",
                 "python-logo-f26eb6811b04.jpg",
             ],
+        )
+
+
+@register
+def force_png(get_image, args):
+    def processor(image, context):
+        image, context = get_image(image, context)
+        # Make Pillow generate a PNG:
+        context.save_kwargs["format"] = "PNG"
+        return image, context
+
+    return processor
+
+
+def force_png_spec(fieldfile, context):
+    # Make imagefield generate URLs and filenames with a .png extension:
+    context.extension = ".png"
+    return ["force_png"], context
+
+
+@override_settings(IMAGEFIELD_FORMATS={"testapp.model.image": {"test": force_png_spec}})
+class ForcePNGTest(BaseTest):
+    def test_callable_processors(self):
+        m = Model.objects.create(image="python-logo.jpg")
+        self.assertEqual(
+            "{}".format(m.image.test),
+            "/media/__processed__/d00/python-logo-5da93aa386ab.png",
         )

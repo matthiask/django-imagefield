@@ -11,6 +11,8 @@ Change log
   dimension too.
 - Fixed a problem where older versions of Django didn't allow specifying
   the chunk size for iterating over querysets.
+- Modified django-imagefield's internals to allow changing the type and
+  extension of generated images.
 
 
 `0.6`_ (2018-09-13)

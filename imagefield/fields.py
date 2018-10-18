@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from collections import namedtuple
 import hashlib
 import io
 import logging
@@ -59,12 +60,16 @@ class VersatileImageProxy(object):
             "default",
             (self.items[0], tuple(map(int, self.items[1].split("x")))),
         ]
-        url = self.file.storage.url(self.file._processed_name(processors))
+        url = self.file.storage.url(self.file._process_target(processors).name)
         key = "v-i-p:{}".format(url)
         if not cache.get(key):
             self.file.process(processors)
             cache.set(key, 1, timeout=None)
         return url
+
+
+_ProcessBase = namedtuple("_ProcessBase", "path basename")
+_ProcessTarget = namedtuple("_ProcessTarget", "name processors context")
 
 
 class ImageFieldFile(files.ImageFieldFile):
@@ -76,7 +81,9 @@ class ImageFieldFile(files.ImageFieldFile):
             raise AttributeError
         if item in self.field.formats:
             if self.name:
-                url = self.storage.url(self._processed_name(self.field.formats[item]))
+                url = self.storage.url(
+                    self._process_target(self.field.formats[item]).name
+                )
             else:
                 url = ""
             setattr(self, item, url)
@@ -96,59 +103,70 @@ class ImageFieldFile(files.ImageFieldFile):
             ]
         return [0.5, 0.5]
 
-    def _processed_base(self, name):
+    def _process_base(self, name):
         p1 = hashdigest(name)
         filename, _ = os.path.splitext(os.path.basename(name))
-        return "__processed__/%s" % p1[:3], "%s-" % filename
+        return _ProcessBase("__processed__/%s" % p1[:3], "%s-" % filename)
 
-    def _processed_name(self, processors):
-        path, basename = self._processed_base(self.name)
+    def _process_target(self, processors):
+        context = SimpleNamespace(
+            ppoi=self._ppoi(), save_kwargs={}, extension=os.path.splitext(self.name)[1]
+        )
+        if callable(processors):
+            processors, context = processors(self, context)
+        base = self._process_base(self.name)
         spec = "|".join(str(p) for p in processors) + "|" + str(self._ppoi())
         spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
         p2 = hashdigest(spec)
-        _, ext = os.path.splitext(self.name)
-        return "%s/%s%s%s" % (path, basename, p2[:12], ext)
+        return _ProcessTarget(
+            "%s/%s%s%s" % (base.path, base.basename, p2[:12], context.extension),
+            processors,
+            context,
+        )
 
     def process(self, item, force=False):
         if isinstance(item, (list, tuple)):
             processors = item
             item = "<ad hoc>"
+        elif callable(item):
+            processors = item  # Evaluated in _process_target
         else:
             processors = self.field.formats[item]
-        target = self._processed_name(processors)
+
+        target = self._process_target(processors)
         logger.debug(
             'Processing image %(image)s as "%(key)s" with target %(target)s'
-            " and pipeline %(processors)s, PPOI %(ppoi)s",
+            " and pipeline %(processors)s, context %(context)s",
             {
                 "image": self,
                 "key": item,
-                "target": target,
-                "processors": processors,
-                "ppoi": self._ppoi(),
+                "target": target.name,
+                "processors": target.processors,
+                "context": target.context,
             },
         )
-        if not force and self.storage.exists(target):
-            return target
+        if not force and self.storage.exists(target.name):
+            return target.name
 
         try:
-            buf = self._process(processors)
+            buf = self._process(target.processors, target.context)
         except Exception:
             logger.exception("Exception while processing")
             raise
 
-        self.storage.delete(target)
-        self.storage.save(target, ContentFile(buf))
+        self.storage.delete(target.name)
+        self.storage.save(target.name, ContentFile(buf))
 
-        logger.info("Saved processed image %(target)s", {"target": target})
-        return target
+        logger.info("Saved processed image %(target)s", {"target": target.name})
+        return target.name
 
-    def _process(self, processors):
+    def _process(self, processors, context=None):
+        if context is None:
+            context = SimpleNamespace(ppoi=self._ppoi(), save_kwargs={})
+
         self.open("rb")
         image = Image.open(self.file)
-        context = SimpleNamespace(
-            ppoi=self._ppoi(), save_kwargs={"format": image.format}
-        )
-        _, ext = os.path.splitext(self.name)
+        context.save_kwargs.setdefault("format", image.format)
 
         handler = build_handler(processors)
         image, context = handler(image, context)
@@ -174,7 +192,7 @@ class ImageField(models.ImageField):
             % (self.model._meta.app_label, self.model._meta.model_name, self.name)
         ).lower()
 
-    @cached_property
+    @property
     def formats(self):
         setting = getattr(settings, "IMAGEFIELD_FORMATS", {})
         return setting.get(self.field_label, self._formats)
@@ -266,17 +284,17 @@ class ImageField(models.ImageField):
         key = "imagefield-admin-thumb:%s" % filename
         cache.delete(key)
 
-        folder, startswith = fieldfile._processed_base(filename)
+        base = fieldfile._process_base(filename)
 
         try:
-            folders, files = fieldfile.storage.listdir(folder)
+            folders, files = fieldfile.storage.listdir(base.path)
         except EnvironmentError:  # FileNotFoundError on PY3
             # Fine!
             return
 
         for file in files:
-            if file.startswith(startswith):
-                fieldfile.storage.delete(os.path.join(folder, file))
+            if file.startswith(base.basename):
+                fieldfile.storage.delete(os.path.join(base.path, file))
 
     def check(self, **kwargs):
         errors = super(ImageField, self).check(**kwargs)
