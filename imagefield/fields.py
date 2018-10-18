@@ -130,19 +130,17 @@ class ImageFieldFile(files.ImageFieldFile):
             item = "<ad hoc>"
         elif callable(item):
             processors = item  # Evaluated in _process_target
+            item = "<callable>"
         else:
             processors = self.field.formats[item]
 
         target = self._process_target(processors)
         logger.debug(
-            'Processing image %(image)s as "%(key)s" with target %(target)s'
-            " and pipeline %(processors)s, context %(context)s",
+            'Processing image "%(image)s" as "%(key)s" with target %(target)s',
             {
                 "image": self,
                 "key": item,
-                "target": target.name,
-                "processors": target.processors,
-                "context": target.context,
+                "target": target,
             },
         )
         if not force and self.storage.exists(target.name):
