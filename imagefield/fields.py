@@ -267,7 +267,15 @@ class ImageField(models.ImageField):
             # The image was either of an unknown type or so corrupt Django
             # couldn't even begin to process it.
             super(ImageField, self).save_form_data(instance, "")
-            raise ValidationError({self.name: "%s" % exc})
+            raise ValidationError(
+                {
+                    self.name: (
+                        "Error while handling image, maybe the file is corrupt"
+                        ' or the image format is unsupported. (Exception: "%s")'
+                    )
+                    % exc
+                }
+            )
 
         if data is not None:
             f = getattr(instance, self.name)
@@ -277,7 +285,15 @@ class ImageField(models.ImageField):
                     # find out whether the image works at all (or not)
                     f._process(processors=["default", ("thumbnail", (20, 20))])
                 except Exception as exc:
-                    raise ValidationError({self.name: "%s" % exc})
+                    raise ValidationError(
+                        {
+                            self.name: (
+                                "Image cannot be processed by backend"
+                                ' (Exception: "%s")'
+                            )
+                            % exc
+                        }
+                    )
 
             # Reset PPOI field if image field is cleared
             if not data and self.ppoi_field:

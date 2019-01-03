@@ -24,7 +24,7 @@ setup(
     platforms=["OS Independent"],
     packages=find_packages(exclude=["tests", "testapp"]),
     include_package_data=True,
-    install_requires=["Pillow<5.4"],
+    install_requires=["Pillow"],
     classifiers=[
         # 'Development Status :: 5 - Production/Stable',
         "Environment :: Web Environment",
