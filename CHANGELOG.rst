@@ -6,6 +6,10 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Pinned `Pillow <https://github.com/python-pillow/Pillow/>`__ to
+  ``<5.4`` for now to avoid an exception because of closed image files
+  when verifying uploads.
+
 
 `0.7`_ (2018-10-18)
 ~~~~~~~~~~~~~~~~~~~
