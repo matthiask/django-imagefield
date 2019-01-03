@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 import os
 import re
 import subprocess
+import sys
 
+
+sys.path.append(os.path.abspath('..'))
 
 project = 'django-imagefield'
 author = 'Feinheit AG'
