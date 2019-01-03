@@ -17,6 +17,7 @@ from django.db.models import signals
 from django.db.models.fields import files
 from django.forms import ClearableFileInput
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext as _
 
 from PIL import Image
 
@@ -269,7 +270,7 @@ class ImageField(models.ImageField):
             super(ImageField, self).save_form_data(instance, "")
             raise ValidationError(
                 {
-                    self.name: (
+                    self.name: _(
                         "Error while handling image, maybe the file is corrupt"
                         ' or the image format is unsupported. (Exception: "%s")'
                     )
@@ -287,7 +288,7 @@ class ImageField(models.ImageField):
                 except Exception as exc:
                     raise ValidationError(
                         {
-                            self.name: (
+                            self.name: _(
                                 "Image cannot be processed by backend"
                                 ' (Exception: "%s")'
                             )

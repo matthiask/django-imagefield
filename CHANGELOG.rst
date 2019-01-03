@@ -6,9 +6,9 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
-- Pinned `Pillow <https://github.com/python-pillow/Pillow/>`__ to
-  ``<5.4`` for now to avoid an exception because of closed image files
-  when verifying uploads.
+- Fixed a test to assume less about the error message for corrupt
+  images.
+- Localize the corrupt image validation errors.
 
 
 `0.7`_ (2018-10-18)
