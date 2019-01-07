@@ -241,11 +241,16 @@ class Test(BaseTest):
                 "/admin/testapp/model/add/", {"image": f, "ppoi": "0.5x0.5"}
             )
 
-        # Not possible since Pillow 5.4 anymore, since it only raises a
-        # ValueError when accessing a corrupt file (because Pillow already
-        # closed it... https://github.com/python-pillow/Pillow/pull/3461
-        # self.assertContains(response, "decoder tiff_jpeg not available")
         self.assertContains(response, "This field cannot be blank.")
+        self.assertContains(
+            response,
+            "Error while handling image, maybe the file"
+            " is corrupt or the image format is unsupported.",
+        )
+
+        # Pillow 5.4.0 fails this (it closes the file prematurely and raises
+        # a file closed exception because of this)
+        self.assertContains(response, "decoder tiff_jpeg not available")
 
     def test_adhoc(self):
         """Ad-hoc processing pipelines may be built and executed"""
