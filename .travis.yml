@@ -1,41 +1,55 @@
+dist: xenial
 sudo: false
-# cache: pip
 language: python
+# cache: pip
+#
+# Matrix composition:
+# Django LTS versions: All supported Python releases
+# Other versions and master branch: The newest possible Python release
 python:
-- "3.6"
-- "3.5"
-- "2.7"
-env:
-- REQ="Django>=1.11,<2.0"
-- REQ="Django>=2.0,<2.1"
-- REQ="Django>=2.1,<2.2"
-- REQ="https://github.com/django/django/archive/master.zip#egg=Django"
+  - 3.7
 matrix:
-  allow_failures:
-    - env: REQ="https://github.com/django/django/archive/master.zip#egg=Django"
-  exclude:
-    - python: "2.7"
-      env: REQ="Django>=2.0,<2.1"
-    - python: "2.7"
-      env: REQ="Django>=2.1,<2.2"
-    - python: "2.7"
-      env: REQ="https://github.com/django/django/archive/master.zip#egg=Django"
-install:
-- pip install -U pip wheel
-- pip install Pillow>5.4.0
-- pip install $REQ
-- python setup.py install
-script: cd tests && ./manage.py test testapp -v 2 && cd ..
-
-jobs:
+  fast_finish: true
   include:
-    - stage: prehistoric
-      python: "2.7"
+    - python: 3.7
+      env: REQ="https://github.com/django/django/archive/master.zip#egg=Django"
+    - python: 3.7
+      env: REQ="Django>=2.2a1,<3.0"
+    - python: 3.6
+      env: REQ="Django>=2.2a1,<3.0"
+    - python: 3.5
+      env: REQ="Django>=2.2a1,<3.0"
+    - python: 3.7
+      env: REQ="Django>=2.1,<2.2"
+    - python: 3.7
+      env: REQ="Django>=2.0,<2.1"
+    - python: 3.7
+      env: REQ="Django>=1.11,<2.0"
+    - python: 3.6
+      env: REQ="Django>=1.11,<2.0"
+    - python: 3.5
+      env: REQ="Django>=1.11,<2.0"
+    - python: 3.4
+      env: REQ="Django>=1.11,<2.0"
+    - python: 2.7
+      env: REQ="Django>=1.11,<2.0"
+    - python: 3.5
       env: REQ="Django>=1.8,<1.9"
-    - stage: style
+    - python: 3.4
+      env: REQ="Django>=1.8,<1.9"
+    - python: 2.7
+      env: REQ="Django>=1.8,<1.9"
+    - python: 3.7
       env: REQ=none
       install: skip
       script:
         - pip install black flake8
         - flake8 .
         - black --check imagefield tests
+  allow_failures:
+    - env: REQ="https://github.com/django/django/archive/master.zip#egg=Django"
+install:
+- pip install -U pip wheel
+- pip install $REQ Pillow
+- python setup.py install
+script: cd tests && ./manage.py test -v2 testapp && cd ..
