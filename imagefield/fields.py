@@ -170,7 +170,10 @@ class ImageFieldFile(files.ImageFieldFile):
             'Processing image "%(image)s" as "%(key)s" with context %(context)s',
             {"image": self, "key": spec, "context": context},
         )
-        if not force and self.storage.exists(context.name):
+
+        already_exists = self.storage.exists(context.name)
+
+        if not force and already_exists:
             return context.name
 
         try:
@@ -181,7 +184,8 @@ class ImageFieldFile(files.ImageFieldFile):
             )
             raise
 
-        self.storage.delete(context.name)
+        if already_exists:
+            self.storage.delete(context.name)
         self.storage.save(context.name, ContentFile(buf))
 
         logger.info('Saved "%(name)s" successfully', {"name": context.name})
