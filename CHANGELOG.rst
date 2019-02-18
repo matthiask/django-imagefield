@@ -9,6 +9,8 @@ Change log
 - Fixed a test to assume less about the error message for corrupt
   images.
 - Localize the corrupt image validation errors.
+- Stopped calling the storage's ``delete()`` method for non-existing
+  images.
 
 
 `0.7`_ (2018-10-18)
