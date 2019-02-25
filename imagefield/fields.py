@@ -288,7 +288,16 @@ class ImageField(models.ImageField):
                 try:
                     # Anything which exercises the machinery so that we may
                     # find out whether the image works at all (or not)
-                    f._process(processors=["default", ("thumbnail", (20, 20))])
+                    with io.BytesIO() as original, io.BytesIO() as buf:
+                        if f.closed:
+                            f.open("rb")
+                        original.write(f.read())
+                        f.seek(0)
+                        original.seek(0)
+                        Image.open(original).resize((10, 10)).convert("RGB").save(
+                            buf, format="JPEG", quality=10
+                        )
+
                 except Exception as exc:
                     raise ValidationError(
                         {
