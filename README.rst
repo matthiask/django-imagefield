@@ -9,8 +9,6 @@ django-imagefield
     :target: https://django-imagefield.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-Version |release|
-
 Heavily based on `django-versatileimagefield
 <https://github.com/respondcreate/django-versatileimagefield>`_, but
 with a few important differences:
