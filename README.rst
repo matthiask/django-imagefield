@@ -102,7 +102,8 @@ The following processors are available out of the box:
   ``default`` instead of adding the processors one-by-one.
 
 Processors can be specified either using their name alone, or if they
-take arguments, using a tuple ``(processor_name, args...)``.
+take arguments, using a tuple where the first entry is the processors'
+name and the rest are positional arguments.
 
 You can easily register your own processors or even override built-in
 processors if you want to:
@@ -115,9 +116,7 @@ processors if you want to:
     # like the simplicity of functions.
 
     @register
-    def my_processor(get_image, args):
-        # args is either a list of arguments to the processor or an
-        # empty list
+    def my_processor(get_image, ...):
         def processor(image, context):
             # read some information from the image...
             # or maybe modify it, but it's mostly recommended to modify
@@ -142,7 +141,7 @@ follows:
     from imagefield.processing import register
 
     @register
-    def grayscale(get_image, args):
+    def grayscale(get_image):
         def processor(image, context):
             image = get_image(image, context)
             return ImageOps.grayscale(image)
@@ -184,7 +183,7 @@ thumbnails:
     from imagefield.processing import register
 
     @register
-    def force_jpeg(get_image, args):
+    def force_jpeg(get_image):
         def processor(image, context):
             image = get_image(image, context)
             context.save_kwargs["format"] = "JPEG"

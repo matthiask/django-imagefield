@@ -11,9 +11,9 @@ def build_handler(processors, handler=None):
 
     for part in reversed(processors):
         if isinstance(part, (list, tuple)):
-            handler = PROCESSORS[part[0]](handler, part[1:])
+            handler = PROCESSORS[part[0]](handler, *part[1:])
         else:
-            handler = PROCESSORS[part](handler, [])
+            handler = PROCESSORS[part](handler)
 
     return handler
 
@@ -24,14 +24,14 @@ def register(fn):
 
 
 @register
-def default(get_image, args):
+def default(get_image):
     return build_handler(
         ["preserve_icc_profile", "process_gif", "process_jpeg", "autorotate"], get_image
     )
 
 
 @register
-def autorotate(get_image, args):
+def autorotate(get_image):
     def processor(image, context):
         if not hasattr(image, "_getexif"):
             return get_image(image, context)
@@ -53,7 +53,7 @@ def autorotate(get_image, args):
 
 
 @register
-def process_jpeg(get_image, args):
+def process_jpeg(get_image):
     def processor(image, context):
         if context.save_kwargs["format"] == "JPEG":
             context.save_kwargs["quality"] = 90
@@ -66,7 +66,7 @@ def process_jpeg(get_image, args):
 
 
 @register
-def process_gif(get_image, args):
+def process_gif(get_image):
     def processor(image, context):
         if context.save_kwargs["format"] != "GIF":
             return get_image(image, context)
@@ -82,7 +82,7 @@ def process_gif(get_image, args):
 
 
 @register
-def preserve_icc_profile(get_image, args):
+def preserve_icc_profile(get_image):
     def processor(image, context):
         context.save_kwargs["icc_profile"] = image.info.get("icc_profile")
         return get_image(image, context)
@@ -91,18 +91,18 @@ def preserve_icc_profile(get_image, args):
 
 
 @register
-def thumbnail(get_image, args):
+def thumbnail(get_image, size):
     def processor(image, context):
         image = get_image(image, context)
-        f = min(1.0, args[0][0] / image.size[0], args[0][1] / image.size[1])
+        f = min(1.0, size[0] / image.size[0], size[1] / image.size[1])
         return image.resize([int(f * coord) for coord in image.size], Image.LANCZOS)
 
     return processor
 
 
 @register
-def crop(get_image, args):
-    width, height = args[0]
+def crop(get_image, size):
+    width, height = size
 
     def processor(image, context):
         image = get_image(image, context)

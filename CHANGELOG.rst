@@ -6,6 +6,14 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+`0.8`_ (2019-06-21)
+~~~~~~~~~~~~~~~~~~~
+
+- **BACKWARDS INCOMPATIBLE**: Changed processing to pass additional
+  processors' arguments as positional arguments instead of as a single
+  list. This change only affects custom processors, no changes are
+  necessary for users of the library, except if for example you passed
+  arguments to processors such as ``default``, ``autorotate`` etc.
 - Fixed a test to assume less about the error message for corrupt
   images.
 - Localize the corrupt image validation errors.

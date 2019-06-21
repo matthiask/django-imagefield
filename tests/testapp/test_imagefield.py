@@ -341,7 +341,7 @@ class Test(BaseTest):
 
 
 @register
-def force_png(get_image, args):
+def force_png(get_image):
     def processor(image, context):
         image = get_image(image, context)
         # Make Pillow generate a PNG:
@@ -352,7 +352,7 @@ def force_png(get_image, args):
 
 
 @register
-def too_late(get_image, args):
+def too_late(get_image):
     def processor(image, context):
         context.extension = ".png"
         return get_image(image, context)
