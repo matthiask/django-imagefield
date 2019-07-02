@@ -19,6 +19,7 @@ Change log
 - Localize the corrupt image validation errors.
 - Stopped calling the storage's ``delete()`` method for non-existing
   images.
+- Made the field resilient against NULL values from the database.
 
 
 `0.7`_ (2018-10-18)

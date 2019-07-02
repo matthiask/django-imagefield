@@ -74,3 +74,14 @@ class SlowStorageImage(models.Model):
         storage=slow_storage,
         formats={"thumb": ["default", ("crop", (20, 20))]},
     )
+
+
+class NullableImage(models.Model):
+    image = ImageField(
+        _("image"),
+        upload_to="images",
+        auto_add_fields=True,
+        blank=True,
+        null=True,
+        formats={"thumb": ["default", ("crop", (20, 20))]},
+    )

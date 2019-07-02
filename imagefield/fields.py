@@ -156,6 +156,9 @@ class ImageFieldFile(files.ImageFieldFile):
         return context
 
     def process(self, spec, force=False):
+        if not self.name:
+            return
+
         if isinstance(spec, (list, tuple)):
             processors = spec
             spec = "<ad hoc>"
@@ -339,6 +342,9 @@ class ImageField(models.ImageField):
 
     def _clear_generated_files_for(self, fieldfile, filename):
         filename = fieldfile.name if filename is None else filename
+
+        if not filename:
+            return
 
         key = "imagefield-admin-thumb:%s" % filename
         cache.delete(key)

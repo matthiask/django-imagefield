@@ -24,7 +24,13 @@ from imagefield.fields import IMAGEFIELDS
 from imagefield.processing import register
 from PIL import Image
 
-from .models import Model, ModelWithOptional, SlowStorageImage, slow_storage
+from .models import (
+    Model,
+    ModelWithOptional,
+    NullableImage,
+    SlowStorageImage,
+    slow_storage,
+)
 
 
 def openimage(path):
@@ -316,6 +322,7 @@ class Test(BaseTest):
                 "testapp.model.image",
                 "testapp.slowstorageimage.image",
                 "testapp.modelwithoptional.image",
+                "testapp.nullableimage.image",
             },
         )
 
@@ -338,6 +345,10 @@ class Test(BaseTest):
                 "python-logo-f26eb6811b04.jpg",
             ],
         )
+
+    def test_nullableimage(self):
+        m = NullableImage.objects.create()
+        m.image.process("thumb")
 
 
 @register
