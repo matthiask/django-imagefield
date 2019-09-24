@@ -25,6 +25,16 @@ from .processing import build_handler
 from .widgets import PPOIWidget, with_preview_and_ppoi
 
 
+DEFAULTS = {
+    "IMAGEFIELD_AUTOGENERATE": True,
+    "IMAGEFIELD_FORMATS": {},
+    "IMAGEFIELD_VERSATILEIMAGEPROXY": False,
+}
+for setting, default in DEFAULTS.items():
+    if not hasattr(settings, setting):
+        setattr(settings, setting, default)
+
+
 class _SealableAttribute(object):
     def __init__(self, name):
         self.name = name
@@ -114,10 +124,7 @@ class ImageFieldFile(files.ImageFieldFile):
                 url = ""
             setattr(self, item, url)
             return url
-        elif getattr(settings, "IMAGEFIELD_VERSATILEIMAGEPROXY", False) and item in {
-            "thumbnail",
-            "crop",
-        }:
+        elif settings.IMAGEFIELD_VERSATILEIMAGEPROXY and item in {"thumbnail", "crop"}:
             return VersatileImageProxy(self, item)
         raise AttributeError
 
@@ -243,8 +250,7 @@ class ImageField(models.ImageField):
 
     @property
     def formats(self):
-        setting = getattr(settings, "IMAGEFIELD_FORMATS", {})
-        return setting.get(self.field_label, self._formats)
+        return settings.IMAGEFIELD_FORMATS.get(self.field_label, self._formats)
 
     def contribute_to_class(self, cls, name, **kwargs):
         if self._auto_add_fields:
@@ -269,7 +275,7 @@ class ImageField(models.ImageField):
 
             signals.post_init.connect(self._cache_previous, sender=cls)
 
-            autogenerate = getattr(settings, "IMAGEFIELD_AUTOGENERATE", True)
+            autogenerate = settings.IMAGEFIELD_AUTOGENERATE
             if autogenerate is True or self.field_label in autogenerate:
                 signals.post_save.connect(self._generate_files, sender=cls)
                 signals.post_delete.connect(self._clear_generated_files, sender=cls)
