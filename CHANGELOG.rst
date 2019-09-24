@@ -8,6 +8,11 @@ Change log
 
 - Fixed crashes because of image fields with ``None`` values.
 - Fixed a case where an unsupported image was not detected early enough.
+- Added a ``IMAGEFIELD_SILENTFAILURE`` setting for silent failure when
+  processing images crashes. The default value of this setting is
+  obviously ``False``. This is mostly useful when adding
+  ``django-imagefield`` to a project which already has images (which may
+  not be processible by Pillow).
 
 
 `0.8`_ (2019-06-21)

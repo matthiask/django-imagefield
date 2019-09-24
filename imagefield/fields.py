@@ -28,6 +28,7 @@ from .widgets import PPOIWidget, with_preview_and_ppoi
 DEFAULTS = {
     "IMAGEFIELD_AUTOGENERATE": True,
     "IMAGEFIELD_FORMATS": {},
+    "IMAGEFIELD_SILENTFAILURE": False,
     "IMAGEFIELD_VERSATILEIMAGEPROXY": False,
 }
 for setting, default in DEFAULTS.items():
@@ -192,7 +193,8 @@ class ImageFieldFile(files.ImageFieldFile):
             logger.exception(
                 'Exception while processing "%(context)s"', {"context": context}
             )
-            raise
+            if not settings.IMAGEFIELD_SILENTFAILURE:
+                raise
 
         if already_exists:
             self.storage.delete(context.name)
