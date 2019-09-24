@@ -213,6 +213,18 @@ class ImageFieldFile(files.ImageFieldFile):
             return buf.getvalue()
 
 
+def raise_validation_error(field_name, exc):
+    raise ValidationError(
+        {
+            field_name: _(
+                "Error while handling image, maybe the file is corrupt"
+                ' or the image format is unsupported. (Exception: "%s")'
+            )
+            % exc
+        }
+    )
+
+
 class ImageField(models.ImageField):
     attr_class = ImageFieldFile
 
@@ -275,15 +287,7 @@ class ImageField(models.ImageField):
             # The image was either of an unknown type or so corrupt Django
             # couldn't even begin to process it.
             super(ImageField, self).save_form_data(instance, "")
-            raise ValidationError(
-                {
-                    self.name: _(
-                        "Error while handling image, maybe the file is corrupt"
-                        ' or the image format is unsupported. (Exception: "%s")'
-                    )
-                    % exc
-                }
-            )
+            raise_validation_error(self.name, exc)
 
         if data is not None:
             f = getattr(instance, self.name)
@@ -297,20 +301,13 @@ class ImageField(models.ImageField):
                         original.write(f.read())
                         f.seek(0)
                         original.seek(0)
-                        Image.open(original).resize((10, 10)).convert("RGB").save(
-                            buf, format="JPEG", quality=10
-                        )
+                        resized = Image.open(original).resize((10, 10))
+                        resized.save(buf, format="TIFF")
+                        resized.save(buf, format="PNG")
 
                 except Exception as exc:
-                    raise ValidationError(
-                        {
-                            self.name: _(
-                                "Image cannot be processed by backend"
-                                ' (Exception: "%s")'
-                            )
-                            % exc
-                        }
-                    )
+                    super(ImageField, self).save_form_data(instance, "")
+                    raise_validation_error(self.name, exc)
 
             # Reset PPOI field if image field is cleared
             if not data and self.ppoi_field:

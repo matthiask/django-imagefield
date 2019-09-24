@@ -6,6 +6,9 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Fixed a case where an unsupported image was not detected early enough.
+
+
 `0.8`_ (2019-06-21)
 ~~~~~~~~~~~~~~~~~~~
 
