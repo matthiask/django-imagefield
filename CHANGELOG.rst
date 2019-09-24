@@ -6,6 +6,7 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Fixed crashes because of image fields with ``None`` values.
 - Fixed a case where an unsupported image was not detected early enough.
 
 
