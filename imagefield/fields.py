@@ -193,8 +193,9 @@ class ImageFieldFile(files.ImageFieldFile):
             logger.exception(
                 'Exception while processing "%(context)s"', {"context": context}
             )
-            if not settings.IMAGEFIELD_SILENTFAILURE:
-                raise
+            if settings.IMAGEFIELD_SILENTFAILURE:
+                return self.name
+            raise
 
         if already_exists:
             self.storage.delete(context.name)
