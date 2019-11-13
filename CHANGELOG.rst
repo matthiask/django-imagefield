@@ -14,6 +14,7 @@ Change log
   ``django-imagefield`` to a project which already has images (which may
   not be processible by Pillow).
 - Fixed the image verification to accept CMYK images again.
+- Added Django 3.0 to the test matrix.
 
 
 `0.8`_ (2019-06-21)
