@@ -254,6 +254,18 @@ class Test(BaseTest):
             " is corrupt or the image format is unsupported.",
         )
 
+    def test_cmyk_validation(self):
+        """
+        Test that the image verification can handle CMYK images.
+        """
+        client = self.login()
+        with openimage("preview_LoxdQ3U.jpg") as f:
+            response = client.post(
+                "/admin/testapp/model/add/", {"image": f, "ppoi": "0.5x0.5"}
+            )
+
+        self.assertRedirects(response, "/admin/testapp/model/")
+
     def test_adhoc(self):
         """Ad-hoc processing pipelines may be built and executed"""
         m = Model.objects.create(image="python-logo.jpg")

@@ -310,7 +310,7 @@ class ImageField(models.ImageField):
                         original.write(f.read())
                         f.seek(0)
                         original.seek(0)
-                        resized = Image.open(original).resize((10, 10))
+                        resized = Image.open(original).resize((10, 10)).convert("RGB")
                         resized.save(buf, format="TIFF")
                         resized.save(buf, format="PNG")
 
