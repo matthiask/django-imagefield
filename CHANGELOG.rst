@@ -15,6 +15,8 @@ Change log
   not be processible by Pillow).
 - Fixed the image verification to accept CMYK images again.
 - Added Django 3.0 to the test matrix.
+- Ensure that ``icc_profile`` isn't passed if it is falsy. The WebP
+  encoder didn't like ``icc_profile=None``.
 
 
 `0.8`_ (2019-06-21)

@@ -84,7 +84,9 @@ def process_gif(get_image):
 @register
 def preserve_icc_profile(get_image):
     def processor(image, context):
-        context.save_kwargs["icc_profile"] = image.info.get("icc_profile")
+        icc_profile = image.info.get("icc_profile")
+        if icc_profile:
+            context.save_kwargs["icc_profile"] = icc_profile
         return get_image(image, context)
 
     return processor
