@@ -273,7 +273,7 @@ class ImageField(models.ImageField):
 
         super(ImageField, self).contribute_to_class(cls, name, **kwargs)
 
-        if not cls._meta.abstract:
+        if all((not cls._meta.abstract, not cls._meta.swapped)):
             IMAGEFIELDS.append(self)
 
             signals.post_init.connect(self._cache_previous, sender=cls)
