@@ -18,6 +18,7 @@ Change log
 - Ensure that ``icc_profile`` isn't passed if it is falsy. The WebP
   encoder didn't like ``icc_profile=None``.
 - Stopped including image fields of swapped models in ``IMAGEFIELDS``.
+- Replaced ``ugettext*`` with ``gettext*``.
 
 
 `0.8`_ (2019-06-21)

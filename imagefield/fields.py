@@ -17,7 +17,7 @@ from django.db.models import signals
 from django.db.models.fields import files
 from django.forms import ClearableFileInput
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from PIL import Image
 
