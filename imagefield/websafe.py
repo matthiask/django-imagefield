@@ -6,7 +6,6 @@ def force_jpeg(get_image):
     def processor(image, context):
         context.save_kwargs["format"] = "JPEG"
         image = get_image(image, context)
-        context.save_kwargs["format"] = "JPEG"
         context.save_kwargs["quality"] = 95
         return image
 
