@@ -29,6 +29,7 @@ from .models import (
     ModelWithOptional,
     NullableImage,
     SlowStorageImage,
+    WebsafeImage,
     slow_storage,
 )
 
@@ -331,6 +332,7 @@ class Test(BaseTest):
                 "testapp.slowstorageimage.image",
                 "testapp.modelwithoptional.image",
                 "testapp.nullableimage.image",
+                "testapp.websafeimage.image",
             },
         )
 
@@ -357,6 +359,10 @@ class Test(BaseTest):
     def test_nullableimage(self):
         m = NullableImage.objects.create()
         m.image.process("thumb")
+
+    def test_websafe(self):
+        WebsafeImage.objects.create(image="python-logo.tiff")
+        self.assertEqual(contents("__processed__"), ["python-logo-f80d8209f420.jpg"])
 
 
 @register

@@ -7,6 +7,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from imagefield.fields import ImageField, PPOIField
+from imagefield.websafe import websafe
 
 
 class AbstractModel(models.Model):
@@ -84,4 +85,13 @@ class NullableImage(models.Model):
         blank=True,
         null=True,
         formats={"thumb": ["default", ("crop", (20, 20))]},
+    )
+
+
+class WebsafeImage(models.Model):
+    image = ImageField(
+        _("image"),
+        upload_to="images",
+        auto_add_fields=True,
+        formats={"thumb": websafe(["default", ("crop", (20, 20))])},
     )
