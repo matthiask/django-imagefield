@@ -6,6 +6,10 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+
+`0.9`_ (2020-01-22)
+~~~~~~~~~~~~~~~~~~~
+
 - Fixed crashes because of image fields with ``None`` values.
 - Fixed a case where an unsupported image was not detected early enough.
 - Added a ``IMAGEFIELD_SILENTFAILURE`` setting for silent failure when
@@ -15,10 +19,12 @@ Change log
   not be processible by Pillow).
 - Fixed the image verification to accept CMYK images again.
 - Added Django 3.0 to the test matrix.
+- Removed Python 3.4 from the test matrix.
 - Ensure that ``icc_profile`` isn't passed if it is falsy. The WebP
   encoder didn't like ``icc_profile=None``.
 - Stopped including image fields of swapped models in ``IMAGEFIELDS``.
 - Replaced ``ugettext*`` with ``gettext*``.
+- Added an experimental websafe processor spec.
 
 
 `0.8`_ (2019-06-21)
@@ -146,4 +152,6 @@ Change log
 .. _0.5: https://github.com/matthiask/django-imagefield/compare/0.4...0.5
 .. _0.6: https://github.com/matthiask/django-imagefield/compare/0.5...0.6
 .. _0.7: https://github.com/matthiask/django-imagefield/compare/0.6...0.7
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.7...master
+.. _0.8: https://github.com/matthiask/django-imagefield/compare/0.7...0.8
+.. _0.9: https://github.com/matthiask/django-imagefield/compare/0.8...0.9
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.9...master
