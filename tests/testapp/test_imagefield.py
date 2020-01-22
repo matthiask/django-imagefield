@@ -360,9 +360,14 @@ class Test(BaseTest):
         m = NullableImage.objects.create()
         m.image.process("thumb")
 
-    def test_websafe(self):
+    def test_already_websafe(self):
+        # Same as above!
+        WebsafeImage.objects.create(image="python-logo.jpg")
+        self.assertEqual(contents("__processed__"), ["python-logo-24f8702383e7.jpg"])
+
+    def test_websafe_force_jpeg(self):
         WebsafeImage.objects.create(image="python-logo.tiff")
-        self.assertEqual(contents("__processed__"), ["python-logo-f80d8209f420.jpg"])
+        self.assertEqual(contents("__processed__"), ["python-logo-2ebc6e32bcdb.jpg"])
 
 
 @register

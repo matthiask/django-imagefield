@@ -22,6 +22,7 @@ from django.utils.translation import gettext as _
 from PIL import Image
 
 from .processing import build_handler
+from .websafe import websafe
 from .widgets import PPOIWidget, with_preview_and_ppoi
 
 
@@ -98,6 +99,8 @@ class VersatileImageProxy(object):
             "default",
             (self.items[0], tuple(map(int, self.items[1].split("x")))),
         ]
+        if settings.IMAGEFIELD_VERSATILEIMAGEPROXY == "websafe":
+            processors = websafe(processors)
         url = self.file.storage.url(self.file._process_context(processors).name)
         key = "v-i-p:{}".format(url)
         if not cache.get(key):

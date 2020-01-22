@@ -93,5 +93,5 @@ class WebsafeImage(models.Model):
         _("image"),
         upload_to="images",
         auto_add_fields=True,
-        formats={"thumb": websafe(["default", ("crop", (20, 20))])},
+        formats={"thumb": websafe(["default", ("crop", (300, 300))])},
     )
