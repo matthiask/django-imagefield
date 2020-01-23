@@ -10,6 +10,7 @@ from unittest import skipIf
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import Client
+from django.test.utils import override_settings
 
 try:
     from django.urls import reverse
@@ -229,6 +230,17 @@ class Test(BaseTest):
             "Error while handling image, maybe the file"
             " is corrupt or the image format is unsupported.",
         )
+
+    def test_silent_failure(self):
+        Model.objects.create(image="python-logo.jpg")
+        Model.objects.update(image="smallliz.tif")
+        m = Model.objects.get()
+
+        with self.assertRaises(Exception):
+            m.image.process("desktop")
+
+        with override_settings(IMAGEFIELD_SILENTFAILURE=True):
+            self.assertEqual(m.image.process("desktop"), "smallliz.tif")
 
     def test_cmyk_validation(self):
         """
