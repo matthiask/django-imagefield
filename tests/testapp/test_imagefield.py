@@ -5,7 +5,7 @@ import os
 import re
 import sys
 import time
-from unittest import skipIf
+from unittest import expectedFailure, skipIf
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -364,3 +364,23 @@ class Test(BaseTest):
             "/admin/testapp/model/add/", {"image": buf, "ppoi": "0.5x0.5"}
         )
         self.assertContains(response, "Upload a valid image.")
+
+    @expectedFailure  # XXX File extension correction not implemented yet.
+    def test_wrong_extension(self):
+        client = self.login()
+        self.assertEqual(contents("__processed__"), [])
+
+        with openimage("python-logo.png") as f, io.BytesIO() as buf:
+            buf.write(f.read())
+            buf.seek(0)
+            buf.name = "python-logo.gif"
+            response = client.post(
+                "/admin/testapp/model/add/", {"image": buf, "ppoi": "0.5x0.5"}
+            )
+            print(response, response.content.decode("utf-8"))
+            self.assertRedirects(response, "/admin/testapp/model/")
+
+        self.assertEqual(
+            contents("__processed__"),
+            ["python-logo-24f8702383e7.png", "python-logo-e6a99ea713c8.png"],
+        )
