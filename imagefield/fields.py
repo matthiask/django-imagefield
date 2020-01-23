@@ -120,10 +120,11 @@ class ImageFieldFile(files.ImageFieldFile):
         if not hasattr(self, "field"):
             raise AttributeError
         if item in self.field.formats:
+            context = self._process_context(self.field.formats[item])
             if self.name:
-                url = self.storage.url(
-                    self._process_context(self.field.formats[item]).name
-                )
+                url = self.storage.url(context.name)
+            elif hasattr(context, "fallback"):
+                url = self.storage.url(context.fallback)
             else:
                 url = ""
             setattr(self, item, url)

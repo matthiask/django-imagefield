@@ -6,6 +6,8 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Added an experimental fallback facility for optional image fields.
+
 
 `0.9`_ (2020-01-22)
 ~~~~~~~~~~~~~~~~~~~

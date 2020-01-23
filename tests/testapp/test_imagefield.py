@@ -411,3 +411,20 @@ class ForcePNGTest(BaseTest):
             m.image.process(["too_late"])
 
         self.assertIn("Sealed attribute", str(cm.exception))
+
+
+def fallback(processors):
+    def fallback_spec(fieldfile, context):
+        context.fallback = "blub.jpg"
+        context.processors = processors
+
+    return fallback_spec
+
+
+@override_settings(
+    IMAGEFIELD_FORMATS={"testapp.model.image": {"test": fallback(["default"])}}
+)
+class FallbackTest(BaseTest):
+    def test_fallback(self):
+        m = Model()
+        self.assertEqual(m.image.test, "/media/blub.jpg")
