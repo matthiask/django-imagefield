@@ -86,13 +86,11 @@ class VersatileImageProxy(object):
         self.file = file
         self.items = [item]
 
-    def __getattr__(self, item):
-        self.items.append(item)
-        return self
-
     def __getitem__(self, item):
         self.items.append(item)
         return self
+
+    __getattr__ = __getitem__
 
     def __str__(self):
         processors = [
