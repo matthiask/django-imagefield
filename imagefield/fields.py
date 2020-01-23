@@ -292,6 +292,25 @@ class ImageField(models.ImageField):
         )
         return super(ImageField, self).formfield(**kwargs)
 
+    def generate_filename(self, instance, filename):
+        ret = super().generate_filename(instance, filename)
+        f = getattr(instance, self.name)
+        if f.name:
+            try:
+                with io.BytesIO() as original:
+                    if f.closed:
+                        f.open("rb")
+                    original.write(f.read())
+                    f.seek(0)
+                    original.seek(0)
+                    img = Image.open(original)
+                    extension = ".{}".format(img.format.lower())
+                    if not ret.endswith(extension):
+                        ret = re.sub(r"\.\w+", extension, ret)
+            except Exception:
+                pass
+        return ret
+
     def save_form_data(self, instance, data):
         try:
             super(ImageField, self).save_form_data(instance, data)
