@@ -12,10 +12,10 @@ def force_jpeg(get_image):
     return processor
 
 
-def websafe(processors):
+def websafe(processors, extensions={".png", ".gif", ".jpg", ".jpeg"}):
     def spec(fieldfile, context):
         # XXX image type match would be SO much better instead of checking extensions
-        if context.extension.lower() in {".png", ".gif", ".jpg", ".jpeg"}:
+        if context.extension.lower() in extensions:
             context.processors = processors
         else:
             context.extension = ".jpg"
