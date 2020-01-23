@@ -148,12 +148,13 @@ class ImageFieldFile(files.ImageFieldFile):
 
     def _process_context(self, processors):
         context = Context(
-            ppoi=self._ppoi(), save_kwargs={}, extension=os.path.splitext(self.name)[1]
+            ppoi=self._ppoi(),
+            save_kwargs={},
+            extension=os.path.splitext(self.name)[1],
+            processors=processors,
         )
-        if callable(processors):
-            processors(self, context)
-        else:
-            context.processors = processors
+        while callable(context.processors):
+            context.processors(self, context)
         base = self._process_base(self.name)
         spec = "|".join(str(p) for p in context.processors) + "|" + str(context.ppoi)
         spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
