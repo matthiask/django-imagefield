@@ -12,10 +12,15 @@ def fallback(processors):
     return fallback_spec
 
 
-@override_settings(
-    IMAGEFIELD_FORMATS={"testapp.model.image": {"test": fallback(["default"])}}
-)
 class FallbackTest(BaseTest):
+    @override_settings(
+        IMAGEFIELD_FORMATS={"testapp.model.image": {"test": fallback(["default"])}}
+    )
     def test_fallback(self):
         m = Model()
         self.assertEqual(m.image.test, "/media/blub.jpg")
+
+        m = Model.objects.create(image="python-logo.png")
+        self.assertEqual(
+            m.image.test, "/media/__processed__/beb/python-logo-916e1cf9dc6f.png"
+        )
