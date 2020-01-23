@@ -1,19 +1,15 @@
 from __future__ import unicode_literals
 
 import io
-import itertools
 import os
 import re
-import shutil
 import sys
 import time
 from unittest import skipIf
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
-from django.test.utils import override_settings
-from django.utils.translation import deactivate_all
+from django.test import Client
 
 try:
     from django.urls import reverse
@@ -21,7 +17,6 @@ except ImportError:
     from django.core.urlresolvers import reverse
 
 from imagefield.fields import IMAGEFIELDS
-from imagefield.processing import register
 from PIL import Image
 
 from .models import (
@@ -32,35 +27,7 @@ from .models import (
     WebsafeImage,
     slow_storage,
 )
-
-
-def openimage(path):
-    return io.open(os.path.join(settings.MEDIA_ROOT, path), "rb")
-
-
-def contents(path):
-    return sorted(
-        list(
-            itertools.chain.from_iterable(
-                i[2] for i in os.walk(os.path.join(settings.MEDIA_ROOT, path))
-            )
-        )
-    )
-
-
-class BaseTest(TestCase):
-    def setUp(self):
-        deactivate_all()
-        self._rmtree()
-
-    def tearDown(self):
-        self._rmtree()
-
-    def _rmtree(self):
-        shutil.rmtree(
-            os.path.join(settings.MEDIA_ROOT, "__processed__"), ignore_errors=True
-        )
-        shutil.rmtree(os.path.join(settings.MEDIA_ROOT, "images"), ignore_errors=True)
+from .utils import BaseTest, openimage, contents
 
 
 class Test(BaseTest):
@@ -368,63 +335,3 @@ class Test(BaseTest):
     def test_websafe_force_jpeg(self):
         WebsafeImage.objects.create(image="python-logo.tiff")
         self.assertEqual(contents("__processed__"), ["python-logo-2ebc6e32bcdb.jpg"])
-
-
-@register
-def force_png(get_image):
-    def processor(image, context):
-        image = get_image(image, context)
-        # Make Pillow generate a PNG:
-        context.save_kwargs["format"] = "PNG"
-        return image
-
-    return processor
-
-
-@register
-def too_late(get_image):
-    def processor(image, context):
-        context.extension = ".png"
-        return get_image(image, context)
-
-    return processor
-
-
-def force_png_spec(fieldfile, context):
-    # Make imagefield generate URLs and filenames with a .png extension:
-    context.extension = ".png"
-    context.processors = ["force_png"]
-
-
-@override_settings(IMAGEFIELD_FORMATS={"testapp.model.image": {"test": force_png_spec}})
-class ForcePNGTest(BaseTest):
-    def test_callable_processors(self):
-        m = Model.objects.create(image="python-logo.jpg")
-        self.assertEqual(
-            "{}".format(m.image.test),
-            "/media/__processed__/d00/python-logo-5da93aa386ab.png",
-        )
-
-    def test_too_late(self):
-        m = Model.objects.create(image="python-logo.jpg")
-        with self.assertRaises(AttributeError) as cm:
-            m.image.process(["too_late"])
-
-        self.assertIn("Sealed attribute", str(cm.exception))
-
-
-def fallback(processors):
-    def fallback_spec(fieldfile, context):
-        context.fallback = "blub.jpg"
-        context.processors = processors
-
-    return fallback_spec
-
-
-@override_settings(
-    IMAGEFIELD_FORMATS={"testapp.model.image": {"test": fallback(["default"])}}
-)
-class FallbackTest(BaseTest):
-    def test_fallback(self):
-        m = Model()
-        self.assertEqual(m.image.test, "/media/blub.jpg")
