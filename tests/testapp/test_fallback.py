@@ -6,9 +6,9 @@ from .models import Model
 from .utils import BaseTest
 
 
-def fallback(processors):
+def fallback(fallback, processors):
     def fallback_spec(fieldfile, context):
-        context.fallback = "blub.jpg"
+        context.fallback = fallback
         context.processors = processors
 
     return fallback_spec
@@ -16,7 +16,9 @@ def fallback(processors):
 
 class FallbackTest(BaseTest):
     @override_settings(
-        IMAGEFIELD_FORMATS={"testapp.model.image": {"test": fallback(["default"])}}
+        IMAGEFIELD_FORMATS={
+            "testapp.model.image": {"test": fallback("blub.jpg", ["default"])}
+        }
     )
     def test_fallback(self):
         m = Model()
@@ -29,12 +31,12 @@ class FallbackTest(BaseTest):
 
     @override_settings(
         IMAGEFIELD_FORMATS={
-            "testapp.model.image": {"test": fallback(websafe(["default"]))}
+            "testapp.model.image": {"test": fallback("blab.jpg", websafe(["default"]))}
         }
     )
     def test_websafe_fallback(self):
         m = Model()
-        self.assertEqual(m.image.test, "/media/blub.jpg")
+        self.assertEqual(m.image.test, "/media/blab.jpg")
 
         m = Model.objects.create(image="python-logo.tiff")
         self.assertEqual(
