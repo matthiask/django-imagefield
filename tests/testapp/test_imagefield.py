@@ -355,3 +355,12 @@ class Test(BaseTest):
     def test_websafe_force_jpeg(self):
         WebsafeImage.objects.create(image="python-logo.tiff")
         self.assertEqual(contents("__processed__"), ["python-logo-2ebc6e32bcdb.jpg"])
+
+    def test_completely_bogus(self):
+        client = self.login()
+        buf = io.BytesIO(b"anything")
+        buf.name = "bogus.jpg"
+        response = client.post(
+            "/admin/testapp/model/add/", {"image": buf, "ppoi": "0.5x0.5"}
+        )
+        self.assertContains(response, "Upload a valid image.")
