@@ -1,17 +1,10 @@
 from django.test.utils import override_settings
 
+from imagefield.fallback import fallback
 from imagefield.websafe import websafe
 
 from .models import Model
 from .utils import BaseTest
-
-
-def fallback(processors, fallback):
-    def fallback_spec(fieldfile, context):
-        context.fallback = fallback
-        context.processors = processors
-
-    return fallback_spec
 
 
 class FallbackTest(BaseTest):
