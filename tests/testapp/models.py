@@ -81,11 +81,15 @@ class NullableImage(models.Model):
     image = ImageField(
         _("image"),
         upload_to="images",
-        auto_add_fields=True,
         blank=True,
         null=True,
         formats={"thumb": ["default", ("crop", (20, 20))]},
+        auto_add_fields=False,
+        width_field="image_width",
+        height_field="image_height",
     )
+    image_width = models.PositiveIntegerField(blank=True, null=True, editable=False)
+    image_height = models.PositiveIntegerField(blank=True, null=True, editable=False)
 
 
 class WebsafeImage(models.Model):

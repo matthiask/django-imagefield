@@ -56,6 +56,14 @@ class Test(BaseTest):
             ' alt=""/>',
         )
 
+    def test_no_ppoi_admin(self):
+        client = self.login()
+        m = NullableImage.objects.create(image="python-logo.png")
+        response = client.get(
+            reverse("admin:testapp_nullableimage_change", args=(m.id,))
+        )
+        self.assertContains(response, 'data-ppoi-id=""')
+
     def test_model_with_optional(self):
         """Behavior of model with ImageField(blank=True)"""
         client = self.login()

@@ -13,3 +13,8 @@ class ModelAdmin(admin.ModelAdmin):
 @admin.register(models.ModelWithOptional)
 class ModelWithOptionalAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.NullableImage)
+class NullableImageAdmin(admin.ModelAdmin):
+    pass
