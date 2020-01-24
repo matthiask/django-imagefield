@@ -305,16 +305,15 @@ class ImageField(models.ImageField):
         return super(ImageField, self).formfield(**kwargs)
 
     def generate_filename(self, instance, filename):
-        ret = super(ImageField, self).generate_filename(instance, filename)
         f = getattr(instance, self.name)
         try:
             img = f._image
         except Exception:
             pass
         else:
-            path, ext = os.path.splitext(ret)
-            ret = "{}.{}".format(path, img.format.lower())
-        return ret
+            basename, ext = os.path.splitext(filename)
+            filename = "{}.{}".format(basename, img.format.lower())
+        return super(ImageField, self).generate_filename(instance, filename)
 
     def save_form_data(self, instance, data):
         try:
