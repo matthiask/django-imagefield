@@ -304,9 +304,8 @@ class ImageField(models.ImageField):
                     f.seek(0)
                     original.seek(0)
                     img = Image.open(original)
-                    extension = ".{}".format(img.format.lower())
-                    if not ret.endswith(extension):
-                        ret = re.sub(r"\.\w+", extension, ret)
+                    path, ext = os.path.splitext(ret)
+                    ret = "{}.{}".format(path, img.format.lower())
             except Exception:
                 pass
         return ret
