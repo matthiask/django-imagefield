@@ -305,7 +305,7 @@ class ImageField(models.ImageField):
         return super(ImageField, self).formfield(**kwargs)
 
     def generate_filename(self, instance, filename):
-        ret = super().generate_filename(instance, filename)
+        ret = super(ImageField, self).generate_filename(instance, filename)
         f = getattr(instance, self.name)
         try:
             img = f._image
