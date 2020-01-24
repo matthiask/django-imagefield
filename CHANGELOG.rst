@@ -6,7 +6,16 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+`0.10`_ (2020-01-24)
+~~~~~~~~~~~~~~~~~~~~
+
 - Added an experimental fallback facility for optional image fields.
+- Allowed processor specs to return another processor spec in turn. This
+  allows layering processor specs.
+- Changed the image field to set image file's extensions depending on
+  their image type. For example, a GIF uploaded as ``example.png`` will
+  automatically be saved as ``example.gif``.
+- Improved test coverage a bit.
 
 
 `0.9`_ (2020-01-22)
@@ -156,4 +165,5 @@ Change log
 .. _0.7: https://github.com/matthiask/django-imagefield/compare/0.6...0.7
 .. _0.8: https://github.com/matthiask/django-imagefield/compare/0.7...0.8
 .. _0.9: https://github.com/matthiask/django-imagefield/compare/0.8...0.9
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.9...master
+.. _0.10: https://github.com/matthiask/django-imagefield/compare/0.9...0.10
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.10...master
