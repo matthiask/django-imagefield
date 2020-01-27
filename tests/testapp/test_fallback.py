@@ -3,37 +3,27 @@ from django.test.utils import override_settings
 from imagefield.fallback import fallback
 from imagefield.websafe import websafe
 
-from .models import Model
-from .utils import BaseTest
+from .models import WebsafeImage, Model
+from .utils import BaseTest, contents
 
 
 class FallbackTest(BaseTest):
-    @override_settings(
-        IMAGEFIELD_FORMATS={
-            "testapp.model.image": {"test": fallback(["default"], fallback="blub.jpg")}
-        }
-    )
     def test_fallback(self):
-        m = Model()
-        self.assertEqual(m.image.test, "/media/blub.jpg")
+        m1 = WebsafeImage()
 
-        m = Model.objects.create(image="python-logo.png")
+        # self.assertEqual(m1.image.url, "/media/python-logo.tiff")
+        # self.assertEqual(m2.image.url, "/media/python-logo.tiff")
+
         self.assertEqual(
-            m.image.test, "/media/__processed__/beb/python-logo-916e1cf9dc6f.png"
+            m1.image.thumb, "/media/__processed__/639/python-logo-2ebc6e32bcdb.jpg"
         )
 
-    @override_settings(
-        IMAGEFIELD_FORMATS={
-            "testapp.model.image": {
-                "test": fallback(websafe(["default"]), fallback="blab.jpg")
-            }
-        }
-    )
-    def test_websafe_fallback(self):
-        m = Model()
-        self.assertEqual(m.image.test, "/media/blab.jpg")
+        self.assertEqual(contents("__processed__"), [])
+        m1.image.process("thumb")
+        self.assertEqual(contents("__processed__"), ["python-logo-2ebc6e32bcdb.jpg"])
 
-        m = Model.objects.create(image="python-logo.tiff")
+        m2 = WebsafeImage.objects.create(image="python-logo.tiff")
         self.assertEqual(
-            m.image.test, "/media/__processed__/639/python-logo-f3e0804b47bb.jpg"
+            m2.image.thumb, "/media/__processed__/639/python-logo-2ebc6e32bcdb.jpg"
         )
+        self.assertEqual(contents("__processed__"), ["python-logo-2ebc6e32bcdb.jpg"])

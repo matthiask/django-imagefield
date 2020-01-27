@@ -111,6 +111,11 @@ _ProcessBase = namedtuple("_ProcessBase", "path basename")
 
 
 class ImageFieldFile(files.ImageFieldFile):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.name and self.field._fallback:
+            self.name = self.field._fallback
+
     def __getattr__(self, item):
         # The "field" attribute is not there after unpickling, and
         # FileDescriptor checks for its presence before re-assigning the field
@@ -121,8 +126,6 @@ class ImageFieldFile(files.ImageFieldFile):
             context = self._process_context(self.field.formats[item])
             if context.name:
                 url = self.storage.url(context.name)
-            elif hasattr(context, "fallback"):
-                url = self.storage.url(context.fallback)
             else:
                 url = ""
             setattr(self, item, url)
@@ -259,6 +262,7 @@ class ImageField(models.ImageField):
 
     def __init__(self, *args, **kwargs):
         self._auto_add_fields = kwargs.pop("auto_add_fields", False)
+        self._fallback = kwargs.pop("fallback", "")
         self._formats = kwargs.pop("formats", {})
         self.ppoi_field = kwargs.pop("ppoi_field", None)
         super(ImageField, self).__init__(*args, **kwargs)
