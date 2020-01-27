@@ -1,5 +1,6 @@
 import io
 import itertools
+import logging
 import os
 import shutil
 
@@ -26,9 +27,11 @@ class BaseTest(TestCase):
     def setUp(self):
         deactivate_all()
         self._rmtree()
+        logging.disable(logging.CRITICAL)
 
     def tearDown(self):
         self._rmtree()
+        logging.disable(logging.NOTSET)
 
     def _rmtree(self):
         shutil.rmtree(
