@@ -119,7 +119,7 @@ class ImageFieldFile(files.ImageFieldFile):
             raise AttributeError
         if item in self.field.formats:
             context = self._process_context(self.field.formats[item])
-            if self.name:
+            if context.name:
                 url = self.storage.url(context.name)
             elif hasattr(context, "fallback"):
                 url = self.storage.url(context.fallback)
@@ -150,19 +150,23 @@ class ImageFieldFile(files.ImageFieldFile):
             save_kwargs={},
             extension=os.path.splitext(self.name)[1],
             processors=processors,
+            name="",
         )
         while callable(context.processors):
             context.processors(self, context)
-        base = self._process_base(self.name)
-        spec = "|".join(str(p) for p in context.processors) + "|" + str(context.ppoi)
-        spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
-        p2 = hashdigest(spec)
-        context.name = "%s/%s%s%s" % (
-            base.path,
-            base.basename,
-            p2[:12],
-            context.extension,
-        )
+        if self.name:
+            base = self._process_base(self.name)
+            spec = (
+                "|".join(str(p) for p in context.processors) + "|" + str(context.ppoi)
+            )
+            spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
+            p2 = hashdigest(spec)
+            context.name = "%s/%s%s%s" % (
+                base.path,
+                base.basename,
+                p2[:12],
+                context.extension,
+            )
         context.seal()
         return context
 
