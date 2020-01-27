@@ -18,7 +18,7 @@ try:
 except ImportError:
     from django.core.urlresolvers import reverse
 
-from imagefield.fields import IMAGEFIELDS
+from imagefield.fields import IMAGEFIELDS, Context, _SealableAttribute
 from PIL import Image
 
 from .models import (
@@ -347,6 +347,7 @@ class Test(BaseTest):
     def test_nullableimage(self):
         m = NullableImage.objects.create()
         m.image.process("thumb")
+        self.assertEqual(contents("__processed__"), [])
 
     def test_already_websafe(self):
         # Same as above!
@@ -356,6 +357,21 @@ class Test(BaseTest):
     def test_websafe_force_jpeg(self):
         WebsafeImage.objects.create(image="python-logo.tiff")
         self.assertEqual(contents("__processed__"), ["python-logo-2ebc6e32bcdb.jpg"])
+
+    @override_settings(IMAGEFIELD_VERSATILEIMAGEPROXY="websafe")
+    def test_websafe_versatileimageproxy(self):
+        m = WebsafeImage.objects.create(image="python-logo.tiff")
+        self.assertEqual(
+            "{}".format(m.image.crop["300x300"]),
+            "/media/__processed__/639/python-logo-2ebc6e32bcdb.jpg",
+        )
+
+    def test_force_does_overwrite(self):
+        m = Model(image="python-logo.jpg")
+        m.image.process("thumb")
+        self.assertEqual(contents("__processed__"), ["python-logo-24f8702383e7.jpg"])
+        m.image.process("thumb", force=True)
+        self.assertEqual(contents("__processed__"), ["python-logo-24f8702383e7.jpg"])
 
     def test_completely_bogus(self):
         client = self.login()
@@ -389,3 +405,7 @@ class Test(BaseTest):
         m1 = WebsafeImage.objects.create(image="python-logo.jpg")
         m2 = pickle.loads(pickle.dumps(m1))
         self.assertEqual(m1.image, m2.image)
+
+    def test_context(self):
+        self.assertTrue(isinstance(Context.ppoi, _SealableAttribute))
+        self.assertEqual("{}".format(Context()), "Context(_is_sealed=False)")
