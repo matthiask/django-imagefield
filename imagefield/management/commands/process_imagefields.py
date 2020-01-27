@@ -43,7 +43,7 @@ class Command(BaseCommand):
 
         # TODO --clear for removing previously generated images.
 
-    def _make_filter(self, options):
+    def _compile_imagefield_labels(self, options):
         if options["all"]:
             return type(str("c"), (), {"__contains__": lambda *a: True})()
         elif options["field"]:
@@ -60,57 +60,60 @@ class Command(BaseCommand):
             sys.exit(1)
 
     def handle(self, **options):
-        self._fields = self._make_filter(options)
+        self._fields = self._compile_imagefield_labels(options)
 
         for field in sorted(IMAGEFIELDS, key=lambda f: f.field_label):
             if field.field_label not in self._fields:
                 continue
 
-            queryset = field.model._default_manager.exclude(
-                **{field.name: ""}
-            ).order_by("-pk")
-            count = queryset.count()
-            self.stdout.write(
-                "%s - %s objects - %s"
-                % (
-                    field.field_label,
-                    count,
-                    ", ".join(sorted(field.formats.keys())) or "<no formats!>",
-                )
+            self._process_field(field, options)
+
+    def _process_field(self, field, options):
+        queryset = field.model._default_manager.exclude(**{field.name: ""}).order_by(
+            "-pk"
+        )
+        count = queryset.count()
+        self.stdout.write(
+            "%s - %s objects - %s"
+            % (
+                field.field_label,
+                count,
+                ", ".join(sorted(field.formats.keys())) or "<no formats!>",
             )
-            self.stdout.write("\r|%s| %s/%s" % (" " * 50, 0, count), ending="")
+        )
+        self.stdout.write("\r|%s| %s/%s" % (" " * 50, 0, count), ending="")
 
-            if field._fallback:
-                self.process_fallback(field, force=options.get("force"))
-            for index, instance in enumerate(iterator(queryset)):
-                fieldfile = getattr(instance, field.name)
-                if fieldfile and fieldfile.name:
-                    for key in field.formats:
-                        try:
-                            fieldfile.process(key, force=options.get("force"))
-                        except Exception as exc:
-                            self.stdout.write(
-                                "Error while processing {} ({}, #{}):\n{}\n".format(
-                                    fieldfile.name, field.field_label, instance.pk, exc
-                                )
+        if field._fallback:
+            self._process_fallback(field, force=options.get("force"))
+        for index, instance in enumerate(iterator(queryset)):
+            fieldfile = getattr(instance, field.name)
+            if fieldfile and fieldfile.name:
+                for key in field.formats:
+                    try:
+                        fieldfile.process(key, force=options.get("force"))
+                    except Exception as exc:
+                        self.stdout.write(
+                            "Error while processing {} ({}, #{}):\n{}\n".format(
+                                fieldfile.name, field.field_label, instance.pk, exc
                             )
+                        )
 
-                            if options["housekeep"] == "blank-on-failure":
-                                field.save_form_data(instance, "")
+                        if options["housekeep"] == "blank-on-failure":
+                            field.save_form_data(instance, "")
 
-                progress = "*" * (50 * index // count)
-                self.stdout.write(
-                    "\r|%s| %s/%s" % (progress.ljust(50), index + 1, count), ending=""
-                )
+            progress = "*" * (50 * index // count)
+            self.stdout.write(
+                "\r|%s| %s/%s" % (progress.ljust(50), index + 1, count), ending=""
+            )
 
-                # Save instance once for good measure; fills in width/height
-                # if not done already
-                instance._skip_generate_files = True
-                instance.save()
+            # Save instance once for good measure; fills in width/height
+            # if not done already
+            instance._skip_generate_files = True
+            instance.save()
 
-            self.stdout.write("\r|%s| %s/%s" % ("*" * 50, count, count))
+        self.stdout.write("\r|%s| %s/%s" % ("*" * 50, count, count))
 
-    def process_fallback(self, field, force):
+    def _process_fallback(self, field, force):
         instance = field.model()
         fieldfile = getattr(instance, field.name)
         for key in field.formats:
