@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import io
 import os
+import pickle
 import re
 import sys
 import time
@@ -382,3 +383,9 @@ class Test(BaseTest):
             contents("__processed__"),
             ["python-logo-24f8702383e7.png", "python-logo-e6a99ea713c8.png"],
         )
+
+    def test_pickle(self):
+        """Pickling and unpickling shouldn't crash or produce max recursion errors"""
+        m1 = WebsafeImage.objects.create(image="python-logo.jpg")
+        m2 = pickle.loads(pickle.dumps(m1))
+        self.assertEqual(m1.image, m2.image)

@@ -6,6 +6,11 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Fixed a pickle/unpickle crash.
+
+
+`0.11`_ (2020-01-27)
+~~~~~~~~~~~~~~~~~~~~
 - Changed the fallback facility to a keyword argument to the
   ``ImageField`` instance.
 - Changed processing context creation to assign the ``name`` field
