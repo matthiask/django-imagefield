@@ -112,7 +112,7 @@ _ProcessBase = namedtuple("_ProcessBase", "path basename")
 
 class ImageFieldFile(files.ImageFieldFile):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(ImageFieldFile, self).__init__(*args, **kwargs)
         if not self.name and self.field._fallback:
             self.name = self.field._fallback
 
