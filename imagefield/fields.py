@@ -117,10 +117,10 @@ class ImageFieldFile(files.ImageFieldFile):
             self.name = self.field._fallback
 
     def __getattr__(self, item):
-        # The "field" attribute is not there after unpickling, and
-        # FileDescriptor checks for its presence before re-assigning the field
-        # instance...
-        if not hasattr(self, "field"):
+        # The "field" attribute is not there after unpickling. We cannot
+        # help in this case so let's just raise an AttributeError and leave the
+        # rest to the FileDescriptor
+        if item == "field":
             raise AttributeError
         if item in self.field.formats:
             context = self._process_context(self.field.formats[item])
