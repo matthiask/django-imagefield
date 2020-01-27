@@ -150,12 +150,12 @@ class ImageFieldFile(files.ImageFieldFile):
             save_kwargs={},
             extension=os.path.splitext(self.name)[1],
             processors=processors,
-            name="",
+            name=self.name,
         )
         while callable(context.processors):
             context.processors(self, context)
-        if self.name:
-            base = self._process_base(self.name)
+        if context.name:
+            base = self._process_base(context.name)
             spec = (
                 "|".join(str(p) for p in context.processors) + "|" + str(context.ppoi)
             )
