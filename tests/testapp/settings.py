@@ -60,6 +60,10 @@ MIDDLEWARE = MIDDLEWARE_CLASSES = [
 
 IMAGEFIELD_VERSATILEIMAGEPROXY = True
 
+SILENCED_SYSTEM_CHECKS = [
+    "imagefield.I001",  # We explicitly test that imagefields without PPOI work
+]
+
 if os.environ.get("LOG"):
     logger = logging.getLogger("imagefield")
     logger.addHandler(logging.StreamHandler())
