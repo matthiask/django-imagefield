@@ -111,7 +111,7 @@ class Command(BaseCommand):
             try:
                 fieldfile.process(key, **kwargs)
             except Exception as exc:
-                self.stdout.write(
+                self.stderr.write(
                     "Error while processing {} ({}, #{}):\n{}\n".format(
                         fieldfile.name, field.field_label, instance.pk, exc
                     )
