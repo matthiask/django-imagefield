@@ -43,6 +43,13 @@ class Command(BaseCommand):
 
         # TODO --clear for removing previously generated images.
 
+    def handle(self, **options):
+        self._fields = self._compile_imagefield_labels(options)
+
+        for field in sorted(IMAGEFIELDS, key=lambda f: f.field_label):
+            if field.field_label in self._fields:
+                self._process_field(field, options)
+
     def _compile_imagefield_labels(self, options):
         if options["all"]:
             return type(str("c"), (), {"__contains__": lambda *a: True})()
@@ -58,15 +65,6 @@ class Command(BaseCommand):
         else:
             self.print_help(sys.argv[0], sys.argv[1])
             sys.exit(1)
-
-    def handle(self, **options):
-        self._fields = self._compile_imagefield_labels(options)
-
-        for field in sorted(IMAGEFIELDS, key=lambda f: f.field_label):
-            if field.field_label not in self._fields:
-                continue
-
-            self._process_field(field, options)
 
     def _process_field(self, field, options):
         queryset = field.model._default_manager.exclude(**{field.name: ""}).order_by(
@@ -84,23 +82,17 @@ class Command(BaseCommand):
         self.stdout.write("\r|%s| %s/%s" % (" " * 50, 0, count), ending="")
 
         if field._fallback:
-            self._process_fallback(field, force=options.get("force"))
+            self._process_instance(
+                field.model(), field, housekeep=None, force=options.get("force"),
+            )
+
         for index, instance in enumerate(iterator(queryset)):
-            fieldfile = getattr(instance, field.name)
-            if fieldfile and fieldfile.name:
-                for key in field.formats:
-                    try:
-                        fieldfile.process(key, force=options.get("force"))
-                    except Exception as exc:
-                        self.stdout.write(
-                            "Error while processing {} ({}, #{}):\n{}\n".format(
-                                fieldfile.name, field.field_label, instance.pk, exc
-                            )
-                        )
-
-                        if options["housekeep"] == "blank-on-failure":
-                            field.save_form_data(instance, "")
-
+            self._process_instance(
+                instance,
+                field,
+                housekeep=options.get("housekeep"),
+                force=options.get("force"),
+            )
             progress = "*" * (50 * index // count)
             self.stdout.write(
                 "\r|%s| %s/%s" % (progress.ljust(50), index + 1, count), ending=""
@@ -113,15 +105,16 @@ class Command(BaseCommand):
 
         self.stdout.write("\r|%s| %s/%s" % ("*" * 50, count, count))
 
-    def _process_fallback(self, field, force):
-        instance = field.model()
+    def _process_instance(self, instance, field, housekeep, **kwargs):
         fieldfile = getattr(instance, field.name)
         for key in field.formats:
             try:
-                fieldfile.process(key, force=force)
+                fieldfile.process(key, **kwargs)
             except Exception as exc:
                 self.stdout.write(
                     "Error while processing {} ({}, #{}):\n{}\n".format(
                         fieldfile.name, field.field_label, instance.pk, exc
                     )
                 )
+                if housekeep == "blank-on-failure":
+                    field.save_form_data(instance, "")
