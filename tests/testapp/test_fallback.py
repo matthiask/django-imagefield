@@ -1,9 +1,4 @@
-from django.test.utils import override_settings
-
-from imagefield.fallback import fallback
-from imagefield.websafe import websafe
-
-from .models import WebsafeImage, Model
+from .models import WebsafeImage
 from .utils import BaseTest, contents
 
 

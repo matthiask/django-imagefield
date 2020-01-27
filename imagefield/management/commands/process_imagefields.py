@@ -81,18 +81,7 @@ class Command(BaseCommand):
             self.stdout.write("\r|%s| %s/%s" % (" " * 50, 0, count), ending="")
 
             if field._fallback:
-                instance = field.model()
-                fieldfile = getattr(instance, field.name)
-                for key in field.formats:
-                    try:
-                        fieldfile.process(key, force=options.get("force"))
-                    except Exception as exc:
-                        self.stdout.write(
-                            "Error while processing {} ({}, #{}):\n{}\n".format(
-                                fieldfile.name, field.field_label, instance.pk, exc
-                            )
-                        )
-
+                self.process_fallback(field, force=options.get("force"))
             for index, instance in enumerate(iterator(queryset)):
                 fieldfile = getattr(instance, field.name)
                 if fieldfile and fieldfile.name:
@@ -120,3 +109,16 @@ class Command(BaseCommand):
                 instance.save()
 
             self.stdout.write("\r|%s| %s/%s" % ("*" * 50, count, count))
+
+    def process_fallback(self, field, force):
+        instance = field.model()
+        fieldfile = getattr(instance, field.name)
+        for key in field.formats:
+            try:
+                fieldfile.process(key, force=force)
+            except Exception as exc:
+                self.stdout.write(
+                    "Error while processing {} ({}, #{}):\n{}\n".format(
+                        fieldfile.name, field.field_label, instance.pk, exc
+                    )
+                )
