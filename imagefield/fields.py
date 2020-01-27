@@ -221,16 +221,16 @@ class ImageFieldFile(files.ImageFieldFile):
             context = Context(ppoi=self._ppoi(), save_kwargs={}, processors=processors)
             context.seal()
 
-        self.open("rb")
-        image = Image.open(self.file)
-        context.save_kwargs.setdefault("format", image.format)
+        with self.open("rb"):
+            image = Image.open(self.file)
+            context.save_kwargs.setdefault("format", image.format)
 
-        handler = build_handler(context.processors)
-        image = handler(image, context)
+            handler = build_handler(context.processors)
+            image = handler(image, context)
 
-        with io.BytesIO() as buf:
-            image.save(buf, **context.save_kwargs)
-            return buf.getvalue()
+            with io.BytesIO() as buf:
+                image.save(buf, **context.save_kwargs)
+                return buf.getvalue()
 
     @property
     def _image(self):
