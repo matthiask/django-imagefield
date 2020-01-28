@@ -221,7 +221,8 @@ class ImageFieldFile(files.ImageFieldFile):
             context = Context(ppoi=self._ppoi(), save_kwargs={}, processors=processors)
             context.seal()
 
-        with self.open("rb"):
+        try:
+            self.open("rb")  # Is a context manager from Django 2.0 onwards
             image = Image.open(self.file)
             context.save_kwargs.setdefault("format", image.format)
 
@@ -231,6 +232,8 @@ class ImageFieldFile(files.ImageFieldFile):
             with io.BytesIO() as buf:
                 image.save(buf, **context.save_kwargs)
                 return buf.getvalue()
+        finally:
+            self.close()
 
     @property
     def _image(self):
