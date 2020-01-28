@@ -358,6 +358,10 @@ class Test(BaseTest):
         WebsafeImage.objects.create(image="python-logo.tiff")
         self.assertEqual(contents("__processed__"), ["python-logo-2ebc6e32bcdb.jpg"])
 
+    def test_websafe_gif(self):
+        WebsafeImage.objects.create(image="python-logo.gif")
+        self.assertEqual(contents("__processed__"), ["python-logo-24f8702383e7.gif"])
+
     @override_settings(IMAGEFIELD_VERSATILEIMAGEPROXY="websafe")
     def test_websafe_versatileimageproxy(self):
         m = WebsafeImage.objects.create(image="python-logo.tiff")
