@@ -10,15 +10,16 @@ from unittest import skipIf
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import models
 from django.test import Client
-from django.test.utils import override_settings
+from django.test.utils import isolate_apps, override_settings
 
 try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
 
-from imagefield.fields import IMAGEFIELDS, Context, _SealableAttribute
+from imagefield.fields import IMAGEFIELDS, Context, ImageField, _SealableAttribute
 from PIL import Image
 
 from .models import (
@@ -413,3 +414,22 @@ class Test(BaseTest):
     def test_context(self):
         self.assertTrue(isinstance(Context.ppoi, _SealableAttribute))
         self.assertEqual("{}".format(Context()), "Context(_is_sealed=False)")
+
+    def test_image_property(self):
+        m = Model()
+        self.assertIsNone(m.image._image)
+
+    @override_settings(IMAGEFIELD_AUTOGENERATE=set())
+    @isolate_apps("testapp")
+    def test_no_autogenerate(self):
+        class ModelWithOptional(models.Model):
+            image = ImageField(
+                auto_add_fields=True,
+                formats={"thumb": ["default", ("crop", (300, 300))]},
+            )
+
+            class Meta:
+                app_label = "testapp"
+
+        ModelWithOptional.objects.create(image="python-logo.jpg")
+        self.assertEqual(contents("__processed__"), [])
