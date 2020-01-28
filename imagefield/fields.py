@@ -245,7 +245,37 @@ class ImageFieldFile(files.ImageFieldFile):
             self.seek(0)
             original.seek(0)
             self.__dict__["_image"] = Image.open(original)
+
+            img = self.__dict__["_image"].resize((10, 10)).convert("RGB")
+            with io.BytesIO() as buf:
+                img.save(buf, format="TIFF")
+                img.save(buf, format="PNG")
         return self.__dict__.get("_image")
+
+    def save(self, name, content, save=True):
+        img = verified(Image.open(content))
+        basename = os.path.splitext(name)[0]
+        name = "{}.{}".format(basename, img.format.lower())
+
+        name = self.field.generate_filename(self.instance, name)
+        self.name = self.storage.save(name, content, max_length=self.field.max_length)
+        setattr(self.instance, self.field.name, self.name)
+        self._committed = True
+
+        if save:
+            self.instance.save()
+
+    save.alters_data = True
+
+
+def verified(img):
+    # Anything which exercises the machinery so that we may
+    # find out whether the image works at all (or not)
+    thumb = img.resize((10, 10)).convert("RGB")
+    with io.BytesIO() as target:
+        thumb.save(target, format="PNG")
+        thumb.save(target, format="TIFF")
+    return img
 
 
 def raise_validation_error(field_name, exc):
@@ -315,17 +345,6 @@ class ImageField(models.ImageField):
         )
         return super(ImageField, self).formfield(**kwargs)
 
-    def generate_filename(self, instance, filename):
-        f = getattr(instance, self.name)
-        try:
-            img = f._image
-        except Exception:
-            pass
-        else:
-            basename, ext = os.path.splitext(filename)
-            filename = "{}.{}".format(basename, img.format.lower())
-        return super(ImageField, self).generate_filename(instance, filename)
-
     def save_form_data(self, instance, data):
         try:
             super(ImageField, self).save_form_data(instance, data)
@@ -339,12 +358,7 @@ class ImageField(models.ImageField):
             f = getattr(instance, self.name)
             if f.name:
                 try:
-                    # Anything which exercises the machinery so that we may
-                    # find out whether the image works at all (or not)
-                    img = f._image.resize((10, 10)).convert("RGB")
-                    with io.BytesIO() as buf:
-                        img.save(buf, format="TIFF")
-                        img.save(buf, format="PNG")
+                    verified(f._image)
 
                 except Exception as exc:
                     super(ImageField, self).save_form_data(instance, "")

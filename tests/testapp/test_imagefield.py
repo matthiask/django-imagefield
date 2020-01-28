@@ -10,6 +10,7 @@ from unittest import skipIf
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
 from django.db import models
 from django.test import Client
 from django.test.utils import isolate_apps, override_settings
@@ -433,3 +434,13 @@ class Test(BaseTest):
 
         ModelWithOptional.objects.create(image="python-logo.jpg")
         self.assertEqual(contents("__processed__"), [])
+
+    def test_bogus_without_formats(self):
+        with override_settings(IMAGEFIELD_FORMATS={"testapp.model.image": {}}):
+            m = Model(image="python-logo.tiff")
+            with self.assertRaises(Exception):
+                m.image.save("stuff.jpg", io.BytesIO(b"anything"), save=True)
+
+        with openimage("python-logo.tiff") as f:
+            m = Model()
+            m.image.save("stuff.png", ContentFile(f.read()), save=True)
