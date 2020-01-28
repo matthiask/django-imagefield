@@ -354,7 +354,7 @@ class ImageField(models.ImageField):
             f = getattr(instance, self.name)
             if f.name:
                 try:
-                    verified(f._image)
+                    f._image
 
                 except Exception as exc:
                     super(ImageField, self).save_form_data(instance, "")
