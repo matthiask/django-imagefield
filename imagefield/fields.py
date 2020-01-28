@@ -244,12 +244,8 @@ class ImageFieldFile(files.ImageFieldFile):
             original.write(self.read())
             self.seek(0)
             original.seek(0)
-            self.__dict__["_image"] = Image.open(original)
+            self.__dict__["_image"] = verified(Image.open(original))
 
-            img = self.__dict__["_image"].resize((10, 10)).convert("RGB")
-            with io.BytesIO() as buf:
-                img.save(buf, format="TIFF")
-                img.save(buf, format="PNG")
         return self.__dict__.get("_image")
 
     def save(self, name, content, save=True):
