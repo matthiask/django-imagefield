@@ -7,6 +7,14 @@ Change log
 ~~~~~~~~~~~~~~~
 
 - Fixed a pickle/unpickle crash.
+- Closed image files in more places to avoid resource warnings.
+- Dropped Django 1.8 from the build matrix. Supporting it in the
+  testsuite became annoying.
+- Added verification of images even when not using forms.
+- Ensured that configured fallbacks are also processed by
+  ``process_imagefields``.
+- Silenced more warnings when running the testsuite and generally
+  improved test coverage.
 
 
 `0.11`_ (2020-01-27)
