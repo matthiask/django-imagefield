@@ -15,6 +15,8 @@ Change log
   ``process_imagefields``.
 - Silenced more warnings when running the testsuite and generally
   improved test coverage.
+- Avoided setting the image field files' value too early when using
+  fallbacks.
 
 
 `0.11`_ (2020-01-27)

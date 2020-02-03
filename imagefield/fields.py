@@ -111,11 +111,6 @@ _ProcessBase = namedtuple("_ProcessBase", "path basename")
 
 
 class ImageFieldFile(files.ImageFieldFile):
-    def __init__(self, *args, **kwargs):
-        super(ImageFieldFile, self).__init__(*args, **kwargs)
-        if not self.name and self.field._fallback:
-            self.name = self.field._fallback
-
     def __getattr__(self, item):
         # The "field" attribute is not there after unpickling. We cannot
         # help in this case so let's just raise an AttributeError and leave the
@@ -148,12 +143,14 @@ class ImageFieldFile(files.ImageFieldFile):
         return _ProcessBase("__processed__/%s" % p1[:3], "%s-" % filename)
 
     def _process_context(self, processors):
+        name = self.name or self.field._fallback
         context = Context(
             ppoi=self._ppoi(),
             save_kwargs={},
-            extension=os.path.splitext(self.name)[1],
+            extension=os.path.splitext(name)[1],
             processors=processors,
-            name=self.name,
+            name=name,
+            source=name,
         )
         while callable(context.processors):
             context.processors(self, context)
@@ -174,9 +171,6 @@ class ImageFieldFile(files.ImageFieldFile):
         return context
 
     def process(self, spec, force=False):
-        if not self.name:
-            return
-
         if isinstance(spec, (list, tuple)):
             processors = spec
             spec = "<ad hoc>"
@@ -187,6 +181,9 @@ class ImageFieldFile(files.ImageFieldFile):
             processors = self.field.formats[spec]
 
         context = self._process_context(processors)
+        if not context.name:
+            return
+
         logger.debug(
             'Processing image "%(image)s" as "%(key)s" with context %(context)s',
             {"image": self, "key": spec, "context": context},
@@ -218,9 +215,16 @@ class ImageFieldFile(files.ImageFieldFile):
         assert bool(processors) != bool(context), "Pass exactly one, not both"
 
         if context is None:
-            context = Context(ppoi=self._ppoi(), save_kwargs={}, processors=processors)
+            context = Context(
+                ppoi=self._ppoi(),
+                save_kwargs={},
+                processors=processors,
+                source=self.name,
+            )
             context.seal()
 
+        orig_name = self.name
+        self.name = context.source
         try:
             self.open("rb")  # Is a context manager from Django 2.0 onwards
             image = Image.open(self.file)
@@ -234,6 +238,8 @@ class ImageFieldFile(files.ImageFieldFile):
                 return buf.getvalue()
         finally:
             self.close()
+            del self.file
+            self.name = orig_name
 
     @property
     def _image(self):
