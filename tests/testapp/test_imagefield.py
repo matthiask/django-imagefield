@@ -15,13 +15,9 @@ from django.db import models
 from django.test import Client
 from django.test.utils import isolate_apps, override_settings
 
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
+from PIL import Image
 
 from imagefield.fields import IMAGEFIELDS, Context, ImageField, _SealableAttribute
-from PIL import Image
 
 from .models import (
     Model,
@@ -31,7 +27,13 @@ from .models import (
     WebsafeImage,
     slow_storage,
 )
-from .utils import BaseTest, openimage, contents
+from .utils import BaseTest, contents, openimage
+
+
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 
 
 class Test(BaseTest):

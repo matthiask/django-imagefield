@@ -5,8 +5,8 @@ import os
 import shutil
 
 from django.conf import settings
-from django.utils.translation import deactivate_all
 from django.test import TestCase
+from django.utils.translation import deactivate_all
 
 
 def openimage(path):
