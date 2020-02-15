@@ -371,6 +371,10 @@ class ImageField(models.ImageField):
                 setattr(instance, self.ppoi_field, "0.5x0.5")
 
     def _cache_previous(self, instance, **kwargs):
+        # TODO We still should find a way to cache the previous value.
+        # See testapp.test_imagefield.Test.test_deferred_imagefields
+        if self.name in instance.get_deferred_fields():
+            return
         f = getattr(instance, self.name)
         setattr(instance, "_previous_%s" % self.name, (f.name, f._ppoi()))
 

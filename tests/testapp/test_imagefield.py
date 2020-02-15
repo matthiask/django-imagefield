@@ -6,7 +6,7 @@ import pickle
 import re
 import sys
 import time
-from unittest import skipIf
+from unittest import expectedFailure, skipIf
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -413,6 +413,18 @@ class Test(BaseTest):
         m1 = WebsafeImage.objects.create(image="python-logo.jpg")
         m2 = pickle.loads(pickle.dumps(m1))
         self.assertEqual(m1.image, m2.image)
+
+    @expectedFailure
+    def test_deferred_imagefields(self):
+        """Deferring imagefields shouldn't leave old processed images on the disk"""
+        WebsafeImage.objects.create(image="python-logo.jpg")
+        self.assertEqual(contents("__processed__"), ["python-logo-24f8702383e7.jpg"])
+
+        m1 = WebsafeImage.objects.defer("image").get()
+        m1.image = "cmyk.jpg"
+        m1.save()
+        self.assertEqual(contents("__processed__"), ["cmyk-24f8702383e7.jpg"])
+        # ["cmyk-24f8702383e7.jpg", "python-logo-24f8702383e7.jpg"],
 
     def test_context(self):
         self.assertTrue(isinstance(Context.ppoi, _SealableAttribute))
