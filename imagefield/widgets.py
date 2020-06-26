@@ -5,6 +5,7 @@ import inspect
 from django import forms
 from django.core.cache import cache
 from django.utils.html import format_html
+from django.utils.text import get_valid_filename
 
 
 try:
@@ -52,11 +53,10 @@ class PreviewAndPPOIMixin(object):
         except (AttributeError, KeyError, TypeError):
             ppoi = ""
 
-        key = "imagefield-admin-thumb:%s" % value.name
+        key = "imagefield-admin-thumb:%s" % get_valid_filename(value.name)
+        url = cache.get(key, "")
 
         try:
-            url = cache.get(key, "")
-
             if not url:
                 url = value.storage.url(
                     value.process(["default", ("thumbnail", (300, 300))])
@@ -64,7 +64,7 @@ class PreviewAndPPOIMixin(object):
                 cache.set(key, url, timeout=30 * 86400)
 
         except Exception:
-            url = ""
+            pass
 
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
