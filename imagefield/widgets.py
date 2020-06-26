@@ -64,7 +64,7 @@ class PreviewAndPPOIMixin(object):
                 cache.set(key, url, timeout=30 * 86400)
 
         except Exception:
-            url = ''
+            url = ""
 
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
