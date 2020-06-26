@@ -53,16 +53,18 @@ class PreviewAndPPOIMixin(object):
             ppoi = ""
 
         key = "imagefield-admin-thumb:%s" % value.name
-        url = cache.get(key, "")
-        if not url:
-            try:
+
+        try:
+            url = cache.get(key, "")
+
+            if not url:
                 url = value.storage.url(
                     value.process(["default", ("thumbnail", (300, 300))])
                 )
                 cache.set(key, url, timeout=30 * 86400)
 
-            except Exception:
-                pass
+        except Exception:
+            url = ''
 
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
