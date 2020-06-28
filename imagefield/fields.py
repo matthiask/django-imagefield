@@ -404,7 +404,9 @@ class ImageField(models.ImageField):
         if not filename:
             return
 
-        key = "imagefield-admin-thumb:%s" % filename
+        key = (
+            "imagefield-admin-thumb:%s" % hashlib.sha256(filename.encode()).hexdigest()
+        )
         cache.delete(key)
 
         base = fieldfile._process_base(filename)

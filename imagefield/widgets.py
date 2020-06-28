@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
 
+import hashlib
 import inspect
 
 from django import forms
 from django.core.cache import cache
 from django.utils.html import format_html
-from django.utils.text import get_valid_filename
 
 
 try:
@@ -53,7 +53,10 @@ class PreviewAndPPOIMixin(object):
         except (AttributeError, KeyError, TypeError):
             ppoi = ""
 
-        key = "imagefield-admin-thumb:%s" % get_valid_filename(value.name)
+        key = (
+            "imagefield-admin-thumb:%s"
+            % hashlib.sha256(value.name.encode()).hexdigest()
+        )
         url = cache.get(key, "")
 
         try:
