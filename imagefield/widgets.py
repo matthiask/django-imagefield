@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import hashlib
 import inspect
 
 from django import forms
@@ -52,17 +53,21 @@ class PreviewAndPPOIMixin(object):
         except (AttributeError, KeyError, TypeError):
             ppoi = ""
 
-        key = "imagefield-admin-thumb:%s" % value.name
+        key = (
+            "imagefield-admin-thumb:%s"
+            % hashlib.sha256(value.name.encode()).hexdigest()
+        )
         url = cache.get(key, "")
-        if not url:
-            try:
+
+        try:
+            if not url:
                 url = value.storage.url(
                     value.process(["default", ("thumbnail", (300, 300))])
                 )
                 cache.set(key, url, timeout=30 * 86400)
 
-            except Exception:
-                pass
+        except Exception:
+            pass
 
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
