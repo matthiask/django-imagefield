@@ -152,6 +152,24 @@ class Test(BaseTest):
         field._clear_generated_files(m)
         self.assertEqual(contents("__processed__"), [])
 
+    def test_indexed_png(self):
+        """PNG with P(alette) is converted to RGBA"""
+        field = Model._meta.get_field("image")
+
+        m = Model(image="python-logo-indexed.png", ppoi="0.5x0.5")
+        m.image.process("desktop")
+
+        path = os.path.join(settings.MEDIA_ROOT, m.image.desktop[7:])
+        with Image.open(path) as image:
+            self.assertEqual(image.format, "PNG")
+            self.assertEqual(image.mode, "RGBA")
+
+        self.assertEqual(
+            contents("__processed__"), ["python-logo-indexed-e6a99ea713c8.png"]
+        )
+        field._clear_generated_files(m)
+        self.assertEqual(contents("__processed__"), [])
+
     def test_empty(self):
         """Model without an imagefield does not crash when accessing props"""
         m = Model()

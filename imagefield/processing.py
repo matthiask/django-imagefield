@@ -26,7 +26,14 @@ def register(fn):
 @register
 def default(get_image):
     return build_handler(
-        ["preserve_icc_profile", "process_gif", "process_jpeg", "autorotate"], get_image
+        [
+            "preserve_icc_profile",
+            "process_gif",
+            "process_png",
+            "process_jpeg",
+            "autorotate",
+        ],
+        get_image,
     )
 
 
@@ -60,6 +67,17 @@ def process_jpeg(get_image):
             context.save_kwargs["progressive"] = True
             if image.mode != "RGB":
                 image = image.convert("RGB")
+        return get_image(image, context)
+
+    return processor
+
+
+@register
+def process_png(get_image):
+    def processor(image, context):
+        if context.save_kwargs["format"] == "PNG" and image.mode == "P":
+            image = image.convert("RGBA")
+
         return get_image(image, context)
 
     return processor

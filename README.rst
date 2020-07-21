@@ -63,7 +63,8 @@ following setting:
             # specification in terms of image file produced (the
             # resulting file name is different though):
             # 'full': [
-            #     'autorotate', 'process_jpeg', 'process_gif', 'autorotate',
+            #     'autorotate', 'process_jpeg', 'process_png',
+            #     'process_gif', 'autorotate',
             #     ('thumbnail', (800, 500)),
             # ],
             # Note that the exact list of default processors may
@@ -88,6 +89,7 @@ The following processors are available out of the box:
 - ``autorotate``: Autorotates an image by reading the EXIF data.
 - ``process_jpeg``: Converts non-RGB images to RGB, activates
   progressive encoding and sets quality to a higher value of 90.
+- ``process_png``: Converts PNG images with palette to RGBA.
 - ``process_gif``: Preserves transparency and palette data in resized
   images.
 - ``preserve_icc_profile``: As the name says.
@@ -95,9 +97,10 @@ The following processors are available out of the box:
 - ``crop``: Crops an image to the given dimensions, also takes the PPOI
   (primary point of interest) information into account if provided.
 - ``default``: The combination of ``autorotate``, ``process_jpeg``,
-  ``process_gif`` and ``preserve_icc_profile``. Additional default
-  processors may be added in the future. It is recommended to use
-  ``default`` instead of adding the processors one-by-one.
+  ``process_gif``, ``process_png`` and ``preserve_icc_profile``.
+  Additional default processors may be added in the future. It is
+  recommended to use ``default`` instead of adding the processors
+  one-by-one.
 
 Processors can be specified either using their name alone, or if they
 take arguments, using a tuple where the first entry is the processors'
