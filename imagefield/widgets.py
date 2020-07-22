@@ -4,9 +4,19 @@ import hashlib
 import inspect
 
 from django import forms
+from django.conf import settings
 from django.core.cache import cache
 from django.forms.boundfield import BoundField
 from django.utils.html import format_html
+
+
+def cache_key(name):
+    return "imagefield-cache:%s" % hashlib.sha256(name.encode()).hexdigest()
+
+
+def cache_timeout():
+    value = settings.IMAGEFIELD_CACHE_TIMEOUT
+    return value() if callable(value) else value
 
 
 class PPOIWidget(forms.HiddenInput):

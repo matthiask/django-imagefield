@@ -6,6 +6,7 @@ import logging
 import os
 import re
 from collections import namedtuple
+from random import randint
 
 from django.conf import settings
 from django.core import checks
@@ -23,11 +24,12 @@ from PIL import Image
 
 from .processing import build_handler
 from .websafe import websafe
-from .widgets import PPOIWidget, with_preview_and_ppoi
+from .widgets import PPOIWidget, cache_key, cache_timeout, with_preview_and_ppoi
 
 
 DEFAULTS = {
     "IMAGEFIELD_AUTOGENERATE": True,
+    "IMAGEFIELD_CACHE_TIMEOUT": lambda: randint(170 * 86400, 190 * 86400),
     "IMAGEFIELD_FORMATS": {},
     "IMAGEFIELD_SILENTFAILURE": False,
     "IMAGEFIELD_VERSATILEIMAGEPROXY": False,
@@ -99,11 +101,12 @@ class VersatileImageProxy(object):
         ]
         if settings.IMAGEFIELD_VERSATILEIMAGEPROXY == "websafe":
             processors = websafe(processors)
-        url = self.file.storage.url(self.file._process_context(processors).name)
-        key = "v-i-p:{}".format(url)
+        context = self.file._process_context(processors)
+        key = cache_key(context.name)
+        url = self.file.storage.url(context.name)
         if not cache.get(key):
             self.file.process(processors)
-            cache.set(key, 1, timeout=None)
+            cache.set(key, 1, timeout=cache_timeout())
         return url
 
 
