@@ -6,9 +6,14 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
-- **BACKWARDS INCOMPATIBLE**: Added a new ``process_png`` image
-  processor to the ``default`` pipeline. You may want to run
-  ``./manage.py process_imagefields --all`` after deploying this update.
+- **BACKWARDS INCOMPATIBLE**: Consolidated cache key generation in the
+  versatile image proxy and the admin widget code. Already cached values
+  will be checked again. Also, the cache timeout has been changed from
+  infinite (in case of the versatile image proxy) and 30 days (in case
+  of the admin widget) to a random value between 170 and 190 days. This
+  can be overridden by specifying the timeout as
+  ``IMAGEFIELD_CACHE_TIMEOUT``. The setting may either be a value or a
+  callable.
 - Fixed a pickle/unpickle crash.
 - Closed image files in more places to avoid resource warnings.
 - Dropped Django 1.8 from the build matrix. Supporting it in the
@@ -20,6 +25,8 @@ Change log
   improved test coverage.
 - Avoided setting the image field files' value too early when using
   fallbacks.
+- Added a new ``process_png`` processor which converts PNGs using
+  palettes to RGBA. This avoids ugly artefacts when resizing images.
 
 
 `0.11`_ (2020-01-27)
