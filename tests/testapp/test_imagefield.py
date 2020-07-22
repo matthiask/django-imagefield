@@ -35,8 +35,7 @@ class Test(BaseTest):
     def login(self):
         self.user = User.objects.create_superuser("admin", "admin@test.ch", "blabla")
         client = Client()
-        client.login(username="admin", password="blabla")
-        # client.force_login(self.user)
+        client.force_login(self.user)
         return client
 
     def test_model(self):
