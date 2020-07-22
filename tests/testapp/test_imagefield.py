@@ -245,7 +245,7 @@ class Test(BaseTest):
 
     def test_silent_failure(self):
         Model.objects.create(image="python-logo.jpg")
-        Model.objects.update(image="smallliz.tif")
+        Model.objects.update(image="smallliz.tif")  # DB-only update
         m = Model.objects.get()
 
         with self.assertRaises(Exception):
