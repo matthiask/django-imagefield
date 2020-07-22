@@ -230,28 +230,16 @@ class Test(BaseTest):
                     )
                 )
 
-        with openimage("smallliz.tif") as f:
-            response = client.post(
-                "/admin/testapp/model/add/", {"image": f, "ppoi": "0.5x0.5"}
-            )
-
-        self.assertContains(response, "This field cannot be blank.")
-        self.assertContains(
-            response,
-            "Error while handling image, maybe the file"
-            " is corrupt or the image format is unsupported.",
-        )
-
     def test_silent_failure(self):
         Model.objects.create(image="python-logo.jpg")
-        Model.objects.update(image="smallliz.tif")  # DB-only update
+        Model.objects.update(image="broken.png")  # DB-only update
         m = Model.objects.get()
 
         with self.assertRaises(Exception):
             m.image.process("desktop")
 
         with override_settings(IMAGEFIELD_SILENTFAILURE=True):
-            self.assertEqual(m.image.process("desktop"), "smallliz.tif")
+            self.assertEqual(m.image.process("desktop"), "broken.png")
 
     def test_cmyk_validation(self):
         """
