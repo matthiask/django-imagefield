@@ -14,6 +14,7 @@ from django.core.files.base import ContentFile
 from django.db import models
 from django.test import Client
 from django.test.utils import isolate_apps, override_settings
+from django.urls import reverse
 
 from PIL import Image
 
@@ -28,12 +29,6 @@ from .models import (
     slow_storage,
 )
 from .utils import BaseTest, contents, openimage
-
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 
 
 class Test(BaseTest):
