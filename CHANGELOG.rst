@@ -6,6 +6,9 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- **BACKWARDS INCOMPATIBLE**: Added a new ``process_png`` image
+  processor to the ``default`` pipeline. You may want to run
+  ``./manage.py process_imagefields --all`` after deploying this update.
 - Fixed a pickle/unpickle crash.
 - Closed image files in more places to avoid resource warnings.
 - Dropped Django 1.8 from the build matrix. Supporting it in the
