@@ -6,6 +6,7 @@ import inspect
 from django import forms
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.uploadedfile import UploadedFile
 from django.forms.boundfield import BoundField
 from django.utils.html import format_html
 
@@ -35,7 +36,7 @@ class PreviewAndPPOIMixin(object):
         )
 
         # name does not require a file, .url does
-        if not getattr(value, "name", ""):
+        if not getattr(value, "name", "") or isinstance(value, UploadedFile):
             return widget
 
         # Find our BoundField so that we may access the form instance to
@@ -58,21 +59,18 @@ class PreviewAndPPOIMixin(object):
         except (AttributeError, KeyError, TypeError):
             ppoi = ""
 
-        key = (
-            "imagefield-admin-thumb:%s"
-            % hashlib.sha256(value.name.encode()).hexdigest()
-        )
-        url = cache.get(key, "")
-
-        try:
-            if not url:
-                url = value.storage.url(
-                    value.process(["default", ("thumbnail", (300, 300))])
-                )
-                cache.set(key, url, timeout=30 * 86400)
-
-        except Exception:
-            pass
+        processors = ["default", ("thumbnail", (300, 300))]
+        context = value._process_context(processors)
+        key = cache_key(context.name)
+        url = value.storage.url(context.name)
+        if not cache.get(key):
+            try:
+                value.process(processors)
+                cache.set(key, 1, timeout=cache_timeout())
+            except Exception:
+                # Avoid crashing here since it will not be possible to even
+                # replace corrupted images otherwise.
+                pass
 
         return format_html(
             '<div class="imagefield" data-ppoi-id="{ppoi}">'
