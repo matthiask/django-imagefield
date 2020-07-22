@@ -202,13 +202,7 @@ class Test(BaseTest):
 
     def test_broken(self):
         """Broken images are rejected early"""
-        exceptions = (IOError, OSError)
-        import django
-
-        if django.VERSION < (1, 11):
-            exceptions += (TypeError,)
-
-        with self.assertRaises(exceptions):
+        with self.assertRaises((IOError, OSError)):
             Model.objects.create(image="broken.png")
 
         client = self.login()
