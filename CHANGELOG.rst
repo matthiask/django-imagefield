@@ -6,6 +6,10 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Started using ``ImageOps.exif_transpose`` introduced in Pillow 6.0 to
+  autorotate images.
+
+
 `0.12`_ (2020-07-24)
 ~~~~~~~~~~~~~~~~~~~~
 

@@ -1,6 +1,6 @@
 from __future__ import division, unicode_literals
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 PROCESSORS = {}
@@ -40,21 +40,7 @@ def default(get_image):
 @register
 def autorotate(get_image):
     def processor(image, context):
-        if not hasattr(image, "_getexif"):
-            return get_image(image, context)
-
-        exif = image._getexif()
-        if not exif:
-            return get_image(image, context)
-
-        # Do not add no exif data to save_kwargs.
-        orientation = dict(exif.items()).get(274)
-        rotation = {3: Image.ROTATE_180, 6: Image.ROTATE_270, 8: Image.ROTATE_90}.get(
-            orientation
-        )
-        if rotation:
-            return get_image(image.transpose(rotation), context)
-        return get_image(image, context)
+        return get_image(ImageOps.exif_transpose(image), context)
 
     return processor
 
