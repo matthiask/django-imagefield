@@ -6,6 +6,9 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+`0.12`_ (2020-07-24)
+~~~~~~~~~~~~~~~~~~~~
+
 - **BACKWARDS INCOMPATIBLE**: Consolidated cache key generation in the
   versatile image proxy and the admin widget code. Already cached values
   will be checked again. Also, the cache timeout has been changed from
@@ -31,6 +34,7 @@ Change log
 
 `0.11`_ (2020-01-27)
 ~~~~~~~~~~~~~~~~~~~~
+
 - Changed the fallback facility to a keyword argument to the
   ``ImageField`` instance.
 - Changed processing context creation to assign the ``name`` field
@@ -198,4 +202,5 @@ Change log
 .. _0.9: https://github.com/matthiask/django-imagefield/compare/0.8...0.9
 .. _0.10: https://github.com/matthiask/django-imagefield/compare/0.9...0.10
 .. _0.11: https://github.com/matthiask/django-imagefield/compare/0.10...0.11
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.11...master
+.. _0.12: https://github.com/matthiask/django-imagefield/compare/0.11...0.12
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.12...master
