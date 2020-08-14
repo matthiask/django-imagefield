@@ -98,5 +98,5 @@ class WebsafeImage(models.Model):
         upload_to="images",
         auto_add_fields=True,
         fallback="python-logo.tiff",
-        formats={"thumb": websafe(["default", ("crop", (300, 300))])},
+        formats={"preview": websafe(["default", ("crop", (300, 300))])},
     )

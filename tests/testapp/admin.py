@@ -18,3 +18,8 @@ class ModelWithOptionalAdmin(admin.ModelAdmin):
 @admin.register(models.NullableImage)
 class NullableImageAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.WebsafeImage)
+class WebsafeImageAdmin(admin.ModelAdmin):
+    pass

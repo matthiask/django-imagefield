@@ -59,12 +59,13 @@ class PreviewAndPPOIMixin(object):
         except (AttributeError, KeyError, TypeError):
             ppoi = ""
 
-        context = value._process_context(self.processors)
+        processors = self._unbind_processors()
+        context = value._process_context(processors)
         key = cache_key(context.name)
         url = value.storage.url(context.name)
         if not cache.get(key):
             try:
-                value.process(self.processors)
+                value.process(processors)
                 cache.set(key, 1, timeout=cache_timeout())
             except Exception:
                 # Avoid crashing here since it will not be possible to even
@@ -81,6 +82,14 @@ class PreviewAndPPOIMixin(object):
             widget=widget,
             url=url,
             ppoi=ppoi,
+        )
+
+    def _unbind_processors(self):
+        # Unwrap the original processors value. Callable processor specs are
+        # converted into bound methods, but the machinery does not like the
+        # additional ``self`` argument.
+        return (
+            self.processors.__func__ if callable(self.processors) else self.processors
         )
 
 

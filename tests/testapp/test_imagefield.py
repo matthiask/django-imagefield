@@ -360,6 +360,16 @@ class Test(BaseTest):
         WebsafeImage.objects.create(image="python-logo.gif")
         self.assertEqual(contents("__processed__"), ["python-logo-24f8702383e7.gif"])
 
+    def test_callable_preview_spec(self):
+        """Callable ``preview`` specs work"""
+        client = self.login()
+        m = WebsafeImage.objects.create(image="python-logo.gif")
+        response = client.get(
+            reverse("admin:testapp_websafeimage_change", args=(m.id,))
+        )
+        self.assertContains(response, 'value="0.5x0.5"')  # Does not crash
+        # print(response, response.content.decode("utf-8"))
+
     @override_settings(IMAGEFIELD_VERSATILEIMAGEPROXY="websafe")
     def test_websafe_versatileimageproxy(self):
         m = WebsafeImage.objects.create(image="python-logo.tiff")
