@@ -59,13 +59,12 @@ class PreviewAndPPOIMixin(object):
         except (AttributeError, KeyError, TypeError):
             ppoi = ""
 
-        processors = ["default", ("thumbnail", (300, 300))]
-        context = value._process_context(processors)
+        context = value._process_context(self.processors)
         key = cache_key(context.name)
         url = value.storage.url(context.name)
         if not cache.get(key):
             try:
-                value.process(processors)
+                value.process(self.processors)
                 cache.set(key, 1, timeout=cache_timeout())
             except Exception:
                 # Avoid crashing here since it will not be possible to even

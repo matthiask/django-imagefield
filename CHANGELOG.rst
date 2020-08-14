@@ -8,6 +8,8 @@ Change log
 
 - Started using ``ImageOps.exif_transpose`` introduced in Pillow 6.0 to
   autorotate images.
+- Allowed overriding the preview image for the form field by adding a
+  ``"preview"`` spec to the field.
 
 
 `0.12`_ (2020-07-24)

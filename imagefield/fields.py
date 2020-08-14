@@ -346,7 +346,11 @@ class ImageField(models.ImageField):
 
     def formfield(self, **kwargs):
         kwargs["widget"] = with_preview_and_ppoi(
-            kwargs.get("widget", ClearableFileInput), ppoi_field=self.ppoi_field
+            kwargs.get("widget", ClearableFileInput),
+            ppoi_field=self.ppoi_field,
+            processors=self.formats.get(
+                "preview", ["default", ("thumbnail", (300, 300))]
+            ),
         )
         return super(ImageField, self).formfield(**kwargs)
 
