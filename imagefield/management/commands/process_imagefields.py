@@ -83,7 +83,10 @@ class Command(BaseCommand):
 
         if field._fallback:
             self._process_instance(
-                field.model(), field, housekeep=None, force=options.get("force"),
+                field.model(),
+                field,
+                housekeep=None,
+                force=options.get("force"),
             )
 
         for index, instance in enumerate(iterator(queryset)):

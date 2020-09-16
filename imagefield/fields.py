@@ -50,7 +50,7 @@ class _SealableAttribute(object):
 
     def __set__(self, obj, value):
         if obj._is_sealed:
-            raise AttributeError("Sealed attribute")
+            raise AttributeError("Attribute '{}' is sealed".format(self.name))
         obj.__dict__[self.name] = value
 
 
@@ -130,7 +130,7 @@ class ImageFieldFile(files.ImageFieldFile):
             return url
         elif settings.IMAGEFIELD_VERSATILEIMAGEPROXY and item in {"thumbnail", "crop"}:
             return VersatileImageProxy(self, item)
-        raise AttributeError
+        raise AttributeError("Attribute '{}' on '{}' unknown".format(item, self.field))
 
     def _ppoi(self):
         if self.field.ppoi_field:

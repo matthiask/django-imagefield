@@ -10,6 +10,7 @@ Change log
   autorotate images.
 - Allowed overriding the preview image for the form field by adding a
   ``"preview"`` spec to the field.
+- Added descriptions when raising ``AttributeError`` exceptions.
 
 
 `0.12`_ (2020-07-24)

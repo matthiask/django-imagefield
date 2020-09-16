@@ -101,8 +101,12 @@ class Test(BaseTest):
         self.assertEqual(
             m.image.thumb, "/media/__processed__/02a/python-logo-24f8702383e7.png"
         )
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(AttributeError) as cm:
             m.image.not_exists
+
+        self.assertEqual(
+            "Attribute 'not_exists' on 'testapp.Model.image' unknown", str(cm.exception)
+        )
 
         response = client.post(
             reverse("admin:testapp_model_change", args=(m.pk,)),

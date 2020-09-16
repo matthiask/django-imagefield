@@ -46,4 +46,4 @@ class ForcePNGTest(BaseTest):
         with self.assertRaises(AttributeError) as cm:
             m.image.process(["too_late"])
 
-        self.assertIn("Sealed attribute", str(cm.exception))
+        self.assertEqual("Attribute 'extension' is sealed", str(cm.exception))
