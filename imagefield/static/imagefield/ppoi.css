@@ -24,3 +24,6 @@
 .imagefield-point.opaque {
     opacity: 0.8;
 }
+.fieldBox .imagefield-widget p.file-upload {
+    margin-left: 0;
+}

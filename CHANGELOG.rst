@@ -11,6 +11,8 @@ Change log
 - Allowed overriding the preview image for the form field by adding a
   ``"preview"`` spec to the field.
 - Added descriptions when raising ``AttributeError`` exceptions.
+- Fixed the alignment of file uploads when imagefields with PPOI widgets
+  are used within a fieldbox in the admin interface.
 
 
 `0.12`_ (2020-07-24)
