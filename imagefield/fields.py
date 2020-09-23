@@ -88,11 +88,19 @@ class VersatileImageProxy(object):
         self.file = file
         self.items = [item]
 
-    def __getitem__(self, item):
-        self.items.append(item)
+    def __getitem__(self, key):
+        if key.startswith("_"):
+            raise KeyError("Invalid key '{}' on VersatileImageProxy".format(key))
+        self.items.append(key)
         return self
 
-    __getattr__ = __getitem__
+    def __getattr__(self, attribute):
+        if attribute.startswith("_"):
+            raise AttributeError(
+                "Invalid attribute '{}' on VersatileImageProxy".format(attribute)
+            )
+        self.items.append(attribute)
+        return self
 
     def __str__(self):
         processors = [

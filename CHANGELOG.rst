@@ -13,6 +13,8 @@ Change log
 - Added descriptions when raising ``AttributeError`` exceptions.
 - Fixed the alignment of file uploads when imagefields with PPOI widgets
   are used within a fieldbox in the admin interface.
+- Do not accept keys or attributes starting with underscores in the
+  versatile image proxy.
 
 
 `0.12`_ (2020-07-24)
