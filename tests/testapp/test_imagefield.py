@@ -124,9 +124,7 @@ class Test(BaseTest):
 
         for image in ["Landscape_3.jpg", "Landscape_6.jpg", "Landscape_8.jpg"]:
             m = Model(image="exif-orientation-examples/%s" % image, ppoi="0.5x0.5")
-            m.image.process("desktop")
-
-            path = os.path.join(settings.MEDIA_ROOT, m.image.desktop[7:])
+            path = os.path.join(settings.MEDIA_ROOT, m.image.process("desktop"))
             with Image.open(path) as image:
                 self.assertEqual(image.size, (300, 225))
 
@@ -139,9 +137,7 @@ class Test(BaseTest):
         field = Model._meta.get_field("image")
 
         m = Model(image="cmyk.jpg", ppoi="0.5x0.5")
-        m.image.process("desktop")
-
-        path = os.path.join(settings.MEDIA_ROOT, m.image.desktop[7:])
+        path = os.path.join(settings.MEDIA_ROOT, m.image.process("desktop"))
         with Image.open(path) as image:
             self.assertEqual(image.format, "JPEG")
             self.assertEqual(image.mode, "RGB")
@@ -155,9 +151,7 @@ class Test(BaseTest):
         field = Model._meta.get_field("image")
 
         m = Model(image="python-logo-indexed.png", ppoi="0.5x0.5")
-        m.image.process("desktop")
-
-        path = os.path.join(settings.MEDIA_ROOT, m.image.desktop[7:])
+        path = os.path.join(settings.MEDIA_ROOT, m.image.process("desktop"))
         with Image.open(path) as image:
             self.assertEqual(image.format, "PNG")
             self.assertEqual(image.mode, "RGBA")
