@@ -15,6 +15,7 @@ Change log
   are used within a fieldbox in the admin interface.
 - Do not accept keys or attributes starting with underscores in the
   versatile image proxy.
+- Disallowed image format names starting with an underscore.
 
 
 `0.12`_ (2020-07-24)
