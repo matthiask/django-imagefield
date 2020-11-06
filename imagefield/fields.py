@@ -126,9 +126,9 @@ class ImageFieldFile(files.ImageFieldFile):
         # The "field" attribute is not there after unpickling. We cannot
         # help in this case so let's just raise an AttributeError and leave the
         # rest to the FileDescriptor
-        if item == "field" or item.startswith("_"):
-            pass
-        elif item in self.field.formats:
+        if item == "field":
+            raise AttributeError
+        if not item.startswith("_") and item in self.field.formats:
             context = self._process_context(self.field.formats[item])
             if context.name:
                 url = self.storage.url(context.name)
