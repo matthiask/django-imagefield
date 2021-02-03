@@ -19,7 +19,6 @@ from django.db.models.fields import files
 from django.forms import ClearableFileInput
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
-
 from PIL import Image
 
 from .processing import build_handler
@@ -268,7 +267,7 @@ class ImageFieldFile(files.ImageFieldFile):
 
     def save(self, name, content, save=True):
         if not settings.IMAGEFIELD_VALIDATE_ON_SAVE:
-            super().save(name, content, save=True)
+            super(ImageFieldFile, self).save(name, content, save=True)
             return
 
         img = verified(Image.open(content))

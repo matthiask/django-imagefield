@@ -15,7 +15,6 @@ from django.db import models
 from django.test import Client
 from django.test.utils import isolate_apps, override_settings
 from django.urls import reverse
-
 from PIL import Image
 
 from imagefield.fields import IMAGEFIELDS, Context, ImageField, _SealableAttribute

@@ -19,6 +19,7 @@ Change log
 - Added ``IMAGEFIELD_VALIDATE_ON_SAVE`` to skip image validation when
   using model-level methods. Only use this when you are absolutely 100%
   sure that the images you are adding can be processed by Pillow.
+- Switched from Travis CI to GitHub actions.
 
 
 `0.12`_ (2020-07-24)

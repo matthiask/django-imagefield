@@ -53,7 +53,7 @@ class SlowStorage(storage.FileSystemStorage):
             import traceback
 
             traceback.print_stack()
-        return super()._open(name, mode=mode)
+        return super(SlowStorage, self)._open(name, mode=mode)
 
     def _save(self, name, content):
         if self.slow:
@@ -61,7 +61,7 @@ class SlowStorage(storage.FileSystemStorage):
             import traceback
 
             traceback.print_stack()
-        return super()._save(name, content)
+        return super(SlowStorage, self)._save(name, content)
 
 
 slow_storage = SlowStorage()
