@@ -6,6 +6,10 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+
+`0.13`_ (2021-02-03)
+~~~~~~~~~~~~~~~~~~~~
+
 - Started using ``ImageOps.exif_transpose`` introduced in Pillow 6.0 to
   autorotate images.
 - Allowed overriding the preview image for the form field by adding a
@@ -219,4 +223,5 @@ Change log
 .. _0.10: https://github.com/matthiask/django-imagefield/compare/0.9...0.10
 .. _0.11: https://github.com/matthiask/django-imagefield/compare/0.10...0.11
 .. _0.12: https://github.com/matthiask/django-imagefield/compare/0.11...0.12
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.12...master
+.. _0.13: https://github.com/matthiask/django-imagefield/compare/0.12...0.13
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.13...master
