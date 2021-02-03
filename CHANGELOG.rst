@@ -16,6 +16,9 @@ Change log
 - Do not accept keys or attributes starting with underscores in the
   versatile image proxy.
 - Disallowed image format names starting with an underscore.
+- Added ``IMAGEFIELD_VALIDATE_ON_SAVE`` to skip image validation when
+  using model-level methods. Only use this when you are absolutely 100%
+  sure that the images you are adding can be processed by Pillow.
 
 
 `0.12`_ (2020-07-24)

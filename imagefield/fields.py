@@ -31,6 +31,7 @@ DEFAULTS = {
     "IMAGEFIELD_AUTOGENERATE": True,
     "IMAGEFIELD_CACHE_TIMEOUT": lambda: randint(170 * 86400, 190 * 86400),
     "IMAGEFIELD_FORMATS": {},
+    "IMAGEFIELD_VALIDATE_ON_SAVE": True,
     "IMAGEFIELD_SILENTFAILURE": False,
     "IMAGEFIELD_VERSATILEIMAGEPROXY": False,
 }
@@ -266,6 +267,10 @@ class ImageFieldFile(files.ImageFieldFile):
         return self.__dict__.get("_image")
 
     def save(self, name, content, save=True):
+        if not settings.IMAGEFIELD_VALIDATE_ON_SAVE:
+            super().save(name, content, save=True)
+            return
+
         img = verified(Image.open(content))
         basename = os.path.splitext(name)[0]
         name = "{}.{}".format(basename, img.format.lower())

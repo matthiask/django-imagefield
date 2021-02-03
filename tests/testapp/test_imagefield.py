@@ -228,6 +228,13 @@ class Test(BaseTest):
                     )
                 )
 
+    def test_no_validate_on_save(self):
+        """Broken images are rejected early"""
+        with override_settings(IMAGEFIELD_VALIDATE_ON_SAVE=False):
+            m = Model(image="broken.png")
+            m._skip_generate_files = True
+            m.save()  # Doesn't crash
+
     def test_silent_failure(self):
         Model.objects.create(image="python-logo.jpg")
         Model.objects.update(image="broken.png")  # DB-only update
