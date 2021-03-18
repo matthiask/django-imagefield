@@ -6,6 +6,8 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Renamed the main branch to ``main``.
+
 
 `0.13`_ (2021-02-03)
 ~~~~~~~~~~~~~~~~~~~~
@@ -224,4 +226,4 @@ Change log
 .. _0.11: https://github.com/matthiask/django-imagefield/compare/0.10...0.11
 .. _0.12: https://github.com/matthiask/django-imagefield/compare/0.11...0.12
 .. _0.13: https://github.com/matthiask/django-imagefield/compare/0.12...0.13
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.13...master
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.13...main
