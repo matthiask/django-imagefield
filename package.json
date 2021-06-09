@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "eslint": "^7.28.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.3.1"
+  },
+  "scripts": {
+    "prettier": "prettier --write .*js 'imagefield/static/imagefield/{*.css,*.js}'",
+    "eslint": "eslint imagefield/static/imagefield/"
+  }
+}
