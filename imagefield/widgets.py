@@ -12,7 +12,7 @@ from django.utils.html import format_html
 
 
 def cache_key(name):
-    return "imagefield-cache:%s" % hashlib.sha256(name.encode()).hexdigest()
+    return "imagefield-cache:%s" % hashlib.sha256(name.encode("utf-8")).hexdigest()
 
 
 def cache_timeout():
