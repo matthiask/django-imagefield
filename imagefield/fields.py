@@ -424,7 +424,8 @@ class ImageField(models.ImageField):
             return
 
         key = (
-            "imagefield-admin-thumb:%s" % hashlib.sha256(filename.encode()).hexdigest()
+            "imagefield-admin-thumb:%s"
+            % hashlib.sha256(filename.encode("utf-8")).hexdigest()
         )
         cache.delete(key)
 
