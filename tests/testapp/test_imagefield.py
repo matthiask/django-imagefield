@@ -1,3 +1,4 @@
+# coding=utf-8
 from __future__ import unicode_literals
 
 import io
@@ -466,3 +467,8 @@ class Test(BaseTest):
         with openimage("python-logo.tiff") as f:
             m = Model()
             m.image.save("stuff.png", ContentFile(f.read()), save=True)
+
+    def test_empty_image(self):
+        m = Model()
+        with self.assertRaises(Exception):
+            m.image.save("stuff.png", ContentFile(b""), save=True)
