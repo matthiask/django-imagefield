@@ -8,6 +8,7 @@ Change log
 
 - Renamed the main branch to ``main``.
 - Reformatted the frontend code using prettier and checked it using ESLint.
+- Fixed a crash which happened when the PPOI field contained an invalid value.
 
 
 `0.13`_ (2021-02-03)

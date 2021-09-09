@@ -472,3 +472,10 @@ class Test(BaseTest):
         m = Model()
         with self.assertRaises(Exception):
             m.image.save("stuff.png", ContentFile(b""), save=True)
+
+    def test_invalid_ppoi(self):
+        m = Model.objects.create(image="python-logo.png")
+        Model.objects.all().update(ppoi="abcdef")
+
+        m = Model.objects.get()
+        self.assertEqual(m.image._ppoi(), [0.5, 0.5])

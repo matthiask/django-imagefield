@@ -142,10 +142,15 @@ class ImageFieldFile(files.ImageFieldFile):
 
     def _ppoi(self):
         if self.field.ppoi_field:
-            return [
-                float(coord)
-                for coord in getattr(self.instance, self.field.ppoi_field).split("x")
-            ]
+            try:
+                return [
+                    float(coord)
+                    for coord in getattr(self.instance, self.field.ppoi_field).split(
+                        "x"
+                    )
+                ]
+            except ValueError:
+                pass
         return [0.5, 0.5]
 
     def _process_base(self, name):
