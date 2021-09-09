@@ -149,7 +149,7 @@ class ImageFieldFile(files.ImageFieldFile):
                         "x"
                     )
                 ]
-            except ValueError:
+            except Exception:
                 pass
         return [0.5, 0.5]
 
