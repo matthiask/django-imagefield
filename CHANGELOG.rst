@@ -9,6 +9,9 @@ Change log
 - Renamed the main branch to ``main``.
 - Reformatted the frontend code using prettier and checked it using ESLint.
 - Fixed a crash which happened when the PPOI field contained an invalid value.
+- Added saving files in their original format to ``verified``. Previously, some
+  images were accepted because they can be loaded but they could not be saved
+  later.
 
 
 `0.13`_ (2021-02-03)

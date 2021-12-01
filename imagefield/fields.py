@@ -295,6 +295,7 @@ def verified(img):
     # find out whether the image works at all (or not)
     thumb = img.resize((10, 10)).convert("RGB")
     with io.BytesIO() as target:
+        thumb.save(target, format=img.format)
         thumb.save(target, format="PNG")
         thumb.save(target, format="TIFF")
     return img
