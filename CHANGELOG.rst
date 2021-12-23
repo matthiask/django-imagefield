@@ -6,6 +6,10 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+
+`0.14`_ (2021-12-23)
+~~~~~~~~~~~~~~~~~~~~
+
 - Renamed the main branch to ``main``.
 - Reformatted the frontend code using prettier and checked it using ESLint.
 - Fixed a crash which happened when the PPOI field contained an invalid value.
@@ -235,4 +239,5 @@ Change log
 .. _0.11: https://github.com/matthiask/django-imagefield/compare/0.10...0.11
 .. _0.12: https://github.com/matthiask/django-imagefield/compare/0.11...0.12
 .. _0.13: https://github.com/matthiask/django-imagefield/compare/0.12...0.13
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.13...main
+.. _0.14: https://github.com/matthiask/django-imagefield/compare/0.13...0.14
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.14...main
