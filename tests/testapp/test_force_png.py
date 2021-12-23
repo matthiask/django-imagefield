@@ -37,7 +37,7 @@ class ForcePNGTest(BaseTest):
     def test_callable_processors(self):
         m = Model.objects.create(image="python-logo.jpg")
         self.assertEqual(
-            "{}".format(m.image.test),
+            f"{m.image.test}",
             "/media/__processed__/d00/python-logo-5da93aa386ab.png",
         )
 

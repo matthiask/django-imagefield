@@ -1,19 +1,32 @@
 module.exports = {
+  parser: "@babel/eslint-parser",
   env: {
     browser: true,
     es6: true,
+    node: true,
   },
-  extends: "eslint:recommended",
+  extends: ["eslint:recommended", "prettier"],
+  globals: {
+    Atomics: "readonly",
+    SharedArrayBuffer: "readonly",
+    __API_HOST: "readonly",
+  },
   parserOptions: {
-    ecmaVersion: 2018,
+    ecmaFeatures: {
+      experimentalObjectRestSpread: true,
+      jsx: true,
+    },
+    ecmaVersion: 2021,
+    requireConfigFile: false,
+    sourceType: "module",
   },
-  plugins: ["prettier"],
   rules: {
-    indent: ["error", 2],
-    "linebreak-style": ["error", "unix"],
-    semi: ["error", "always"],
-    "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-    "prettier/prettier": "error",
-    quotes: 0,
+    "no-unused-vars": [
+      "error",
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+      },
+    ],
   },
-};
+}

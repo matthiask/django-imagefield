@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import hashlib
 import io
 import logging
@@ -39,7 +37,7 @@ for setting, default in DEFAULTS.items():
         setattr(settings, setting, default)
 
 
-class _SealableAttribute(object):
+class _SealableAttribute:
     def __init__(self, name):
         self.name = name
 
@@ -50,11 +48,11 @@ class _SealableAttribute(object):
 
     def __set__(self, obj, value):
         if obj._is_sealed:
-            raise AttributeError("Attribute '{}' is sealed".format(self.name))
+            raise AttributeError(f"Attribute '{self.name}' is sealed")
         obj.__dict__[self.name] = value
 
 
-class Context(object):
+class Context:
     ppoi = _SealableAttribute("ppoi")
     extension = _SealableAttribute("extension")
     processors = _SealableAttribute("processors")
@@ -67,7 +65,7 @@ class Context(object):
     def __repr__(self):
         # From https://docs.python.org/3/library/types.html#types.SimpleNamespace
         keys = sorted(self.__dict__)
-        items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
+        items = (f"{k}={self.__dict__[k]!r}" for k in keys)
         return "{}({})".format(type(self).__name__, ", ".join(items))
 
     def seal(self):
@@ -83,21 +81,21 @@ def hashdigest(str):
     return hashlib.sha1(str.encode("utf-8")).hexdigest()
 
 
-class VersatileImageProxy(object):
+class VersatileImageProxy:
     def __init__(self, file, item):
         self.file = file
         self.items = [item]
 
     def __getitem__(self, key):
         if key.startswith("_"):
-            raise KeyError("Invalid key '{}' on VersatileImageProxy".format(key))
+            raise KeyError(f"Invalid key '{key}' on VersatileImageProxy")
         self.items.append(key)
         return self
 
     def __getattr__(self, attribute):
         if attribute.startswith("_"):
             raise AttributeError(
-                "Invalid attribute '{}' on VersatileImageProxy".format(attribute)
+                f"Invalid attribute '{attribute}' on VersatileImageProxy"
             )
         self.items.append(attribute)
         return self
@@ -138,7 +136,7 @@ class ImageFieldFile(files.ImageFieldFile):
             return url
         elif settings.IMAGEFIELD_VERSATILEIMAGEPROXY and item in {"thumbnail", "crop"}:
             return VersatileImageProxy(self, item)
-        raise AttributeError("Attribute '{}' on '{}' unknown".format(item, self.field))
+        raise AttributeError(f"Attribute '{item}' on '{self.field}' unknown")
 
     def _ppoi(self):
         if self.field.ppoi_field:
@@ -177,7 +175,7 @@ class ImageFieldFile(files.ImageFieldFile):
             )
             spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
             p2 = hashdigest(spec)
-            context.name = "%s/%s%s%s" % (
+            context.name = "{}/{}{}{}".format(
                 base.path,
                 base.basename,
                 p2[:12],
@@ -272,12 +270,12 @@ class ImageFieldFile(files.ImageFieldFile):
 
     def save(self, name, content, save=True):
         if not settings.IMAGEFIELD_VALIDATE_ON_SAVE:
-            super(ImageFieldFile, self).save(name, content, save=True)
+            super().save(name, content, save=True)
             return
 
         img = verified(Image.open(content))
         basename = os.path.splitext(name)[0]
-        name = "{}.{}".format(basename, img.format.lower())
+        name = f"{basename}.{img.format.lower()}"
 
         name = self.field.generate_filename(self.instance, name)
         self.name = self.storage.save(name, content, max_length=self.field.max_length)
@@ -321,7 +319,7 @@ class ImageField(models.ImageField):
         self._fallback = kwargs.pop("fallback", "")
         self._formats = kwargs.pop("formats", {})
         self.ppoi_field = kwargs.pop("ppoi_field", None)
-        super(ImageField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @cached_property
     def field_label(self):
@@ -350,7 +348,7 @@ class ImageField(models.ImageField):
                 self.ppoi_field = "%s_ppoi" % name
                 PPOIField().contribute_to_class(cls, self.ppoi_field)
 
-        super(ImageField, self).contribute_to_class(cls, name, **kwargs)
+        super().contribute_to_class(cls, name, **kwargs)
 
         if all((not cls._meta.abstract, not cls._meta.swapped)):
             IMAGEFIELDS.append(self)
@@ -370,15 +368,15 @@ class ImageField(models.ImageField):
                 "preview", ["default", ("thumbnail", (300, 300))]
             ),
         )
-        return super(ImageField, self).formfield(**kwargs)
+        return super().formfield(**kwargs)
 
     def save_form_data(self, instance, data):
         try:
-            super(ImageField, self).save_form_data(instance, data)
+            super().save_form_data(instance, data)
         except Exception as exc:
             # The image was either of an unknown type or so corrupt Django
             # couldn't even begin to process it.
-            super(ImageField, self).save_form_data(instance, "")
+            super().save_form_data(instance, "")
             raise_validation_error(self.name, exc)
 
         if data is not None:
@@ -388,7 +386,7 @@ class ImageField(models.ImageField):
                     f._image
 
                 except Exception as exc:
-                    super(ImageField, self).save_form_data(instance, "")
+                    super().save_form_data(instance, "")
                     raise_validation_error(self.name, exc)
 
             # Reset PPOI field if image field is cleared
@@ -439,7 +437,7 @@ class ImageField(models.ImageField):
 
         try:
             folders, files = fieldfile.storage.listdir(base.path)
-        except EnvironmentError:  # FileNotFoundError on PY3
+        except FileNotFoundError:
             # Fine!
             return
 
@@ -448,7 +446,7 @@ class ImageField(models.ImageField):
                 fieldfile.storage.delete(os.path.join(base.path, file))
 
     def check(self, **kwargs):
-        errors = super(ImageField, self).check(**kwargs)
+        errors = super().check(**kwargs)
         if not self.width_field or not self.height_field:
             errors.append(
                 checks.Error(
@@ -486,8 +484,8 @@ class PPOIField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("default", "0.5x0.5")
         kwargs.setdefault("max_length", 20)
-        super(PPOIField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
         kwargs["widget"] = PPOIWidget
-        return super(PPOIField, self).formfield(**kwargs)
+        return super().formfield(**kwargs)

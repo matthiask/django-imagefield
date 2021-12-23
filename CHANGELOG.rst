@@ -13,7 +13,9 @@ Change log
   images were accepted because they can be loaded but they could not be saved
   later.
 - Added Python 3.10, Django 4.0 to the CI.
+- Dropped support for Python 2.7, Django 1.11.
 - Added a warning when using ``ImageField(null=True)``.
+- Started using pre-commit.
 
 
 `0.13`_ (2021-02-03)

@@ -7,16 +7,7 @@ insert_final_newline = true
 charset = utf-8
 trim_trailing_whitespace = true
 indent_style = space
+indent_size = 2
+
+[*.py]
 indent_size = 4
-
-# HTML: 2 spaces
-[*.html]
-indent_size = 2
-
-# SCSS: 2 spaces
-[*.scss]
-indent_size = 2
-
-# JS : 2 spaces
-[*.js]
-indent_size = 2

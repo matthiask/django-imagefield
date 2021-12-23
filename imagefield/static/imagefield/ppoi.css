@@ -1,29 +1,29 @@
 .imagefield-preview {
-    position: relative;
-    display: inline-block;
-    max-width: 56rem;
+  position: relative;
+  display: inline-block;
+  max-width: 56rem;
 }
 .imagefield-preview img {
-    max-width: 100%;
+  max-width: 100%;
 }
 .imagefield-point {
-    position: absolute;
-    background: #800;
-    border: 2px solid #e00;
-    opacity: 0.2;
-    width: 12px;
-    height: 12px;
-    margin: -6px 0 0 -6px;
-    border-radius: 50%;
-    box-sizing: border-box;
-    pointer-events: none;
+  position: absolute;
+  background: #800;
+  border: 2px solid #e00;
+  opacity: 0.2;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  pointer-events: none;
 
-    transition: 0.15s;
+  transition: 0.15s;
 }
 .imagefield-preview:hover .imagefield-point,
 .imagefield-point.opaque {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 .fieldBox .imagefield-widget p.file-upload {
-    margin-left: 0;
+  margin-left: 0;
 }

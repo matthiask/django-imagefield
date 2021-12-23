@@ -1,4 +1,3 @@
-import io
 import itertools
 import logging
 import os
@@ -10,7 +9,7 @@ from django.utils.translation import deactivate_all
 
 
 def openimage(path):
-    return io.open(os.path.join(settings.MEDIA_ROOT, path), "rb")
+    return open(os.path.join(settings.MEDIA_ROOT, path), "rb")
 
 
 def contents(path):

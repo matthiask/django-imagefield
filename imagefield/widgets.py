@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import hashlib
 import inspect
 
@@ -26,14 +24,12 @@ class PPOIWidget(forms.HiddenInput):
         js = ("imagefield/ppoi.js",)
 
 
-class PreviewAndPPOIMixin(object):
+class PreviewAndPPOIMixin:
     def render(self, name, value, attrs=None, **kwargs):
         attrs = attrs or {}
         # Can be dropped once we drop support for Django<2.1
         attrs.setdefault("accept", "image/*")
-        widget = super(PreviewAndPPOIMixin, self).render(
-            name, value, attrs=attrs, **kwargs
-        )
+        widget = super().render(name, value, attrs=attrs, **kwargs)
 
         # name does not require a file, .url does
         if not getattr(value, "name", "") or isinstance(value, UploadedFile):

@@ -1,6 +1,3 @@
-# coding=utf-8
-from __future__ import unicode_literals
-
 import io
 import os
 import pickle
@@ -317,7 +314,7 @@ class Test(BaseTest):
 
     def test_imagefields(self):
         self.assertEqual(
-            set(f.field_label for f in IMAGEFIELDS),
+            {f.field_label for f in IMAGEFIELDS},
             {
                 "testapp.model.image",
                 "testapp.slowstorageimage.image",
@@ -336,7 +333,7 @@ class Test(BaseTest):
         )
         self.assertEqual(thumb.items, ["thumbnail", "20x20"])
         self.assertEqual(
-            "{}".format(thumb), "/media/__processed__/d00/python-logo-f26eb6811b04.jpg"
+            f"{thumb}", "/media/__processed__/d00/python-logo-f26eb6811b04.jpg"
         )
         self.assertEqual(
             contents("__processed__"),
@@ -437,7 +434,7 @@ class Test(BaseTest):
 
     def test_context(self):
         self.assertTrue(isinstance(Context.ppoi, _SealableAttribute))
-        self.assertEqual("{}".format(Context()), "Context(_is_sealed=False)")
+        self.assertEqual(f"{Context()}", "Context(_is_sealed=False)")
 
     def test_image_property(self):
         m = Model()

@@ -1,5 +1,3 @@
-from __future__ import division, unicode_literals
-
 import sys
 
 from django.core.management.base import BaseCommand, CommandError
@@ -52,14 +50,14 @@ class Command(BaseCommand):
 
     def _compile_imagefield_labels(self, options):
         if options["all"]:
-            return type(str("c"), (), {"__contains__": lambda *a: True})()
+            return type("c", (), {"__contains__": lambda *a: True})()
         elif options["field"]:
             unknown = set(options["field"]).difference(
                 f.field_label for f in IMAGEFIELDS
             )
             if unknown:
                 raise CommandError(
-                    "Unknown imagefields: %s" % (", ".join(sorted(unknown)),)
+                    "Unknown imagefields: {}".format(", ".join(sorted(unknown)))
                 )
             return options["field"]
         else:
@@ -79,7 +77,7 @@ class Command(BaseCommand):
                 ", ".join(sorted(field.formats.keys())) or "<no formats!>",
             )
         )
-        self.stdout.write("\r|%s| %s/%s" % (" " * 50, 0, count), ending="")
+        self.stdout.write("\r|{}| {}/{}".format(" " * 50, 0, count), ending="")
 
         if field._fallback:
             self._process_instance(
@@ -98,7 +96,7 @@ class Command(BaseCommand):
             )
             progress = "*" * (50 * index // count)
             self.stdout.write(
-                "\r|%s| %s/%s" % (progress.ljust(50), index + 1, count), ending=""
+                f"\r|{progress.ljust(50)}| {index + 1}/{count}", ending=""
             )
 
             # Save instance once for good measure; fills in width/height
@@ -106,7 +104,7 @@ class Command(BaseCommand):
             instance._skip_generate_files = True
             instance.save()
 
-        self.stdout.write("\r|%s| %s/%s" % ("*" * 50, count, count))
+        self.stdout.write("\r|{}| {}/{}".format("*" * 50, count, count))
 
     def _process_instance(self, instance, field, housekeep, **kwargs):
         fieldfile = getattr(instance, field.name)

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from time import sleep
 
 from django.core.files import storage
@@ -53,7 +51,7 @@ class SlowStorage(storage.FileSystemStorage):
             import traceback
 
             traceback.print_stack()
-        return super(SlowStorage, self)._open(name, mode=mode)
+        return super()._open(name, mode=mode)
 
     def _save(self, name, content):
         if self.slow:
@@ -61,7 +59,7 @@ class SlowStorage(storage.FileSystemStorage):
             import traceback
 
             traceback.print_stack()
-        return super(SlowStorage, self)._save(name, content)
+        return super()._save(name, content)
 
 
 slow_storage = SlowStorage()
