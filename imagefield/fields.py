@@ -467,6 +467,18 @@ class ImageField(models.ImageField):
                     id="imagefield.I001",
                 )
             )
+        if self.null is True:
+            errors.append(
+                checks.Info(
+                    "ImageField shouldn't use null=True.",
+                    hint=(
+                        "String-based fields shouldn't use null=True, one way"
+                        " to represent the absence of a value is enough."
+                    ),
+                    obj=self,
+                    id="imagefield.I002",
+                )
+            )
         return errors
 
 

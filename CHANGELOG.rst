@@ -12,7 +12,8 @@ Change log
 - Added saving files in their original format to ``verified``. Previously, some
   images were accepted because they can be loaded but they could not be saved
   later.
-- Added Python 3.10 to the CI.
+- Added Python 3.10, Django 4.0 to the CI.
+- Added a warning when using ``ImageField(null=True)``.
 
 
 `0.13`_ (2021-02-03)
