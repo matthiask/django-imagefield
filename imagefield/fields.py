@@ -240,19 +240,18 @@ class ImageFieldFile(files.ImageFieldFile):
         orig_name = self.name
         self.name = context.source
         try:
-            self.open("rb")  # Is a context manager from Django 2.0 onwards
-            image = Image.open(self.file)
-            context.save_kwargs.setdefault("format", image.format)
+            with self.open("rb") as file:
+                image = Image.open(file)
+                context.save_kwargs.setdefault("format", image.format)
 
-            handler = build_handler(context.processors)
-            image = handler(image, context)
+                handler = build_handler(context.processors)
+                image = handler(image, context)
 
-            with io.BytesIO() as buf:
-                image.save(buf, **context.save_kwargs)
-                return buf.getvalue()
+                with io.BytesIO() as buf:
+                    image.save(buf, **context.save_kwargs)
+                    return buf.getvalue()
+
         finally:
-            self.close()
-            del self.file
             self.name = orig_name
 
     @property
