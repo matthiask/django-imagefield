@@ -6,6 +6,8 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Dropped support for Python < 3.8, Django < 3.2.
+
 
 `0.14`_ (2021-12-23)
 ~~~~~~~~~~~~~~~~~~~~

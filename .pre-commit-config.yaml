@@ -1,14 +1,14 @@
 exclude: ".yarn/|yarn.lock|\\.min\\.(css|js)$"
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.1.0
     hooks:
       - id: check-added-large-files
       - id: check-merge-conflict
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.1
+    rev: v2.31.0
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
@@ -38,11 +38,11 @@ repos:
         args: [--list-different, --no-semi]
         exclude: "^conf/|.*\\.html$"
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.5.0
+    rev: v8.6.0
     hooks:
       - id: eslint
         additional_dependencies:
-          - eslint@8.5.0
+          - eslint@8.6.0
           - eslint-config-prettier@8.3.0
           - "@babel/core"
           - "@babel/eslint-parser"
