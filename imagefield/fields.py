@@ -17,7 +17,7 @@ from django.db.models.fields import files
 from django.forms import ClearableFileInput
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
-from PIL import Image
+from PIL import Image, ImageFile
 
 from .processing import build_handler
 from .websafe import websafe
@@ -248,7 +248,7 @@ class ImageFieldFile(files.ImageFieldFile):
                 image = handler(image, context)
 
                 with io.BytesIO() as buf:
-                    image.save(buf, **context.save_kwargs)
+                    _safe_image_save(image, buf, **context.save_kwargs)
                     return buf.getvalue()
 
         finally:
@@ -292,9 +292,9 @@ def verified(img):
     # find out whether the image works at all (or not)
     thumb = img.resize((10, 10)).convert("RGB")
     with io.BytesIO() as target:
-        thumb.save(target, format=img.format)
-        thumb.save(target, format="PNG")
-        thumb.save(target, format="TIFF")
+        _safe_image_save(thumb, target, format=img.format)
+        _safe_image_save(thumb, target, format="PNG")
+        _safe_image_save(thumb, target, format="TIFF")
     return img
 
 
@@ -488,3 +488,18 @@ class PPOIField(models.CharField):
     def formfield(self, **kwargs):
         kwargs["widget"] = PPOIWidget
         return super().formfield(**kwargs)
+
+
+def _safe_image_save(image, fp, **kwargs):
+    original = ImageFile.MAXBLOCK
+
+    try:
+        try:
+            image.save(fp, **kwargs)
+        except OSError:
+            # Increase MAXBLOCK temporarily and try again.
+            # See https://github.com/python-imaging/Pillow/issues/148
+            ImageFile.MAXBLOCK *= 16
+            image.save(fp, **kwargs)
+    finally:
+        ImageFile.MAXBLOCK = original

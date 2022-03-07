@@ -7,6 +7,8 @@ Change log
 ~~~~~~~~~~~~~~~
 
 - Dropped support for Python < 3.8, Django < 3.2.
+- Added a simplistic workaround for ``IOError`` exceptions which still plague
+  Pillow when saving some JPEG files.
 
 
 `0.14`_ (2021-12-23)
