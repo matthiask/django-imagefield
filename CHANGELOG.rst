@@ -6,6 +6,14 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.15...main
+
+
+`0.15`_ (2022-03-07)
+~~~~~~~~~~~~~~~~~~~~
+
+.. _0.15: https://github.com/matthiask/django-imagefield/compare/0.14...0.15
+
 - Dropped support for Python < 3.8, Django < 3.2.
 - Added a simplistic workaround for ``IOError`` exceptions which still plague
   Pillow when saving some JPEG files.
@@ -13,6 +21,8 @@ Change log
 
 `0.14`_ (2021-12-23)
 ~~~~~~~~~~~~~~~~~~~~
+
+.. _0.14: https://github.com/matthiask/django-imagefield/compare/0.13...0.14
 
 - Renamed the main branch to ``main``.
 - Reformatted the frontend code using prettier and checked it using ESLint.
@@ -243,5 +253,3 @@ Change log
 .. _0.11: https://github.com/matthiask/django-imagefield/compare/0.10...0.11
 .. _0.12: https://github.com/matthiask/django-imagefield/compare/0.11...0.12
 .. _0.13: https://github.com/matthiask/django-imagefield/compare/0.12...0.13
-.. _0.14: https://github.com/matthiask/django-imagefield/compare/0.13...0.14
-.. _Next version: https://github.com/matthiask/django-imagefield/compare/0.14...main
