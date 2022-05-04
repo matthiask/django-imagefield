@@ -8,6 +8,9 @@ Change log
 
 .. _Next version: https://github.com/matthiask/django-imagefield/compare/0.15...main
 
+- Raised the minimum Pillow version to 9.0.
+- Avoided a deprecation warning by using the ``PIL.Image.Resampling`` enum.
+
 
 `0.15`_ (2022-03-07)
 ~~~~~~~~~~~~~~~~~~~~

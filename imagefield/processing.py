@@ -99,7 +99,9 @@ def thumbnail(get_image, size):
     def processor(image, context):
         image = get_image(image, context)
         f = min(1.0, size[0] / image.size[0], size[1] / image.size[1])
-        return image.resize([int(f * coord) for coord in image.size], Image.LANCZOS)
+        return image.resize(
+            [int(f * coord) for coord in image.size], Image.Resampling.LANCZOS
+        )
 
     return processor
 
@@ -161,6 +163,6 @@ def crop(get_image, size):
         )
         # Resizing the newly cropped image to the size specified
         # (as determined by `width`x`height`)
-        return cropped_image.resize((width, height), Image.LANCZOS)
+        return cropped_image.resize((width, height), Image.Resampling.LANCZOS)
 
     return processor

@@ -13,7 +13,7 @@ version = __import__("imagefield").__version__
 release = subprocess.check_output(
     "git fetch --tags; git describe --tags",
     shell=True,
-    universal_newlines=True,
+    text=True,
 ).strip()
 language = "en"
 
