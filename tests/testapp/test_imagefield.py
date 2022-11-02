@@ -237,7 +237,7 @@ class Test(BaseTest):
         Model.objects.update(image="broken.png")  # DB-only update
         m = Model.objects.get()
 
-        with self.assertRaises(Exception):
+        with self.assertRaisesRegex(Exception, "cannot identify image file"):
             m.image.process("desktop")
 
         with override_settings(IMAGEFIELD_SILENTFAILURE=True):
@@ -458,7 +458,7 @@ class Test(BaseTest):
     def test_bogus_without_formats(self):
         with override_settings(IMAGEFIELD_FORMATS={"testapp.model.image": {}}):
             m = Model(image="python-logo.tiff")
-            with self.assertRaises(Exception):
+            with self.assertRaisesRegex(Exception, "cannot identify image file"):
                 m.image.save("stuff.jpg", io.BytesIO(b"anything"), save=True)
 
         with openimage("python-logo.tiff") as f:
@@ -467,7 +467,7 @@ class Test(BaseTest):
 
     def test_empty_image(self):
         m = Model()
-        with self.assertRaises(Exception):
+        with self.assertRaisesRegex(Exception, "cannot identify image file"):
             m.image.save("stuff.png", ContentFile(b""), save=True)
 
     def test_invalid_ppoi(self):
