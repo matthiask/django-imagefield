@@ -14,10 +14,8 @@ def openimage(path):
 
 def contents(path):
     return sorted(
-        list(
-            itertools.chain.from_iterable(
-                i[2] for i in os.walk(os.path.join(settings.MEDIA_ROOT, path))
-            )
+        itertools.chain.from_iterable(
+            i[2] for i in os.walk(os.path.join(settings.MEDIA_ROOT, path))
         )
     )
 

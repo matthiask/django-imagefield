@@ -16,8 +16,7 @@ from django.urls import reverse
 from PIL import Image
 
 from imagefield.fields import IMAGEFIELDS, Context, ImageField, _SealableAttribute
-
-from .models import (
+from testapp.models import (
     Model,
     ModelWithOptional,
     NullableImage,
@@ -25,7 +24,7 @@ from .models import (
     WebsafeImage,
     slow_storage,
 )
-from .utils import BaseTest, contents, openimage
+from testapp.utils import BaseTest, contents, openimage
 
 
 class Test(BaseTest):
@@ -99,7 +98,7 @@ class Test(BaseTest):
             m.image.thumb, "/media/__processed__/02a/python-logo-24f8702383e7.png"
         )
         with self.assertRaises(AttributeError) as cm:
-            m.image.not_exists
+            _read = m.image.not_exists
 
         self.assertEqual(
             "Attribute 'not_exists' on 'testapp.Model.image' unknown", str(cm.exception)
@@ -122,8 +121,8 @@ class Test(BaseTest):
         for image in ["Landscape_3.jpg", "Landscape_6.jpg", "Landscape_8.jpg"]:
             m = Model(image="exif-orientation-examples/%s" % image, ppoi="0.5x0.5")
             path = os.path.join(settings.MEDIA_ROOT, m.image.process("desktop"))
-            with Image.open(path) as image:
-                self.assertEqual(image.size, (300, 225))
+            with Image.open(path) as im:
+                self.assertEqual(im.size, (300, 225))
 
             self.assertEqual(len(contents("__processed__")), 1)
             field._clear_generated_files(m)

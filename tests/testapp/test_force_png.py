@@ -1,9 +1,8 @@
 from django.test.utils import override_settings
 
 from imagefield.processing import register
-
-from .models import Model
-from .utils import BaseTest
+from testapp.models import Model
+from testapp.utils import BaseTest
 
 
 @register

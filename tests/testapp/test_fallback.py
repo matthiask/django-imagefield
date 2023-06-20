@@ -2,8 +2,8 @@ import os
 
 from django.conf import settings
 
-from .models import WebsafeImage
-from .utils import BaseTest, contents
+from testapp.models import WebsafeImage
+from testapp.utils import BaseTest, contents
 
 
 class FallbackTest(BaseTest):

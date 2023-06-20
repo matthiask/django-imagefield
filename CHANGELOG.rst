@@ -9,8 +9,9 @@ Change log
 .. _Next version: https://github.com/matthiask/django-imagefield/compare/0.16...main
 
 - Added a force-WEBP spec.
-- Added Django 4.1 and 4.2.
+- Added Django 4.1 and 4.2, Python 3.11.
 - Dropped Django 4.0 from the CI (3.2 is still in there).
+- Switched to hatch and ruff.
 
 
 `0.16`_ (2022-05-04)

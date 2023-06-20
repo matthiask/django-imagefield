@@ -35,8 +35,9 @@ class Command(BaseCommand):
             "field",
             nargs="*",
             type=str,
-            help="Fields to process:\n%s"
-            % (", ".join(sorted(f.field_label for f in IMAGEFIELDS)),),
+            help="Fields to process:\n{}".format(
+                ", ".join(sorted(f.field_label for f in IMAGEFIELDS))
+            ),
         )
 
         # TODO --clear for removing previously generated images.
@@ -70,8 +71,7 @@ class Command(BaseCommand):
         )
         count = queryset.count()
         self.stdout.write(
-            "%s - %s objects - %s"
-            % (
+            "{} - {} objects - {}".format(
                 field.field_label,
                 count,
                 ", ".join(sorted(field.formats.keys())) or "<no formats!>",

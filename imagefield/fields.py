@@ -19,9 +19,14 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from PIL import Image, ImageFile
 
-from .processing import build_handler
-from .websafe import websafe
-from .widgets import PPOIWidget, cache_key, cache_timeout, with_preview_and_ppoi
+from imagefield.processing import build_handler
+from imagefield.websafe import websafe
+from imagefield.widgets import (
+    PPOIWidget,
+    cache_key,
+    cache_timeout,
+    with_preview_and_ppoi,
+)
 
 
 DEFAULTS = {
@@ -128,10 +133,7 @@ class ImageFieldFile(files.ImageFieldFile):
             raise AttributeError
         if not item.startswith("_") and item in self.field.formats:
             context = self._process_context(self.field.formats[item])
-            if context.name:
-                url = self.storage.url(context.name)
-            else:
-                url = ""
+            url = self.storage.url(context.name) if context.name else ""
             setattr(self, item, url)
             return url
         elif settings.IMAGEFIELD_VERSATILEIMAGEPROXY and item in {"thumbnail", "crop"}:
@@ -184,7 +186,7 @@ class ImageFieldFile(files.ImageFieldFile):
         context.seal()
         return context
 
-    def process(self, spec, force=False):
+    def process(self, spec, *, force=False):
         if isinstance(spec, (list, tuple)):
             processors = spec
             spec = "<ad hoc>"
@@ -267,7 +269,7 @@ class ImageFieldFile(files.ImageFieldFile):
 
         return self.__dict__.get("_image")
 
-    def save(self, name, content, save=True):
+    def save(self, name, content, save=True):  # noqa: FBT002
         if not settings.IMAGEFIELD_VALIDATE_ON_SAVE:
             super().save(name, content, save=True)
             return
@@ -323,8 +325,7 @@ class ImageField(models.ImageField):
     @cached_property
     def field_label(self):
         return (
-            "%s.%s.%s"
-            % (self.model._meta.app_label, self.model._meta.model_name, self.name)
+            f"{self.model._meta.app_label}.{self.model._meta.model_name}.{self.name}"
         ).lower()
 
     @property
@@ -382,7 +383,7 @@ class ImageField(models.ImageField):
             f = getattr(instance, self.name)
             if f.name:
                 try:
-                    f._image
+                    _read = f._image
 
                 except Exception as exc:
                     super().save_form_data(instance, "")
