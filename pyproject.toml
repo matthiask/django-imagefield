@@ -43,6 +43,9 @@ tests = [
 [project.urls]
 Homepage = "https://github.com/matthiask/django-imagefield/"
 
+[tool.hatch.build]
+include = ["imagefield/"]
+
 [tool.hatch.version]
 path = "imagefield/__init__.py"
 
