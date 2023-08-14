@@ -177,12 +177,7 @@ class ImageFieldFile(files.ImageFieldFile):
             )
             spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
             p2 = hashdigest(spec)
-            context.name = "{}/{}{}{}".format(
-                base.path,
-                base.basename,
-                p2[:12],
-                context.extension,
-            )
+            context.name = f"{base.path}/{base.basename}{p2[:12]}{context.extension}"
         context.seal()
         return context
 
