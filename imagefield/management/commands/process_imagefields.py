@@ -1,4 +1,5 @@
 import sys
+from fnmatch import fnmatch
 
 from django.core.management.base import BaseCommand, CommandError
 
@@ -35,8 +36,8 @@ class Command(BaseCommand):
             "field",
             nargs="*",
             type=str,
-            help="Fields to process:\n{}".format(
-                ", ".join(sorted(f.field_label for f in IMAGEFIELDS))
+            help="Fields to process (globs are allowed): {}".format(
+                " ".join(sorted(f.field_label for f in IMAGEFIELDS))
             ),
         )
 
@@ -53,14 +54,20 @@ class Command(BaseCommand):
         if options["all"]:
             return type("c", (), {"__contains__": lambda *a: True})()
         elif options["field"]:
-            unknown = set(options["field"]).difference(
-                f.field_label for f in IMAGEFIELDS
-            )
+            fields = set()
+            known = [f.field_label for f in IMAGEFIELDS]
+            unknown = {}
+            for field in options["field"]:
+                if new := {f for f in known if fnmatch(f, field)}:
+                    fields |= new
+                else:
+                    unknown.add(field)
+
             if unknown:
                 raise CommandError(
                     "Unknown imagefields: {}".format(", ".join(sorted(unknown)))
                 )
-            return options["field"]
+            return fields
         else:
             self.print_help(sys.argv[0], sys.argv[1])
             sys.exit(1)
