@@ -72,7 +72,7 @@ following setting:
         },
     }
 
-After running ``./manage.py process_imagefields`` once you can now
+After running ``./manage.py process_imagefields --all`` once you can now
 use use ``instance.image.square`` and ``instance.image.thumbnail`` in
 templates instead. Note that the properties on the ``image`` file do by
 design not check whether thumbs exist.
