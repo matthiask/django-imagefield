@@ -211,22 +211,18 @@ informations to customize the pipeline.
 Development
 ===========
 
-django-imagefield uses flake8 and black to keep the code clean and
-formatted. Run both using tox_:
+django-imagefield uses pre-commit_ to keep the code clean and formatted.
 
-.. code-block:: bash
-
-    tox -e style
-
-The easiest way to build the documentation and run the test suite is
-also by using tox_:
+The easiest way to build the documentation and run the test suite is also by
+using tox_:
 
 .. code-block:: bash
 
     tox -e docs  # Open docs/build/html/index.html
-    tox -e tests
+    tox -l  # To show the available combinations of Python and Django
 
 
 .. _documentation: https://django-imagefield.readthedocs.io/en/latest/
 .. _Pillow: https://pillow.readthedocs.io/en/latest/
 .. _tox: https://tox.readthedocs.io/
+.. _pre-commit: https://pre-commit.com/
