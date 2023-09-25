@@ -6,6 +6,10 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+
+0.17 (2023-09-25)
+~~~~~~~~~~~~~~~~~
+
 - Added a force-WEBP spec.
 - Added Django 4.1 and 4.2, Python 3.11.
 - Dropped Django 4.0 from the CI (3.2 is still in there).
