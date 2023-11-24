@@ -56,7 +56,7 @@ class Command(BaseCommand):
         elif options["field"]:
             fields = set()
             known = [f.field_label for f in IMAGEFIELDS]
-            unknown = {}
+            unknown = set()
             for field in options["field"]:
                 if new := {f for f in known if fnmatch(f, field)}:
                     fields |= new
