@@ -6,6 +6,8 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+- Added Python 3.12.
+
 
 0.17 (2023-09-25)
 ~~~~~~~~~~~~~~~~~
