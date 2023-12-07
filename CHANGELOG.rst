@@ -6,12 +6,16 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+0.18 (2023-12-07)
+~~~~~~~~~~~~~~~~~
+
 - Added Python 3.12, Django 5.0.
 - Added an easy way to reduce the possibility of filename collisions.
   Unfortunately, the hashing scheme used by default has bad uniqueness
   properties. It's recommended to add ``IMAGEFIELD_BIN_DEPTH = 2`` to your
   settings and regenerate all processed images, for example using
-  ``process_imagefields --all``.
+  ``process_imagefields --all``. The default may change in the future. For now
+  nothing changes, so there's no compatibility concerns.
 
 
 0.17 (2023-09-25)
