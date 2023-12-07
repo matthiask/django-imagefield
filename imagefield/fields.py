@@ -3,6 +3,7 @@ import io
 import logging
 import os
 import re
+import warnings
 from collections import namedtuple
 from random import randint
 
@@ -36,10 +37,17 @@ DEFAULTS = {
     "IMAGEFIELD_VALIDATE_ON_SAVE": True,
     "IMAGEFIELD_SILENTFAILURE": False,
     "IMAGEFIELD_VERSATILEIMAGEPROXY": False,
+    "IMAGEFIELD_BIN_DEPTH": 1,
 }
 for setting, default in DEFAULTS.items():
     if not hasattr(settings, setting):
         setattr(settings, setting, default)
+if settings.IMAGEFIELD_BIN_DEPTH == 1:
+    warnings.warn(
+        "Set the IMAGEFIELD_BIN_DEPTH setting to 2 or 3 and rerun process_imagefields.",
+        DeprecationWarning,
+        stacklevel=1,
+    )
 
 
 class _SealableAttribute:
@@ -156,7 +164,10 @@ class ImageFieldFile(files.ImageFieldFile):
     def _process_base(self, name):
         p1 = hashdigest(name)
         filename, _ = os.path.splitext(os.path.basename(name))
-        return _ProcessBase("__processed__/%s" % p1[:3], "%s-" % filename)
+        bins = "/".join(
+            p1[i : i + 3] for i in range(0, settings.IMAGEFIELD_BIN_DEPTH * 3, 3)
+        )
+        return _ProcessBase(f"__processed__/{bins}", f"{filename}-")
 
     def _process_context(self, processors):
         name = self.name or self.field._fallback
