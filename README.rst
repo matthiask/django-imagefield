@@ -78,6 +78,46 @@ templates instead. Note that the properties on the ``image`` file do by
 design not check whether thumbs exist.
 
 
+Usage
+=====
+
+Once ``imagefield`` is added to ``INSTALLED_APPS``, add ``ImageField``
+instances to your Django models in the usual way::
+
+    from django.db import models
+    from imagefield.fields import ImageField
+
+
+    class ImageModel(models.Model):
+
+        image = ImageField(
+            upload_to="images",
+            formats={
+                "thumb": ["default", ("crop", (300, 300))],
+                "desktop": ["default", ("thumbnail", (300, 225))],
+            },
+            auto_add_fields=True,
+        )
+
+* ``formats`` determines the sizes of the processed images created.
+* ``auto_add_fields`` will add ``image_width``, ``image_height``, and ``image_ppoi``
+  fields automatically, if not present on the model. (The field names used are
+  customisable. See the ``ImageField`` constructor for details.)
+
+A widget for selecting the PPOI is automatically used in the Django Admin.
+
+To use an ``ImageField`` in your own Django Form, you should ensure that the
+``image_ppoi`` field is added the form::
+
+    from django.form import modelform_factory
+
+    form_cls = modelform_factory(ImageModel, fields=['image', 'image_ppoi'])
+
+You should make sure to add the ``form.media`` to your page template's ``<head>``.
+
+Retrieve the image URL in your template like, ``instance.image.thumb``.
+
+
 Image processors
 ================
 
