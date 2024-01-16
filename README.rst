@@ -78,6 +78,21 @@ templates instead. Note that the properties on the ``image`` file do by
 design not check whether thumbs exist.
 
 
+Installation
+============
+
+Install from PyPI: ``pip install django-imagefield``. 
+
+Then add ``imagefield`` to your project's ``INSTALLED_APPS``::
+
+    # settings.py
+    INSTALLED_APPS = [
+      ...
+      "imagefield",
+      ...
+    ]
+    
+
 Usage
 =====
 
