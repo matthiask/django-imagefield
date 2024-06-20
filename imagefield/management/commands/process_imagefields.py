@@ -120,9 +120,7 @@ class Command(BaseCommand):
                 fieldfile.process(key, **kwargs)
             except Exception as exc:
                 self.stderr.write(
-                    "Error while processing {} ({}, #{}):\n{}\n".format(
-                        fieldfile.name, field.field_label, instance.pk, exc
-                    )
+                    f"Error while processing {fieldfile.name} ({field.field_label}, #{instance.pk}):\n{exc}\n"
                 )
                 if housekeep == "blank-on-failure":
                     field.save_form_data(instance, "")

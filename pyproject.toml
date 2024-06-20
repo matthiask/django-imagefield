@@ -8,9 +8,9 @@ requires = [
 name = "django-imagefield"
 description = "Image field for Django"
 readme = "README.rst"
-license = {text = "BSD-3-Clause"}
+license = { text = "BSD-3-Clause" }
 authors = [
-    { name = "Matthias Kestenholz", email = "mk@feinheit.ch" },
+  { name = "Matthias Kestenholz", email = "mk@feinheit.ch" },
 ]
 requires-python = ">=3.8"
 classifiers = [
@@ -34,80 +34,85 @@ dynamic = [
   "version",
 ]
 dependencies = [
-  "Pillow>=9",
+  "pillow>=9",
 ]
-[project.optional-dependencies]
-tests = [
+optional-dependencies.tests = [
   "coverage",
-  "Pillow",
+  "pillow",
 ]
-[project.urls]
-Homepage = "https://github.com/matthiask/django-imagefield/"
+urls.Homepage = "https://github.com/matthiask/django-imagefield/"
 
 [tool.hatch.build]
-include = ["imagefield/"]
+include = [
+  "imagefield/",
+]
 
 [tool.hatch.version]
 path = "imagefield/__init__.py"
 
 [tool.ruff]
-extend-select = [
-  # pyflakes, pycodestyle
-  "F", "E", "W",
-  # mmcabe
-  "C90",
-  # isort
-  "I",
-  # pep8-naming
-  "N",
-  # pyupgrade
-  "UP",
-  # flake8-2020
-  "YTT",
-  # flake8-boolean-trap
-  "FBT",
+target-version = "py38"
+
+fix = true
+show-fixes = true
+lint.extend-select = [
   # flake8-bugbear
   "B",
   # flake8-comprehensions
   "C4",
+  # mmcabe
+  "C90",
   # flake8-django
   "DJ",
-  # flake8-implicit-string-concatenation
-  "ISC",
-  # flake8-pie
-  "PIE",
-  # flake8-simplify
-  "SIM",
+  "E",
+  # pyflakes, pycodestyle
+  "F",
+  # flake8-boolean-trap
+  "FBT",
+  # isort
+  "I",
   # flake8-gettext
   "INT",
+  # flake8-implicit-string-concatenation
+  "ISC",
+  # pep8-naming
+  "N",
   # pygrep-hooks
   "PGH",
+  # flake8-pie
+  "PIE",
   # pylint
-  "PLC", "PLE", "PLW",
+  "PLC",
+  "PLE",
+  "PLW",
   # unused noqa
   "RUF100",
+  # flake8-simplify
+  "SIM",
+  # pyupgrade
+  "UP",
+  "W",
+  # flake8-2020
+  "YTT",
 ]
-extend-ignore = [
+lint.extend-ignore = [
   # Allow zip() without strict=
   "B905",
   # No line length errors
   "E501",
+  # Percent-formatting is fine
+  "UP031",
 ]
-fix = true
-show-fixes = true
-target-version = "py38"
-
-[tool.ruff.isort]
-combine-as-imports = true
-lines-after-imports = 2
-
-[tool.ruff.mccabe]
-max-complexity = 15
-
-[tool.ruff.per-file-ignores]
-"*/migrat*/*" = [
+lint.per-file-ignores."*/migrat*/*" = [
   # Allow using PascalCase model names in migrations
   "N806",
   # Ignore the fact that migration files are invalid module names
   "N999",
 ]
+lint.per-file-ignores."tests/*" = [
+  # Who cares about __str__ in the test suite
+  "DJ008",
+]
+lint.isort.combine-as-imports = true
+lint.isort.lines-after-imports = 2
+lint.mccabe.max-complexity = 15

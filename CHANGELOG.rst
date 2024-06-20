@@ -6,6 +6,9 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+- Updated the pre-commit configuration, switched to biomejs.
+
+
 0.18 (2023-12-07)
 ~~~~~~~~~~~~~~~~~
 

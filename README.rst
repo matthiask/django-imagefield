@@ -81,7 +81,7 @@ design not check whether thumbs exist.
 Installation
 ============
 
-Install from PyPI: ``pip install django-imagefield``. 
+Install from PyPI: ``pip install django-imagefield``.
 
 Then add ``imagefield`` to your project's ``INSTALLED_APPS``::
 
@@ -91,7 +91,7 @@ Then add ``imagefield`` to your project's ``INSTALLED_APPS``::
       "imagefield",
       ...
     ]
-    
+
 
 Usage
 =====
