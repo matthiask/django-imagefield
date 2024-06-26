@@ -1,18 +1,11 @@
 import sys
+from concurrent.futures import ProcessPoolExecutor
 from fnmatch import fnmatch
+from functools import partial
 
 from django.core.management.base import BaseCommand, CommandError
 
 from imagefield.fields import IMAGEFIELDS
-
-
-def iterator(queryset):
-    # Relatively low chunk_size to avoid slowness when having to load
-    # width and height for images when instantiating models.
-    try:
-        return queryset.iterator(chunk_size=100)
-    except TypeError:  # Older versions of Django
-        return queryset.iterator()
 
 
 class Command(BaseCommand):
@@ -94,33 +87,44 @@ class Command(BaseCommand):
                 force=options.get("force"),
             )
 
-        for index, instance in enumerate(iterator(queryset)):
-            self._process_instance(
-                instance,
-                field,
-                housekeep=options.get("housekeep"),
-                force=options.get("force"),
-            )
-            progress = "*" * (50 * index // count)
-            self.stdout.write(
-                f"\r|{progress.ljust(50)}| {index + 1}/{count}", ending=""
-            )
+        fn = partial(
+            _process_instance,
+            field=field,
+            housekeep=options.get("housekeep"),
+            force=options.get("force"),
+        )
 
-            # Save instance once for good measure; fills in width/height
-            # if not done already
-            instance._skip_generate_files = True
-            instance.save()
+        with ProcessPoolExecutor() as executor:
+            for index, (instance, errors) in enumerate(
+                executor.map(fn, queryset.iterator(chunk_size=100))
+            ):
+                if errors:
+                    self.stderr.write("\n".join(errors))
+
+                progress = "*" * (50 * index // count)
+                self.stdout.write(
+                    f"\r|{progress.ljust(50)}| {index + 1}/{count}", ending=""
+                )
+
+                # Save instance once for good measure; fills in width/height
+                # if not done already
+                instance._skip_generate_files = True
+                instance.save()
 
         self.stdout.write("\r|{}| {}/{}".format("*" * 50, count, count))
 
-    def _process_instance(self, instance, field, housekeep, **kwargs):
-        fieldfile = getattr(instance, field.name)
-        for key in field.formats:
-            try:
-                fieldfile.process(key, **kwargs)
-            except Exception as exc:
-                self.stderr.write(
-                    f"Error while processing {fieldfile.name} ({field.field_label}, #{instance.pk}):\n{exc}\n"
-                )
-                if housekeep == "blank-on-failure":
-                    field.save_form_data(instance, "")
+
+def _process_instance(instance, field, housekeep, **kwargs):
+    fieldfile = getattr(instance, field.name)
+    for key in field.formats:
+        try:
+            fieldfile.process(key, **kwargs)
+        except Exception as exc:
+            if housekeep == "blank-on-failure":
+                field.save_form_data(instance, "")
+
+            return instance, [
+                f"Error while processing {fieldfile.name} ({field.field_label}, #{instance.pk}):\n{exc}\n"
+            ]
+
+    return instance, None
