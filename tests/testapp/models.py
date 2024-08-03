@@ -38,6 +38,11 @@ class Model(AbstractModel):
     pass
 
 
+class ProxyModel(Model):
+    class Meta:
+        proxy = True
+
+
 class ModelWithOptional(models.Model):
     image = ImageField(_("image"), upload_to="images", blank=True, auto_add_fields=True)
 
