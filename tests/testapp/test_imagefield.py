@@ -53,22 +53,29 @@ class Test(BaseTest):
             ' alt=""/>',
         )
 
-    def test_proxy_model_generation(self):
-        """Behavior of a proxy model"""
+    def test_proxy_model(self):
+        """Proxy models should also automatically process images"""
         m = Model.objects.create(image="python-logo.png")
         self.assertEqual(
             contents("__processed__"),
             ["python-logo-24f8702383e7.png", "python-logo-e6a99ea713c8.png"],
         )
-        self._rmtree()
+        m.delete()
+        self.assertEqual(
+            contents("__processed__"),
+            [],
+        )
 
         m = ProxyModel.objects.create(image="python-logo.png")
-        # Proxy models currently do not autogenerate anything
-        self.assertEqual(contents("__processed__"), [])
-
-        # They still know how to generate their parent model's images
-        m.image.process("desktop")
-        self.assertEqual(contents("__processed__"), ["python-logo-e6a99ea713c8.png"])
+        self.assertEqual(
+            contents("__processed__"),
+            ["python-logo-24f8702383e7.png", "python-logo-e6a99ea713c8.png"],
+        )
+        m.delete()
+        self.assertEqual(
+            contents("__processed__"),
+            [],
+        )
 
     def test_no_ppoi_admin(self):
         client = self.login()

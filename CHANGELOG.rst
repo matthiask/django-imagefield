@@ -10,6 +10,8 @@ Next version
 - Started using a process pool to process images in parallel in
   ``process_imagefields``.
 - Added Django 5.1rc1 to the CI, removed 4.1 (3.2 is still there).
+- Attached signal handlers to model subclasses as well, so that proxy models
+  are supported too.
 
 
 0.18 (2023-12-07)

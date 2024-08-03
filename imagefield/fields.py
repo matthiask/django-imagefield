@@ -359,13 +359,6 @@ class ImageField(models.ImageField):
         if all((not cls._meta.abstract, not cls._meta.swapped)):
             IMAGEFIELDS.append(self)
 
-            signals.post_init.connect(self._cache_previous, sender=cls)
-
-            autogenerate = settings.IMAGEFIELD_AUTOGENERATE
-            if autogenerate is True or self.field_label in autogenerate:
-                signals.post_save.connect(self._generate_files, sender=cls)
-                signals.post_delete.connect(self._clear_generated_files, sender=cls)
-
     def formfield(self, **kwargs):
         kwargs["widget"] = with_preview_and_ppoi(
             kwargs.get("widget", ClearableFileInput),
@@ -484,6 +477,20 @@ class ImageField(models.ImageField):
                 )
             )
         return errors
+
+
+def _register_signal_handlers(sender, **kwargs):
+    for field in IMAGEFIELDS:
+        if issubclass(sender, field.model):
+            signals.post_init.connect(field._cache_previous, sender=sender)
+
+            autogenerate = settings.IMAGEFIELD_AUTOGENERATE
+            if autogenerate is True or field.field_label in autogenerate:
+                signals.post_save.connect(field._generate_files, sender=sender)
+                signals.post_delete.connect(field._clear_generated_files, sender=sender)
+
+
+signals.class_prepared.connect(_register_signal_handlers)
 
 
 class PPOIField(models.CharField):
