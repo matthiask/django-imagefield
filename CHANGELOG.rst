@@ -6,6 +6,10 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+
+0.19 (2024-08-03)
+~~~~~~~~~~~~~~~~~
+
 - Updated the pre-commit configuration, switched to biomejs.
 - Started using a process pool to process images in parallel in
   ``process_imagefields``.
