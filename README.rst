@@ -263,6 +263,45 @@ by way of its ``fieldfile.instance`` attribute and use those
 informations to customize the pipeline.
 
 
+Settings
+========
+
+django-imagefield supports a few settings to customize aspects of its behavior.
+
+The default settings are as follows:
+
+.. code-block:: python
+
+    # Automatically generate and delete images when saving and deleting models.
+    # Can either be a boolean or a list of "app.model.field" strings. It's
+    # recommended to set this to False for some types of batch processing since
+    # updating the images may slow things down a lot.
+    IMAGEFIELD_AUTOGENERATE = True
+    # The image field doesn't generally need a cache, but it's definitely
+    # useful for admin thumbnails and the versatile image proxy. The timeout
+    # can be configured here. By default, a random duration between 170 and
+    # 190 days is used, so that the cache doesn't expire at the same time for
+    # all images when running several server processes.
+    IMAGEFIELD_CACHE_TIMEOUT = lambda: randint(170 * 86400, 190 * 86400)
+    # See above.
+    IMAGEFIELD_FORMATS = {}
+    # Whether images should be deeply validated when saving them. It can be
+    # useful to opt out of this for batch processing.
+    IMAGEFIELD_VALIDATE_ON_SAVE = True
+    # Errors while processing images lead to exceptions. Sometimes it's
+    # desirable to only log those exceptions but fall back to the original
+    # image. This setting let's you do that. Useful when you have many images
+    # which haven't been verified by the image field.
+    IMAGEFIELD_SILENTFAILURE = False
+    # Add support for instance.image.crop.WxH and instance.image.thumbnail.WxH
+    # An easier path to migrate away from django-versatileimagefield.
+    IMAGEFIELD_VERSATILEIMAGEPROXY = False
+    # How many folders and subfolders are created for processed images. The
+    # default value is 1 for backwards compatibility, it's recommended to
+    # increase the value to 2 or 3.
+    IMAGEFIELD_BIN_DEPTH = 1
+
+
 Development
 ===========
 

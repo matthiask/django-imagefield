@@ -6,6 +6,9 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+- Added support for setting ``IMAGEFIELD_AUTOGENERATE = False``. Previously,
+  only ``True`` or an iterable were supported.
+
 
 0.19 (2024-08-03)
 ~~~~~~~~~~~~~~~~~

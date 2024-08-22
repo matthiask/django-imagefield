@@ -485,7 +485,11 @@ def _register_signal_handlers(sender, **kwargs):
             signals.post_init.connect(field._cache_previous, sender=sender)
 
             autogenerate = settings.IMAGEFIELD_AUTOGENERATE
-            if autogenerate is True or field.field_label in autogenerate:
+            if (
+                autogenerate is True
+                or autogenerate
+                and field.field_label in autogenerate
+            ):
                 signals.post_save.connect(field._generate_files, sender=sender)
                 signals.post_delete.connect(field._clear_generated_files, sender=sender)
 
