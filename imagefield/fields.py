@@ -193,7 +193,7 @@ class ImageFieldFile(files.ImageFieldFile):
         return context
 
     def process(self, spec, *, force=False):
-        if isinstance(spec, (list, tuple)):
+        if isinstance(spec, list | tuple):
             processors = spec
             spec = "<ad hoc>"
         elif callable(spec):

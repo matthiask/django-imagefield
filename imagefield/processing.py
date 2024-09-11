@@ -8,7 +8,7 @@ def build_handler(processors, handler=None):
     handler = handler or (lambda image, context: image)
 
     for part in reversed(processors):
-        if isinstance(part, (list, tuple)):
+        if isinstance(part, list | tuple):
             handler = PROCESSORS[part[0]](handler, *part[1:])
         else:
             handler = PROCESSORS[part](handler)
