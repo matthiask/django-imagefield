@@ -5,41 +5,37 @@
       point.style.top = `${img.clientHeight * y}px`
     }
 
-    Array.prototype.slice
-      .call(document.querySelectorAll(".imagefield[data-ppoi-id]"))
-      .forEach((field) => {
-        if (!field.dataset.ppoiId) return
-        const ppoiField = document.querySelector(`#${field.dataset.ppoiId}`)
-        if (!ppoiField) return
+    for (const field of document.querySelectorAll(
+      ".imagefield[data-ppoi-id]",
+    )) {
+      if (!field.dataset.ppoiId) return
+      const ppoiField = document.querySelector(`#${field.dataset.ppoiId}`)
+      if (!ppoiField) return
 
-        const point = document.createElement("div")
-        const img = field.querySelector("img")
-        point.className = "imagefield-point opaque"
-        img.parentNode.appendChild(point)
+      const point = document.createElement("div")
+      const img = field.querySelector("img")
+      point.className = "imagefield-point opaque"
+      img.parentNode.appendChild(point)
 
-        setTimeout(() => {
-          point.className = "imagefield-point"
-        }, 1000)
+      setTimeout(() => {
+        point.className = "imagefield-point"
+      }, 1000)
 
-        const matches = ppoiField.value.match(/^([.0-9]+)x([.0-9]+)$/)
-        if (matches) {
-          movePoint(
-            point,
-            img,
-            Number.parseFloat(matches[1]),
-            Number.parseFloat(matches[2]),
-          )
-        } else {
-          movePoint(point, img, 0.5, 0.5)
-        }
-      })
+      const matches = ppoiField.value.match(/^([.0-9]+)x([.0-9]+)$/)
+      if (matches) {
+        movePoint(
+          point,
+          img,
+          Number.parseFloat(matches[1]),
+          Number.parseFloat(matches[2]),
+        )
+      } else {
+        movePoint(point, img, 0.5, 0.5)
+      }
+    }
 
     document.body.addEventListener("click", (e) => {
-      if (
-        e.target &&
-        e.target.matches &&
-        e.target.matches("img.imagefield-preview-image")
-      ) {
+      if (e.target?.matches?.("img.imagefield-preview-image")) {
         const field = e.target.closest(".imagefield[data-ppoi-id]")
         if (!field.dataset.ppoiId) return
         const ppoiField = document.querySelector(`#${field.dataset.ppoiId}`)
