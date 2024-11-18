@@ -10,6 +10,8 @@ Next version
   only ``True`` or an iterable were supported.
 - Dropped compatibility with Python 3.8 and 3.9.
 - Added Python 3.13.
+- Excluded Pillow 11.0.0 from the list of supported Pillow versions, see
+  `#8535 <https://github.com/python-pillow/Pillow/issues/8530>`__.
 
 
 0.19 (2024-08-03)

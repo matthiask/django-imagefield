@@ -33,7 +33,7 @@ dynamic = [
   "version",
 ]
 dependencies = [
-  "pillow>=9",
+  "pillow>=9,!=11",
 ]
 optional-dependencies.tests = [
   "coverage",
