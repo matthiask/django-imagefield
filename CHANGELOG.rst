@@ -6,6 +6,9 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+0.20 (2024-11-18)
+~~~~~~~~~~~~~~~~~
+
 - Added support for setting ``IMAGEFIELD_AUTOGENERATE = False``. Previously,
   only ``True`` or an iterable were supported.
 - Dropped compatibility with Python 3.8 and 3.9.
