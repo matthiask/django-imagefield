@@ -6,6 +6,11 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+- Documented the ``preview`` spec used in the preview widget.
+- Started masquerading our custom model fields as default Django image and char
+  fields.
+
+
 0.20 (2024-11-18)
 ~~~~~~~~~~~~~~~~~
 

@@ -338,6 +338,10 @@ class ImageField(models.ImageField):
     def formats(self):
         return settings.IMAGEFIELD_FORMATS.get(self.field_label, self._formats)
 
+    def deconstruct(self):
+        name, _path, args, kwargs = super().deconstruct()
+        return (name, "django.db.models.ImageField", args, kwargs)
+
     def contribute_to_class(self, cls, name, **kwargs):
         if self._auto_add_fields:
             if self.width_field is None:
@@ -502,6 +506,10 @@ class PPOIField(models.CharField):
         kwargs.setdefault("default", "0.5x0.5")
         kwargs.setdefault("max_length", 20)
         super().__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, _path, args, kwargs = super().deconstruct()
+        return (name, "django.db.models.CharField", args, kwargs)
 
     def formfield(self, **kwargs):
         kwargs["widget"] = PPOIWidget
