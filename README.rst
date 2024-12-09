@@ -133,6 +133,17 @@ You should make sure to add the ``form.media`` to your page template's ``<head>`
 Retrieve the image URL in your template like, ``instance.image.thumb``.
 
 
+Forms
+=====
+
+The form widget builds on top of the default Django image field which allows
+resetting the value of the field; it additionally shows a preview image, and if
+there's a linked PPOI field, a PPOI picker.
+
+The default preview is a max. 300x300 thumbnail. You can customize this by
+adding a ``preview`` format spec to the list of formats.
+
+
 Image processors
 ================
 
