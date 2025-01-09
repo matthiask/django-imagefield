@@ -6,6 +6,9 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+- Rewrote ``process_imagefields`` to use the multiprocessing module, which
+  hopefully improves compatibility on macOS.
+
 
 0.21 (2024-12-09)
 ~~~~~~~~~~~~~~~~~

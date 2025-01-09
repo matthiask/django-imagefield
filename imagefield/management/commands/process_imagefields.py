@@ -1,5 +1,5 @@
+import multiprocessing as mp
 import sys
-from concurrent.futures import ProcessPoolExecutor
 from fnmatch import fnmatch
 from functools import partial
 
@@ -87,6 +87,8 @@ class Command(BaseCommand):
                 force=options.get("force"),
             )
 
+        pool = mp.Pool()
+
         fn = partial(
             _process_instance,
             field=field,
@@ -94,9 +96,9 @@ class Command(BaseCommand):
             force=options.get("force"),
         )
 
-        with ProcessPoolExecutor() as executor:
+        try:
             for index, (instance, errors) in enumerate(
-                executor.map(fn, queryset.iterator(chunk_size=100))
+                pool.imap(fn, queryset.iterator(chunk_size=100))
             ):
                 if errors:
                     self.stderr.write("\n".join(errors))
@@ -110,6 +112,10 @@ class Command(BaseCommand):
                 # if not done already
                 instance._skip_generate_files = True
                 instance.save()
+
+        finally:
+            pool.close()
+            pool.join()
 
         self.stdout.write("\r|{}| {}/{}".format("*" * 50, count, count))
 
