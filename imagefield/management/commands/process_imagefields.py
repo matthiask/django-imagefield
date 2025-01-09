@@ -26,6 +26,12 @@ class Command(BaseCommand):
             help="Run house-keeping tasks.",
         )
         parser.add_argument(
+            "--no-parallel",
+            action="store_true",
+            dest="no_parallel",
+            help="Process images sequentially without parallelization.",
+        )
+        parser.add_argument(
             "field",
             nargs="*",
             type=str,
@@ -87,8 +93,6 @@ class Command(BaseCommand):
                 force=options.get("force"),
             )
 
-        pool = mp.Pool()
-
         fn = partial(
             _process_instance,
             field=field,
@@ -96,9 +100,9 @@ class Command(BaseCommand):
             force=options.get("force"),
         )
 
-        try:
+        if options.get("no_parallel"):
             for index, (instance, errors) in enumerate(
-                pool.imap(fn, queryset.iterator(chunk_size=100))
+                map(fn, queryset.iterator(chunk_size=100))
             ):
                 if errors:
                     self.stderr.write("\n".join(errors))
@@ -112,10 +116,28 @@ class Command(BaseCommand):
                 # if not done already
                 instance._skip_generate_files = True
                 instance.save()
+        else:
+            pool = mp.Pool()
+            try:
+                for index, (instance, errors) in enumerate(
+                    pool.imap(fn, queryset.iterator(chunk_size=100))
+                ):
+                    if errors:
+                        self.stderr.write("\n".join(errors))
 
-        finally:
-            pool.close()
-            pool.join()
+                    progress = "*" * (50 * index // count)
+                    self.stdout.write(
+                        f"\r|{progress.ljust(50)}| {index + 1}/{count}", ending=""
+                    )
+
+                    # Save instance once for good measure; fills in width/height
+                    # if not done already
+                    instance._skip_generate_files = True
+                    instance.save()
+
+            finally:
+                pool.close()
+                pool.join()
 
         self.stdout.write("\r|{}| {}/{}".format("*" * 50, count, count))
 
