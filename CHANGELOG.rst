@@ -9,6 +9,7 @@ Next version
 - Rewrote ``process_imagefields`` to use the multiprocessing module, which
   hopefully improves compatibility on macOS.
 - Introduced a ``--no-parallel`` argument to ``process_imagefields``.
+- Added Django 5.2a1.
 
 
 0.21 (2024-12-09)
