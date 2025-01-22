@@ -2,7 +2,6 @@ import hashlib
 import io
 import logging
 import os
-import re
 import warnings
 from collections import namedtuple
 from random import randint
@@ -186,7 +185,6 @@ class ImageFieldFile(files.ImageFieldFile):
             spec = (
                 "|".join(str(p) for p in context.processors) + "|" + str(context.ppoi)
             )
-            spec = re.sub(r"\bu('|\")", "\\1", spec)  # Strip u"" prefixes on PY2
             p2 = hashdigest(spec)
             context.name = f"{base.path}/{base.basename}{p2[:12]}{context.extension}"
         context.seal()

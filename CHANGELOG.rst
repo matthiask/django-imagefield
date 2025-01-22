@@ -10,6 +10,8 @@ Next version
   hopefully improves compatibility on macOS.
 - Introduced a ``--no-parallel`` argument to ``process_imagefields``.
 - Added Django 5.2a1.
+- Dropped the Python 2 fallback from the code. We don't support Python 2
+  anymore.
 
 
 0.21 (2024-12-09)
