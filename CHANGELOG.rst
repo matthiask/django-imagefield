@@ -6,6 +6,10 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+
+0.22 (2025-01-22)
+~~~~~~~~~~~~~~~~~
+
 - **Important:** Changed the image field to no longer automatically clean up
   processed images when deleting the model instance or when changing the image
   field itself. This behavior made it hard to reuse image field values when
