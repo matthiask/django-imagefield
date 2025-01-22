@@ -6,6 +6,11 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+- **Important:** Changed the image field to no longer automatically clean up
+  processed images when deleting the model instance or when changing the image
+  field itself. This behavior made it hard to reuse image field values when
+  copying model data. Instead, processed images are only deleted when the image
+  file itself is deleted (e.g. using ``object.image.delete()``).
 - Rewrote ``process_imagefields`` to use the multiprocessing module, which
   hopefully improves compatibility on macOS.
 - Introduced a ``--no-parallel`` argument to ``process_imagefields``.

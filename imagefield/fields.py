@@ -292,6 +292,15 @@ class ImageFieldFile(files.ImageFieldFile):
 
     save.alters_data = True
 
+    def delete(self, save=True):  # noqa: FBT002
+        filename = self.name
+
+        super().delete(save=save)
+
+        self.field._clear_generated_files_for(self, filename)
+
+    delete.alters_data = True
+
 
 def verified(img):
     # Anything which exercises the machinery so that we may
@@ -394,26 +403,12 @@ class ImageField(models.ImageField):
             if not data and self.ppoi_field:
                 setattr(instance, self.ppoi_field, "0.5x0.5")
 
-    def _cache_previous(self, instance, **kwargs):
-        # TODO We still should find a way to cache the previous value.
-        # See testapp.test_imagefield.Test.test_deferred_imagefields
-        if self.name in instance.get_deferred_fields():
-            return
-        f = getattr(instance, self.name)
-        setattr(instance, "_previous_%s" % self.name, (f.name, f._ppoi()))
-
     def _generate_files(self, instance, **kwargs):
         # Set by the process_imagefields management command
         if getattr(instance, "_skip_generate_files", False):
             return
 
         f = getattr(instance, self.name)
-
-        previous = getattr(instance, "_previous_%s" % self.name, None)
-        # TODO This will not detect replaced/overwritten files.
-        if previous and previous[0] and previous != (f.name, f._ppoi()):
-            logger.info("Clearing generated files for %s", repr(previous))
-            self._clear_generated_files_for(f, previous[0])
 
         if f.name:
             for spec in f.field.formats:
@@ -484,8 +479,6 @@ class ImageField(models.ImageField):
 def _register_signal_handlers(sender, **kwargs):
     for field in IMAGEFIELDS:
         if issubclass(sender, field.model):
-            signals.post_init.connect(field._cache_previous, sender=sender)
-
             autogenerate = settings.IMAGEFIELD_AUTOGENERATE
             if (
                 autogenerate is True
@@ -493,7 +486,6 @@ def _register_signal_handlers(sender, **kwargs):
                 and field.field_label in autogenerate
             ):
                 signals.post_save.connect(field._generate_files, sender=sender)
-                signals.post_delete.connect(field._clear_generated_files, sender=sender)
 
 
 signals.class_prepared.connect(_register_signal_handlers)

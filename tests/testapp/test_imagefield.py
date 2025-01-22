@@ -55,26 +55,11 @@ class Test(BaseTest):
 
     def test_proxy_model(self):
         """Proxy models should also automatically process images"""
-        m = Model.objects.create(image="python-logo.png")
-        self.assertEqual(
-            contents("__processed__"),
-            ["python-logo-24f8702383e7.png", "python-logo-e6a99ea713c8.png"],
-        )
-        m.delete()
-        self.assertEqual(
-            contents("__processed__"),
-            [],
-        )
 
-        m = ProxyModel.objects.create(image="python-logo.png")
+        ProxyModel.objects.create(image="python-logo.png")
         self.assertEqual(
             contents("__processed__"),
             ["python-logo-24f8702383e7.png", "python-logo-e6a99ea713c8.png"],
-        )
-        m.delete()
-        self.assertEqual(
-            contents("__processed__"),
-            [],
         )
 
     def test_no_ppoi_admin(self):
@@ -102,7 +87,7 @@ class Test(BaseTest):
         )
 
     def test_upload(self):
-        """Adding and updating images does not leave old thumbs around"""
+        """Adding and updating images creates thumbs"""
         client = self.login()
         self.assertEqual(contents("__processed__"), [])
 
@@ -136,7 +121,12 @@ class Test(BaseTest):
         self.assertRedirects(response, "/admin/testapp/model/")
         self.assertEqual(
             contents("__processed__"),
-            ["python-logo-096bade32f42.png", "python-logo-2f5189af7eb3.png"],
+            [
+                "python-logo-096bade32f42.png",
+                "python-logo-24f8702383e7.png",
+                "python-logo-2f5189af7eb3.png",
+                "python-logo-e6a99ea713c8.png",
+            ],
         )
 
     def test_autorotate(self):
@@ -306,8 +296,6 @@ class Test(BaseTest):
                 "python-logo-e6a99ea713c8.jpg",
             ],
         )
-        m.delete()
-        self.assertEqual(contents("__processed__"), [])
 
     def test_adhoc_lowlevel(self):
         """Low-level processing pipelines; no saving of generated images"""
@@ -502,3 +490,17 @@ class Test(BaseTest):
 
         m.ppoi = None
         self.assertEqual(m.image._ppoi(), [0.5, 0.5])
+
+    def test_deletion_cleanup(self):
+        """Deleting the image file also deletes processed images"""
+        with openimage("python-logo.png") as f:
+            m = Model()
+            m.image.save("stuff.png", ContentFile(f.read()), save=True)
+
+        self.assertEqual(
+            contents("__processed__"),
+            ["stuff-24f8702383e7.png", "stuff-e6a99ea713c8.png"],
+        )
+
+        m.image.delete()
+        self.assertEqual(contents("__processed__"), [])
